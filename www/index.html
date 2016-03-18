@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>TypeDNA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link type="text/css" href="./css/bootstrap.min.css" rel="stylesheet" media="all">
+    <link type="text/css" href="./css/bootstrap-theme.min.css" rel="stylesheet" media="all">
+  </head>
+  <body>
+    <div class="container-fluid">
+      <nav class="row">
+        <div class="col-xs-6 col-md-4">
+          <ul class="nav nav-pills">
+            <li role="presentation" class="active">
+              <a href="#">Project Flow</a>
+            </li>
+            <li role="presentation">
+              <a href="#">Author View</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-xs-12 col-md-8 date-range">
+          <!-- TODO: Make this like... a month ago... -->
+          <label> Starting from
+            <input class="text" value="" type="date" name="min">
+          </label>
+          <label> to
+            <input class="text" value="" type="date" name="max">
+          </label>
+
+          <label> Cluster by
+            <select name="step">
+              <option value="year">Year</option>
+              <option value="month">Month</option>
+              <option value="week">Week</option>
+              <option value="day">Day</option>
+              <option value="hour">Hour</option>
+            </select>
+          </label>
+
+
+          <label> Show classes
+            <select name="filter">
+              <option value=""> Top 10 </option>
+              <option value=""> Top 100 </option>
+              <option value=""> All </option>
+            </select>
+          </label>
+
+        </div>
+      </nav>
+
+      <main class="row">
+      <div class="dna-table">
+      </div>
+      </main>
+    </div>
+  </body>
+</html>
