@@ -17,11 +17,13 @@ import org.junit.Before;
 import spoon.compiler.SpoonCompiler;
 import spoon.compiler.SpoonResource;
 import spoon.compiler.SpoonResourceHelper;
+import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtType;
 import spoon.reflect.factory.Factory;
 import spoon.reflect.factory.FactoryImpl;
+import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.support.DefaultCoreFactory;
 import spoon.support.StandardEnvironment;
@@ -50,8 +52,8 @@ public class DiffSpoonImpl implements DiffSpoon {
 	public static final Logger logger = Logger.getLogger(DiffSpoonImpl.class);
 	protected Factory factory = null;
 	private SpoonGumTreeBuilder scanner = new SpoonGumTreeBuilder();
-	private HashMap<String,Integer> libs = new HashMap<String,Integer>();
-	private HashMap<String,Integer> hist = new HashMap<String,Integer>();
+	private HashMap<String,Integer> declarations = new HashMap<String,Integer>();
+	private HashMap<String,Integer> generic_declarations = new HashMap<String,Integer>();
 
 	static {
 			// default 0.3
@@ -86,41 +88,19 @@ public class DiffSpoonImpl implements DiffSpoon {
 	}
 
 	public void printStats() {
-		System.out.print("#HISTOGRAM |");
-
-		for (String key : hist.keySet()) {
-		    System.out.format("%12s |", key);
-		}
-		System.out.println();
-
-		System.out.print("#HISTOGRAM |");
-
-		for (Integer value : hist.values()) {
-		    System.out.format("%12d |", value);
-		}
-
-		System.out.println();
-
-		for (HashMap.Entry<String, Integer> entry : libs.entrySet()) {
+		for (HashMap.Entry<String, Integer> entry : declarations.entrySet()) {
 		    String key = entry.getKey();
 		    Integer value = entry.getValue();
 
-		    System.out.println("#LIB | " + key + " | " + value);
+		    System.out.println("#DECLARE | " + key + " | " + value);
 		}
-	}
 
-	private void initHist() {
-		hist.put("If", 0);
-		hist.put("Try", 0);
-		hist.put("Catch", 0);
-		hist.put("Do", 0);
-		hist.put("While", 0);
-		hist.put("For", 0);
-		hist.put("ForEach", 0);
-		hist.put("Generic", 0);
-		hist.put("Class",0);
-		hist.put("Inheritance", 0);
-		hist.put("Interface", 0);
+		for (HashMap.Entry<String, Integer> entry : generic_declarations.entrySet()) {
+		    String key = entry.getKey();
+		    Integer value = entry.getValue();
+
+		    System.out.println("#GENERIC_DECLARE | " + key + " | " + value);
+		}
 	}
 
 	private void increment(HashMap<String,Integer> map, String key) {
@@ -132,8 +112,6 @@ public class DiffSpoonImpl implements DiffSpoon {
 		this.factory = factory;
 		logger.setLevel(Level.DEBUG);
 		factory.getEnvironment().setNoClasspath(true);
-
-		initHist();
 	}
 
 	public DiffSpoonImpl() {
@@ -141,8 +119,6 @@ public class DiffSpoonImpl implements DiffSpoon {
 				new StandardEnvironment());
 		logger.setLevel(Level.DEBUG);
 		factory.getEnvironment().setNoClasspath(true);
-
-		initHist();
 	}
 
 	@Deprecated
@@ -360,6 +336,15 @@ public class DiffSpoonImpl implements DiffSpoon {
 						out += ":" + tsplit;
 				}
 			}
+		} else if (type.equals("FieldRead")) {
+			CtElement el = null;
+			el = (CtElement) t.getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT);
+			if (el instanceof CtFieldRead) {
+				CtFieldRead field = (CtFieldRead)el;
+				//CtFieldReference<?> ref = field.getVariable();
+				//CtTypeReference<?> typeVar = ref.getDeclaringType();
+				out += " :FR: " + field.getType().toString();
+			}
 		}
 
 		b.append(out + " \n");
@@ -379,7 +364,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 		if (type == null) type = "null";
 		
 		if (type.equals("Class")) {
-			increment(hist, type);
+			//increment(hist, type);
 
 			// Get Class
 			CtElement el = null;
@@ -389,7 +374,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 			// Has super class
 			CtTypeReference<?> superClass = clazz.getSuperclass();
 			if (superClass != null) {
-				increment(hist, "Inheritance");
+				//increment(hist, "Inheritance");
 			}
 
 			// Has interface
@@ -397,11 +382,9 @@ public class DiffSpoonImpl implements DiffSpoon {
 			Iterator<CtTypeReference<?>> itr = interfaces.iterator();
 			while(itr.hasNext()) {
 				CtTypeReference<?> superInterface = itr.next();
-				increment(hist, "Interface");
+				//increment(hist, "Interface");
 			}
 		} else if (type.equals("StaticType")) {
-			increment(libs, t.getLabel());
-
 			CtElement el = null;
 			el = (CtElement) t.getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT);
 			if (el instanceof CtFieldImpl) {
@@ -410,31 +393,18 @@ public class DiffSpoonImpl implements DiffSpoon {
 
 				// Check if generic
 				if(!typeVar.isPrimitive() && typeVar.toString().contains("<") && typeVar.toString().contains(">")) {
-					increment(hist, "Generic");
+					//increment(hist, "Generic");
+					increment(generic_declarations, t.getLabel());
 
 					// Get generic types
 					String types = typeVar.toString();
-					types = types.replaceAll(".*<", "").replaceAll(">", "").replaceAll(" ", "");
-					String[] splited = types.split(",");
-					for (String tsplit : splited) {
-						increment(libs, tsplit);
-					}
+					increment(declarations, types);
+				} else {
+					increment(declarations, t.getLabel());
 				}
 			}
-		} else if (type.equals("If")) {
-			increment(hist, type);
-		} else if (type.equals("Try")) {
-			increment(hist, type);
-		} else if (type.equals("Catch")) {
-			increment(hist, type);
-		} else if (type.equals("Do")) {
-			increment(hist, type);
-		} else if (type.equals("While")) {
-			increment(hist, type);
-		} else if (type.equals("For")) {
-			increment(hist, type);
-		}  else if (type.equals("ForEach")) {
-			increment(hist, type);
+		} else {
+
 		}
 
 
@@ -469,24 +439,22 @@ public class DiffSpoonImpl implements DiffSpoon {
 			System.out.println(f2.getPath());
 			CtType<?> clazz = ds.getCtClass(f2);
 			ITree rootSpoon = ds.getTree(clazz);
-			ds.treeStats(rootSpoon);
+			//ds.treeStats(rootSpoon);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (!f2.getPath().contains(".java") && args[0].equals("cmp")) {
 			System.out.println("AST DIFF: NEW FILE");
 			System.out.println(f1.getPath());
 			CtType<?> clazz = ds.getCtClass(f1);
 			ITree rootSpoon = ds.getTree(clazz);
-			ds.treeStats(rootSpoon);
+			//ds.treeStats(rootSpoon);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (args[0].equals("cmp")) {
 			// File Changed
 			CtDiffImpl result = ds.compare(f1, f2);
 			for (Action action : result.getRootActions()) {
 				String actionType = action.getClass().getSimpleName();
-				if (actionType.equals("Update") || actionType.equals("Insert"))
-				{
-					ds.treeStats(action.getNode());
-				}
+				ds.treeStats(action.getNode());
+				//System.out.println(ds.printTree(":", action.getNode()));
 			}
 			//System.out.println(result.toString());
 		}
