@@ -52,8 +52,28 @@ public class DiffSpoonImpl implements DiffSpoon {
 	public static final Logger logger = Logger.getLogger(DiffSpoonImpl.class);
 	protected Factory factory = null;
 	private SpoonGumTreeBuilder scanner = new SpoonGumTreeBuilder();
-	private HashMap<String,Integer> declarations = new HashMap<String,Integer>();
-	private HashMap<String,Integer> generic_declarations = new HashMap<String,Integer>();
+
+	private static class ASTAction {
+		public enum Action {
+			ADD, UPDATE, DELETE
+		}
+
+		public Action action = Action.ADD;
+
+		public HashMap<String,Integer> declarations = new HashMap<String,Integer>();
+		public HashMap<String,Integer> generic_declarations = new HashMap<String,Integer>();
+		public HashMap<String,Integer> used_generic_declarations = new HashMap<String,Integer>();
+		public HashMap<String,Integer> invoctions = new HashMap<String,Integer>();
+
+		public ASTAction(Action action) {
+			this.action = action;
+		}
+	}
+
+	private ASTAction[] actions = new ASTAction[]
+		{new ASTAction(ASTAction.Action.ADD), 
+		new ASTAction(ASTAction.Action.UPDATE), 
+		new ASTAction(ASTAction.Action.DELETE)};
 
 	static {
 			// default 0.3
@@ -88,25 +108,51 @@ public class DiffSpoonImpl implements DiffSpoon {
 	}
 
 	public void printStats() {
-		for (HashMap.Entry<String, Integer> entry : declarations.entrySet()) {
-		    String key = entry.getKey();
-		    Integer value = entry.getValue();
+		for (ASTAction a : actions) {
+			String type = "INSERT";
+			if (a.action == ASTAction.Action.ADD) {
+				type = "INSERT";
+			}
 
-		    System.out.println("#DECLARE | " + key + " | " + value);
+			if (a.action == ASTAction.Action.UPDATE) {
+				type = "MODIFIED";
+			}
+
+			if (a.action == ASTAction.Action.DELETE) {
+				type = "DELETE";
+			}
+
+			for (HashMap.Entry<String, Integer> entry : a.declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    System.out.println("#DECLARE | " + type + " | " + key + " | " + value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : a.generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    System.out.println("#GENERIC_DECLARE | " + type + " | " + key + " | " + value);
+			}
 		}
-
-		for (HashMap.Entry<String, Integer> entry : generic_declarations.entrySet()) {
-		    String key = entry.getKey();
-		    Integer value = entry.getValue();
-
-		    System.out.println("#GENERIC_DECLARE | " + key + " | " + value);
-		}
+		
 	}
 
 	private void increment(HashMap<String,Integer> map, String key) {
 		int count = map.containsKey(key) ? map.get(key) : 0;
 		map.put(key, count + 1);
 	}
+
+	private ASTAction getASTAction(ASTAction.Action action) {
+		for (ASTAction a : actions) {
+			if (a.action == action)
+				return a;
+		}
+
+		return null;
+	}
+
 
 	public DiffSpoonImpl(Factory factory) {
 		this.factory = factory;
@@ -359,7 +405,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 
 	}
 
-	public void treeStats(ITree t) {
+	public void treeStats(ITree t, ASTAction.Action action) {
 		String type = scanner.getTypeLabel(t.getType());
 		if (type == null) type = "null";
 		
@@ -394,13 +440,13 @@ public class DiffSpoonImpl implements DiffSpoon {
 				// Check if generic
 				if(!typeVar.isPrimitive() && typeVar.toString().contains("<") && typeVar.toString().contains(">")) {
 					//increment(hist, "Generic");
-					increment(generic_declarations, t.getLabel());
+					increment(getASTAction(action).generic_declarations, t.getLabel());
 
 					// Get generic types
 					String types = typeVar.toString();
-					increment(declarations, types);
+					increment(getASTAction(action).declarations, types);
 				} else {
-					increment(declarations, t.getLabel());
+					increment(getASTAction(action).declarations, t.getLabel());
 				}
 			}
 		} else {
@@ -411,7 +457,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 		Iterator<ITree> cIt = t.getChildren().iterator();
 		while (cIt.hasNext()) {
 			ITree c = cIt.next();
-			treeStats(c);
+			treeStats(c, action);
 		}
 		
 	}
@@ -439,21 +485,28 @@ public class DiffSpoonImpl implements DiffSpoon {
 			System.out.println(f2.getPath());
 			CtType<?> clazz = ds.getCtClass(f2);
 			ITree rootSpoon = ds.getTree(clazz);
-			//ds.treeStats(rootSpoon);
+			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (!f2.getPath().contains(".java") && args[0].equals("cmp")) {
 			System.out.println("AST DIFF: NEW FILE");
 			System.out.println(f1.getPath());
 			CtType<?> clazz = ds.getCtClass(f1);
 			ITree rootSpoon = ds.getTree(clazz);
-			//ds.treeStats(rootSpoon);
+			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (args[0].equals("cmp")) {
 			// File Changed
 			CtDiffImpl result = ds.compare(f1, f2);
 			for (Action action : result.getRootActions()) {
 				String actionType = action.getClass().getSimpleName();
-				ds.treeStats(action.getNode());
+				//System.out.println(actionType);
+				if (actionType.equals("Insert")) {
+					ds.treeStats(action.getNode(), ASTAction.Action.ADD);
+				} else if (actionType.equals("Update")) {
+					ds.treeStats(action.getNode(), ASTAction.Action.UPDATE);
+				} else if (actionType.equals("Delete")) {
+					ds.treeStats(action.getNode(), ASTAction.Action.DELETE);
+				}
 				//System.out.println(ds.printTree(":", action.getNode()));
 			}
 			//System.out.println(result.toString());
