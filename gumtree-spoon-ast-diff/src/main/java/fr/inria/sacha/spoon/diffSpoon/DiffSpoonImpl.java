@@ -63,7 +63,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 		public HashMap<String,Integer> declarations = new HashMap<String,Integer>();
 		public HashMap<String,Integer> generic_declarations = new HashMap<String,Integer>();
 		public HashMap<String,Integer> used_generic_declarations = new HashMap<String,Integer>();
-		public HashMap<String,Integer> invoctions = new HashMap<String,Integer>();
+		public HashMap<String,Integer> invocations = new HashMap<String,Integer>();
 
 		public ASTAction(Action action) {
 			this.action = action;
@@ -134,6 +134,20 @@ public class DiffSpoonImpl implements DiffSpoon {
 			    Integer value = entry.getValue();
 
 			    System.out.println("#GENERIC_DECLARE | " + type + " | " + key + " | " + value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : a.used_generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    System.out.println("#USED_IN_GENERIC_DECLARE | " + type + " | " + key + " | " + value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : a.invocations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    System.out.println("#INVOCATIONS | " + type + " | " + key + " | " + value);
 			}
 		}
 		
@@ -445,12 +459,17 @@ public class DiffSpoonImpl implements DiffSpoon {
 					// Get generic types
 					String types = typeVar.toString();
 					increment(getASTAction(action).declarations, types);
+
+					types = types.replaceAll(".*<", "").replaceAll(">", "").replaceAll(" ", "");
+					String[] splited = types.split(",");
+					for (String tsplit : splited)
+						increment(getASTAction(action).used_generic_declarations, tsplit);
 				} else {
 					increment(getASTAction(action).declarations, t.getLabel());
 				}
 			}
-		} else {
-
+		}  else if (type.equals("Invocation")) {
+			increment(getASTAction(action).invocations, t.getLabel());
 		}
 
 
@@ -482,21 +501,21 @@ public class DiffSpoonImpl implements DiffSpoon {
 		DiffSpoonImpl ds = new DiffSpoonImpl();
 		if (!f1.getPath().contains(".java") && args[0].equals("one")) {
 			System.out.println("AST DIFF: NEW FILE");
-			System.out.println(f2.getPath());
+			//System.out.println(f2.getPath());
 			CtType<?> clazz = ds.getCtClass(f2);
 			ITree rootSpoon = ds.getTree(clazz);
 			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (!f2.getPath().contains(".java") && args[0].equals("cmp")) {
 			System.out.println("AST DIFF: NEW FILE");
-			System.out.println(f1.getPath());
+			//System.out.println(f1.getPath());
 			CtType<?> clazz = ds.getCtClass(f1);
 			ITree rootSpoon = ds.getTree(clazz);
 			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (args[0].equals("cmp")) {
 			// File Changed
-			CtDiffImpl result = ds.compare(f1, f2);
+			CtDiffImpl result = ds.compare(f2, f1);
 			for (Action action : result.getRootActions()) {
 				String actionType = action.getClass().getSimpleName();
 				//System.out.println(actionType);
