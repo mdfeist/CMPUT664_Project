@@ -72,7 +72,7 @@ public class ActionClassifier {
 				ITree dest = mappings.getDst(a.getNode());
 				a.getNode().setMetadata(SpoonGumTreeBuilder.SPOON_OBJECT_DEST, dest.getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT));
 				//dstMvTrees.add(dest);
-				//originalActionsDst.put(dest, a);
+				originalActionsDst.put(dest, a);
 				//New
 				originalActionsSrc.put(a.getNode(), a);
 

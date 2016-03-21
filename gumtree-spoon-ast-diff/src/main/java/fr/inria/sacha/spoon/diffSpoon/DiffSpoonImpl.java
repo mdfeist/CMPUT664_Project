@@ -499,10 +499,10 @@ public class DiffSpoonImpl implements DiffSpoon {
 		File f2 = new File(args[2]);
 
 		DiffSpoonImpl ds = new DiffSpoonImpl();
-		if (!f1.getPath().contains(".java") && args[0].equals("one")) {
+		if (f1.getPath().contains(".java") && args[0].equals("one")) {
 			System.out.println("AST DIFF: NEW FILE");
 			//System.out.println(f2.getPath());
-			CtType<?> clazz = ds.getCtClass(f2);
+			CtType<?> clazz = ds.getCtClass(f1);
 			ITree rootSpoon = ds.getTree(clazz);
 			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
 			//System.out.println(ds.printTree(":", rootSpoon));
