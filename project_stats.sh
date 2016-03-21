@@ -37,8 +37,23 @@ do
 		echo "#COMMIT | $commit $last"
 		git difftool -y --tool=gumtree_cmp $commit $last
 	else
+		if [ ! -d "$CMPUT644_PROJECT/tmp" ]; then
+			mkdir $CMPUT644_PROJECT/tmp
+		fi
+
 		echo "#COMMIT | $commit"
-		git difftool -y --tool=gumtree $commit
+		git show --pretty="format:" --name-only $commit | while read file
+		do
+			if [[ $file == *".java"* ]]
+			then
+			  echo "#FILE ${file##*/}"
+			  fname=${commit: -5}_${file##*/}
+			  git show $commit:$file > $CMPUT644_PROJECT/tmp/$fname
+			  bash $CMPUT644_PROJECT/ast.sh one $CMPUT644_PROJECT/tmp/$fname /dev/null
+			fi 
+			
+		done
+		#git difftool -y --tool=gumtree $commit
 	fi
 	echo "#COMMIT_END"
 
