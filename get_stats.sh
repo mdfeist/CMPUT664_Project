@@ -1,40 +1,8 @@
 #!/bin/bash
 
+echo $1
 cd $1
 
 for d in */ ; do
-	echo "#PROJECT_START"
-	echo "#PROJECT_NAME | $d"
-	cd $d
-
-	last="0"
-
-	git log --reverse --format="%H %an" | while read line
-	do
-		#echo "$commit"
-		stringarray=($line)
-
-		commit=${stringarray[0]}
-		author=${stringarray[1]}
-
-		echo "#COMMIT_START"
-		echo "#AUTHOR | $author"
-		
-		if [ "$last" != "0" ]
-		then
-			echo "#COMMIT | $commit $last"
-			git difftool -y --tool=gumtree_cmp $commit $last
-		else
-			echo "#COMMIT | $commit"
-			git difftool -y --tool=gumtree $commit
-		fi
-		echo "#COMMIT_END"
-
-		last="$commit"
-	done
-
-
-	echo "#PROJECT_END"
-	
-	cd ..
+	bash $CMPUT664_PROJECT/project_stats.sh $d
 done
