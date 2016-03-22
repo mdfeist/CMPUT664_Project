@@ -445,6 +445,8 @@ public class DiffSpoonImpl implements DiffSpoon {
 				//increment(hist, "Interface");
 			}
 		} else if (type.equals("StaticType")) {
+			// Update
+			// ITree elementDest = (ITree) action.getNode().getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT_DEST);
 			CtElement el = null;
 			el = (CtElement) t.getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT);
 			if (el instanceof CtFieldImpl) {

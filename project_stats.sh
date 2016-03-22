@@ -28,9 +28,7 @@ do
 
 	echo "#COMMIT_START"
 	echo "#AUTHOR | $author"
-	echo "#DATE | $date"
-	echo "#TIME | $t"
-	echo "#TIMEZONE | $timeZone"
+	echo "#DATE | $date $t $timeZone"
 	
 	if [ "$last" != "0" ]
 	then
@@ -46,7 +44,6 @@ do
 		do
 			if [[ $file == *".java"* ]]
 			then
-			  echo "#FILE ${file##*/}"
 			  fname=${commit: -5}_${file##*/}
 			  git show $commit:$file > $CMPUT644_PROJECT/tmp/$fname
 			  bash $CMPUT644_PROJECT/ast.sh one $CMPUT644_PROJECT/tmp/$fname /dev/null
