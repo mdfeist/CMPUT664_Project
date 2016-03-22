@@ -1,0 +1,32 @@
+{
+    "---COMMENT---": "
+        Query for:
+
+            - Type declarations
+            - Types inocation and declarations
+            - Methods
+            - Classes edited
+
+        This is an example of {Type declarations, and invocations}
+
+        Types will be 'methods' for methods method
+    ",
+    "types": [
+        "list", "type", "names", "e.g.", "MyClass"
+    ],
+
+    "dates": [
+        {
+            "date": "2016-03-20 21:59:54 -0600",
+            "type": "MyClass",
+            "edit": "ADD",
+            "author": "name@example.com"
+        },
+        {
+            "date": "2016-03-20 21:59:54 -0600",
+            "type": "MyClass",
+            "edit": "REMOVE",
+            "author": "name@example.com"
+        }
+    ]
+}
