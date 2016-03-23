@@ -13,11 +13,12 @@ if [ ! -d "$GIT" ]; then
 	exit
 fi
 
-last="0"
+if [ ! -d "$CMPUT644_PROJECT/tmp" ]; then
+	mkdir $CMPUT644_PROJECT/tmp
+fi
 
 git log --reverse --date=iso8601 --format="%H %aE %ad" | while read line
 do
-	#echo "$commit"
 	stringarray=($line)
 
 	commit=${stringarray[0]}
@@ -26,20 +27,36 @@ do
 	t=${stringarray[3]}
 	timeZone=${stringarray[4]}
 
+	# Check if merge commit
+	FOUND=false
+	while read no_merge
+	do
+		if [ "$commit" = "$no_merge" ]; then
+			FOUND=true
+			break
+		fi
+	done < <(git log --reverse --no-merges --format="%H")
+
+	if [ "$FOUND" = false ]; then
+		continue
+	fi
+	
 	echo "#COMMIT_START"
 	echo "#AUTHOR | $author"
 	echo "#DATE | $date $t $timeZone"
-	
-	if [ "$last" != "0" ]
-	then
-		echo "#COMMIT | $commit $last"
-		git difftool -y --tool=gumtree_cmp $commit $last
-	else
-		if [ ! -d "$CMPUT644_PROJECT/tmp" ]; then
-			mkdir $CMPUT644_PROJECT/tmp
-		fi
+	echo "#COMMIT_ID | $commit"
+	echo "#COMMIT_MESSAGE_START"
+	git log --format=%B -n 1 $commit
+	echo "#COMMIT_MESSAGE_END"
+	echo "#FILES_TOUCHED_START"
+	git show --pretty="format:" --name-only $commit | sed -n '1!p'
+	echo "#FILES_TOUCHED_END"
 
-		echo "#COMMIT | $commit"
+	# Git Diff
+	git difftool -y --tool=gumtree_cmp --dir-diff=$CMPUT644_PROJECT/tmp $commit $commit^1 2>/dev/null
+
+	# IF commit has no parent
+	if [ $? -ne 0 ]; then
 		git show --pretty="format:" --name-only $commit | while read file
 		do
 			if [[ $file == *".java"* ]]
@@ -47,14 +64,11 @@ do
 			  fname=${commit: -5}_${file##*/}
 			  git show $commit:$file > $CMPUT644_PROJECT/tmp/$fname
 			  bash $CMPUT644_PROJECT/ast.sh one $CMPUT644_PROJECT/tmp/$fname /dev/null
-			fi 
-			
+			fi
 		done
-		#git difftool -y --tool=gumtree $commit
 	fi
-	echo "#COMMIT_END"
 
-	last="$commit"
+	echo "#COMMIT_END"
 done
 
 
