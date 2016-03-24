@@ -40,6 +40,17 @@ do
 	if [ "$FOUND" = false ]; then
 		continue
 	fi
+
+	# Skip large commits as probably not authors work
+	FILE_COUNT=0
+	while read no_merge
+	do
+		FILE_COUNT=$[$FILE_COUNT +1]
+	done < <(git show --pretty="format:" --name-only $commit | sed -n '1!p')
+
+	if [ $FILE_COUNT -gt 20 ]; then
+		continue
+	fi
 	
 	echo "#COMMIT_START"
 	echo "#AUTHOR | $author"
