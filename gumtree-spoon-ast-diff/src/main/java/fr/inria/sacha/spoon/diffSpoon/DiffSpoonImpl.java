@@ -55,18 +55,161 @@ public class DiffSpoonImpl implements DiffSpoon {
 
 	private static class ASTAction {
 		public enum Action {
-			ADD, UPDATE, DELETE
+			ADD, UPDATE, DELETE, NONE
 		}
 
-		public Action action = Action.ADD;
+		public Action action = Action.NONE;
 
 		public HashMap<String,Integer> declarations = new HashMap<String,Integer>();
 		public HashMap<String,Integer> generic_declarations = new HashMap<String,Integer>();
 		public HashMap<String,Integer> used_generic_declarations = new HashMap<String,Integer>();
 		public HashMap<String,Integer> invocations = new HashMap<String,Integer>();
 
+		public ASTAction() {}
+
 		public ASTAction(Action action) {
 			this.action = action;
+		}
+
+		private void increment(HashMap<String,Integer> map, String key, int value) {
+			int count = map.containsKey(key) ? map.get(key) : 0;
+			map.put(key, count + value);
+		}
+
+		public void add(ASTAction astAction) {
+			for (HashMap.Entry<String, Integer> entry : astAction.declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(declarations, key, value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : astAction.generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(generic_declarations, key, value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : astAction.used_generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(used_generic_declarations, key, value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : astAction.invocations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(invocations, key, value);
+			}
+		}
+
+		public void diff(ASTAction astAction) {
+			for (HashMap.Entry<String, Integer> entry : astAction.declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(declarations, key, -value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : astAction.generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(generic_declarations, key, -value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : astAction.used_generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(used_generic_declarations, key, -value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : astAction.invocations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    increment(invocations, key, -value);
+			}
+		}
+
+		public ASTAction getPos() {
+			ASTAction a = new ASTAction();
+
+			for (HashMap.Entry<String, Integer> entry : declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value > 0)
+			   		a.declarations.put(key, value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value > 0)
+			   		a.generic_declarations.put(key, value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : used_generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value > 0)
+			   		a.used_generic_declarations.put(key, value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : invocations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value > 0)
+			   		a.invocations.put(key, value);
+			}
+
+			return a;
+		}
+
+		public ASTAction getNeg() {
+			ASTAction a = new ASTAction();
+
+			for (HashMap.Entry<String, Integer> entry : declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value < 0)
+			   		a.declarations.put(key, -value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value < 0)
+			   		a.generic_declarations.put(key, -value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : used_generic_declarations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value < 0)
+			   		a.used_generic_declarations.put(key, -value);
+			}
+
+			for (HashMap.Entry<String, Integer> entry : invocations.entrySet()) {
+			    String key = entry.getKey();
+			    Integer value = entry.getValue();
+
+			    if (value < 0)
+			   		a.invocations.put(key, -value);
+			}
+
+			return a;
 		}
 	}
 
@@ -419,7 +562,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 
 	}
 
-	public void treeStats(ITree t, ASTAction.Action action) {
+	public void treeStats(ITree t, ASTAction action) {
 		String type = scanner.getTypeLabel(t.getType());
 		if (type == null) type = "null";
 		
@@ -445,8 +588,6 @@ public class DiffSpoonImpl implements DiffSpoon {
 				//increment(hist, "Interface");
 			}
 		} else if (type.equals("StaticType")) {
-			// Update
-			// ITree elementDest = (ITree) action.getNode().getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT_DEST);
 			CtElement el = null;
 			el = (CtElement) t.getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT);
 			if (el instanceof CtFieldImpl) {
@@ -456,22 +597,22 @@ public class DiffSpoonImpl implements DiffSpoon {
 				// Check if generic
 				if(!typeVar.isPrimitive() && typeVar.toString().contains("<") && typeVar.toString().contains(">")) {
 					//increment(hist, "Generic");
-					increment(getASTAction(action).generic_declarations, t.getLabel());
+					increment(action.generic_declarations, t.getLabel());
 
 					// Get generic types
 					String types = typeVar.toString();
-					increment(getASTAction(action).declarations, types);
+					increment(action.declarations, types);
 
 					types = types.replaceAll(".*<", "").replaceAll(">", "").replaceAll(" ", "");
 					String[] splited = types.split(",");
 					for (String tsplit : splited)
-						increment(getASTAction(action).used_generic_declarations, tsplit);
+						increment(action.used_generic_declarations, tsplit);
 				} else {
-					increment(getASTAction(action).declarations, t.getLabel());
+					increment(action.declarations, t.getLabel());
 				}
 			}
 		}  else if (type.equals("Invocation")) {
-			increment(getASTAction(action).invocations, t.getLabel());
+			increment(action.invocations, t.getLabel());
 		}
 
 
@@ -506,27 +647,48 @@ public class DiffSpoonImpl implements DiffSpoon {
 			//System.out.println(f2.getPath());
 			CtType<?> clazz = ds.getCtClass(f1);
 			ITree rootSpoon = ds.getTree(clazz);
-			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
+
+			ASTAction astAction = new ASTAction();
+			ds.treeStats(rootSpoon, astAction);
+			ds.getASTAction(ASTAction.Action.ADD).add(astAction);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (!f2.getPath().contains(".java") && args[0].equals("cmp")) {
 			System.out.println("AST DIFF: NEW FILE");
 			//System.out.println(f1.getPath());
 			CtType<?> clazz = ds.getCtClass(f1);
 			ITree rootSpoon = ds.getTree(clazz);
-			ds.treeStats(rootSpoon, ASTAction.Action.ADD);
+
+			ASTAction astAction = new ASTAction();
+			ds.treeStats(rootSpoon, astAction);
+			ds.getASTAction(ASTAction.Action.ADD).add(astAction);
 			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (args[0].equals("cmp")) {
 			// File Changed
-			CtDiffImpl result = ds.compare(f2, f1);
+			CtDiffImpl result = ds.compare(f1, f2);
 			for (Action action : result.getRootActions()) {
 				String actionType = action.getClass().getSimpleName();
-				//System.out.println(actionType);
+				System.out.println(actionType);
 				if (actionType.equals("Insert")) {
-					ds.treeStats(action.getNode(), ASTAction.Action.ADD);
+					ASTAction astAction = new ASTAction();
+					ds.treeStats(action.getNode(), astAction);
+					ds.getASTAction(ASTAction.Action.ADD).add(astAction);
 				} else if (actionType.equals("Update")) {
-					ds.treeStats(action.getNode(), ASTAction.Action.UPDATE);
+					ASTAction astAction_ADD = new ASTAction();
+					ASTAction astAction_DELETE = new ASTAction();
+
+					ITree dest = (ITree) action.getNode().getMetadata(SpoonGumTreeBuilder.SPOON_OBJECT_DEST);
+					ds.treeStats(dest, astAction_ADD);
+					ds.treeStats(action.getNode(), astAction_DELETE);
+
+					astAction_ADD.diff(astAction_DELETE);
+
+					ds.getASTAction(ASTAction.Action.ADD).add(astAction_ADD.getPos());
+					//ds.getASTAction(ASTAction.Action.DELETE).add(astAction_DELETE);
+					ds.getASTAction(ASTAction.Action.DELETE).add(astAction_ADD.getNeg());
 				} else if (actionType.equals("Delete")) {
-					ds.treeStats(action.getNode(), ASTAction.Action.DELETE);
+					ASTAction astAction = new ASTAction();
+					ds.treeStats(action.getNode(), astAction);
+					ds.getASTAction(ASTAction.Action.DELETE).add(astAction);
 				}
 				//System.out.println(ds.printTree(":", action.getNode()));
 			}

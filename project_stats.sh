@@ -53,10 +53,10 @@ do
 	echo "#FILES_TOUCHED_END"
 
 	# Git Diff
-	git difftool -y --tool=gumtree_cmp --dir-diff=$CMPUT644_PROJECT/tmp $commit $commit^1 2>/dev/null
-
+	git difftool -y --tool=gumtree_cmp $commit^1 $commit 2>/dev/null
 	# IF commit has no parent
-	if [ $? -ne 0 ]; then
+	if [ $? -gt 1 ]; then
+		#echo "############################### FIRST COMMIT ###############################"
 		git show --pretty="format:" --name-only $commit | while read file
 		do
 			if [[ $file == *".java"* ]]
