@@ -652,10 +652,10 @@ public class DiffSpoonImpl implements DiffSpoon {
 			ds.treeStats(rootSpoon, astAction);
 			ds.getASTAction(ASTAction.Action.ADD).add(astAction);
 			//System.out.println(ds.printTree(":", rootSpoon));
-		} else if (!f2.getPath().contains(".java") && args[0].equals("cmp")) {
+		} else if (!f1.getPath().contains(".java") && args[0].equals("cmp")) {
 			System.out.println("AST DIFF: NEW FILE");
 			//System.out.println(f1.getPath());
-			CtType<?> clazz = ds.getCtClass(f1);
+			CtType<?> clazz = ds.getCtClass(f2);
 			ITree rootSpoon = ds.getTree(clazz);
 
 			ASTAction astAction = new ASTAction();
@@ -667,7 +667,7 @@ public class DiffSpoonImpl implements DiffSpoon {
 			CtDiffImpl result = ds.compare(f1, f2);
 			for (Action action : result.getRootActions()) {
 				String actionType = action.getClass().getSimpleName();
-				System.out.println(actionType);
+				//System.out.println(actionType);
 				if (actionType.equals("Insert")) {
 					ASTAction astAction = new ASTAction();
 					ds.treeStats(action.getNode(), astAction);
@@ -683,7 +683,6 @@ public class DiffSpoonImpl implements DiffSpoon {
 					astAction_ADD.diff(astAction_DELETE);
 
 					ds.getASTAction(ASTAction.Action.ADD).add(astAction_ADD.getPos());
-					//ds.getASTAction(ASTAction.Action.DELETE).add(astAction_DELETE);
 					ds.getASTAction(ASTAction.Action.DELETE).add(astAction_ADD.getNeg());
 				} else if (actionType.equals("Delete")) {
 					ASTAction astAction = new ASTAction();
