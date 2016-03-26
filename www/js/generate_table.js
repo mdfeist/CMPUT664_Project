@@ -9,14 +9,20 @@
 
 /* Run right after the page (and this script) finishes loading. */
 document.addEventListener('DOMContentLoaded', function () {
-  window.laterData = preprocessData(window.DATA);
-  console.log('I did it!');
+  /* Hack! */
+  var processed = window.preprocessedData = preprocessData(window.DATA);
+  var filtered = window.filteredTypes = filterTypes(processed, {
+    //start: new Date('2016-03-19'),
+    //end: new Date('2016-03-21 0:00:00 -0600')
+  });
 });
 
 /* Shim the assert function in there! */
 !window.assert ? (window.assert = console.assert.bind(console)) : undefined;
 
-// <data | preprocess data | drawGraph
+// <data | preprocess data | filterTypes | drawGraph
+
+var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
 
 /*=== Classes ===*/
@@ -47,7 +53,7 @@ function ASTDiff(original) {
 }
 
 /**
- * Valid edit kinds.
+ * The set of edit kinds.
  */
 ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 
@@ -66,8 +72,72 @@ Object.defineProperties(ASTDiff.prototype, {
       return this.edit === 'REMOVE';
     }
   },
+
+  /**
+   * Delegate valueOf() to the internal date object. This makes relational
+   * comparisons with ASTDiff objects equivillent to comparing their dates.
+   * (i.e.,
+   *    (ASTDiff(...) < ASTDiff(...)) ===
+   *        (ASTDiff(...).date < ASTDiff(...))
+   * )
+   */
+  valueOf: {
+    value: function () {
+      return this.date.valueOf();
+    },
+  }
 });
 
+
+/**
+ * Class: Cell
+ *
+ * Represents the data for a single cell in the table.
+ */
+function Cell(start, until, type) {
+  /* Instantiate a new Cell object if called without `new`. */
+  if (!(this instanceof Cell)) {
+    return new Cell(start, until, type);
+  }
+
+  assert(start instanceof Date);
+  assert(until instanceof Date);
+  assert(typeof type === 'string');
+
+  this.data = []
+  this.startDate = start;
+  this.endDate = until;
+  this.type = type;
+}
+
+Object.defineProperties(Cell.prototype, {
+  /**
+   * Given a bunch of ASTDiffs,
+   * sets this cell's data to the appropriate ASTDiff.
+   */
+  setDataFromSortedASTDiffs: {
+    value: function setDataFromSortedASTDiffs(astDiffs) {
+      assert(astDiffs instanceof Array);
+      var typeName = this.type;
+
+      var lowerIndex = d3.bisectLeft(astDiffs, this.startDate);
+      /* Do not include upper index. */
+      var upperIndex = d3.bisectLeft(astDiffs, this.endDate);
+
+      this.data = astDiffs
+        .slice(lowerIndex, upperIndex)
+        .filter(function (diff) {
+          return diff.type === typeName;
+        });
+
+      return this;
+    },
+  }
+});
+
+
+
+/*=== Core functions ====*/
 
 /**
  * Modifies original data.
@@ -106,6 +176,111 @@ function preprocessData(data) {
   };
 }
 
+/**
+ * Takes preprocessed data, and returns an array of types, in ascending order
+ * of popularity.
+ *
+ * Each type has its Cells, with ASTDiffs.
+ */
+function filterTypes(data, filters) {
+  assert(filters);
+  /* Either the date provided, or the first date attested. */
+  var startDate = filters.start || data.astDiffs[0].date;
+  /* Either the date provided or right NOW! */
+  var endDate = filters.end || new Date();
+  var numberOfTypesUpperBound = filters.limit || Infinity;
+  var cellSize = filters.stepSize || 'day';
+
+  assert(startDate instanceof Date);
+  assert(endDate instanceof Date);
+  assert(startDate < endDate);
+  assert(typeof numberOfTypesUpperBound === 'number');
+  assert(VALID_STEP_SIZES.has(cellSize));
+
+  /* Find the range of diffs to use. */
+  var lowerIndex = d3.bisectLeft(data.astDiffs, startDate);
+  var upperIndex = d3.bisectRight(data.astDiffs, endDate);
+
+  var applicableDiffs = data.astDiffs.slice(lowerIndex, upperIndex);
+  /* Filter types, first by the types that are ACTUALLY present in the
+   * filtered ASTDiffs */
+  var typesPresent = countTypeAbsoluteFrequency(applicableDiffs);
+  var sortedTypeNames = Object.keys(typesPresent)
+    .sort(function (a, b) {
+      return d3.descending(typesPresent[a], typesPresent[b]);
+    })
+    .slice(0, numberOfTypesUpperBound);
+
+  var types = sortedTypeNames.map(function (name) {
+    return {
+      name: name,
+      cells: []
+    };
+  });
+
+  /**
+   * Create all cells applicable to display.
+   */
+  forEachDateLimitsDescending(startDate, endDate, cellSize, function (start, end) {
+    /* For each type... */
+    types.forEach(function (type) {
+      /* Add all the cells that it covers. */
+      type.cells.push(new Cell(start, end, type.name)
+                      .setDataFromSortedASTDiffs(applicableDiffs)
+      );
+    });
+  });
+
+  return types;
+}
+
+
+/**
+ * Count all types in the given ASTDiff objects.
+ */
+function countTypeAbsoluteFrequency(astDiffs) {
+  var typesFrequency = {};
+  astDiffs.forEach(function (diff) {
+    var freq = typesFrequency[diff.type] || 0;
+    typesFrequency[diff.type] = freq + 1;
+  });
+
+  return typesFrequency;
+}
+
+
+/**
+ * Given start and end dates, calls the given callback with the start and end
+ * date.
+ */
+function forEachDateLimitsDescending(start, end, step, callback) {
+  var currentStart;
+  var currentEnd = end;
+
+  while (start < currentEnd) {
+    currentStart = moment(currentEnd);
+
+    switch (step) {
+        case 'hour':
+            currentStart.subtract(1, 'hour');
+            break;
+        case 'day':
+            currentStart.subtract(1, 'day');
+            break;
+        case 'week':
+            /* TODO: Make this smarter? */
+            currentStart.subtract(1, 'weeks');
+            break;
+        case 'month':
+            currentStart.subtract(1, 'month');
+    }
+
+    callback(currentStart.toDate(), currentEnd);
+    currentEnd = currentStart.toDate();
+  }
+}
+
+
 
 /*=== Predicates used in assertions and checks ===*/
 
@@ -124,8 +299,7 @@ function looksLikeAGitSha(thing) {
     return false;
   }
 
-  /* Emails are actually really complicated, but let's... do this: */
-  return thing.match(/^[0-9a-f]+$/i);
+  return thing.match(/^[0-9a-f]{5,}$/i);
 }
 
 
@@ -318,7 +492,7 @@ function old() {
     from: new Date('2016-03-20 19:59:54 -0600'),
     to: new Date('2016-03-21 21:58:54 -0600'),
     stepSize: 'day',
-    filter: Infinity
+    limit: Infinity
   });
 }
 
