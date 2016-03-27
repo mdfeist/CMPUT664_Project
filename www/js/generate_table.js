@@ -7,10 +7,18 @@
  *  - Ian Watts
  */
 
-// http://colorbrewer2.org/?type=diverging&scheme=RdBu&n=3
-// ['#ef8a62','#f7f7f7','#67a9cf'];
+/**
+ * From: http://colorbrewer2.org/?type=diverging&scheme=RdBu&n=3
+ * ['#ef8a62','#f7f7f7','#67a9cf'];
+ */
 var COLOR_START = '#ef8a62';
 var COLOR_END = '#67a9cf';
+var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
+
+
+/* Shim the assert function in there! */
+!window.assert ? (window.assert = console.assert.bind(console)) : undefined;
+
 
 /* Run right after the page (and this script) finishes loading. */
 document.addEventListener('DOMContentLoaded', function () {
@@ -26,11 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   drawGraph(filtered, container.offsetWidth, height);
 });
-
-/* Shim the assert function in there! */
-!window.assert ? (window.assert = console.assert.bind(console)) : undefined;
-
-var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
 
 /*=== Classes ===*/
@@ -100,7 +103,8 @@ Object.defineProperties(ASTDiff.prototype, {
 /**
  * Class: Cell
  *
- * Represents the data for a single cell in the table.
+ * Represents the data for a single cell in the table.  The data is a number
+ * of observations, which are either additions or deletions.
  */
 function Cell(start, until, type) {
   /* Instantiate a new Cell object if called without `new`. */
@@ -124,7 +128,7 @@ Object.defineProperties(Cell.prototype, {
    * sets this cell's data to the appropriate ASTDiff.
    */
   setDataFromSortedASTDiffs: {
-    value: function setDataFromSortedASTDiffs(astDiffs) {
+    value: function (astDiffs) {
       assert(astDiffs instanceof Array);
       var typeName = this.type;
 
@@ -149,7 +153,14 @@ Object.defineProperties(Cell.prototype, {
     }
   },
 
-  /** Returns number of additions.  */
+  /** Number of observations. */
+  numberOfObservations: {
+    get: function () {
+      return this.data.length;
+    }
+  },
+
+  /** Number of additions.  */
   numberOfAdds: {
     get: function () {
       return this.data.filter(function (diff) {
@@ -158,8 +169,8 @@ Object.defineProperties(Cell.prototype, {
     }
   },
 
-  /** Returns number of removes.  */
-  numberOfRemoves: {
+  /** Number of deletions.  */
+  numberOfDeletions: {
     get: function () {
       return this.data.filter(function (diff) {
         return diff.isRemove;
@@ -246,33 +257,35 @@ function filterTypes(data, filters) {
 
   assert(sortedTypeNames.length > 0);
 
-  /* TODO: actually return types... it's totally fine, d3 can deal with it! */
-  var cells = [];
-  var numberOfColumns = 0;
+  /* Create an entry for each type. */
+  var types = sortedTypeNames.map(function (name) {
+    return { name: name, cells: [] };
+  });
 
-  /**
-   * Create all cells applicable to display.
-   */
+  /* Create all cells applicable to display.  */
   forEachDateLimitsDescending(startDate, endDate, cellSize, function (start, end) {
     /* For each type... */
-    sortedTypeNames.forEach(function (typeName) {
-      /* Add all the cells that it covers. */
-      cells.push(new Cell(start, end, typeName)
-                 .setDataFromSortedASTDiffs(applicableDiffs)
+    types.forEach(function (type) {
+      /* ...add all data cells. */
+      type.cells.push(
+        new Cell(start, end, type.name)
+          .setDataFromSortedASTDiffs(applicableDiffs)
       );
     });
 
-    numberOfColumns++;
   });
 
-  var maxDate = cells[0].endDate;
-  var minDate = cells[cells.length - 1].startDate;
+  /* The cells in each type are in DESCENDING order.
+   * Therefore, take the END date of the FIRST cell to get the upper limit;
+   * and take the START date of the LAST cell to get the lower limit. */
+  var arbitraryCells = first(types).cells;
+  var maxDate = first(arbitraryCells).endDate;
+  var minDate = last(arbitraryCells).startDate;
   assert(minDate <= maxDate);
 
   return {
-    types: sortedTypeNames,
-    cells: cells,
-    numberOfColumns: numberOfColumns,
+    types: types,
+    numberOfColumns: arbitraryCells.length,
     minDate: minDate,
     maxDate: maxDate
   };
@@ -324,18 +337,21 @@ function forEachDateLimitsDescending(start, end, step, callback) {
   }
 }
 
+
 /*=== Graph ===*/
 
 function drawGraph(data, width, height) {
+  var marginLeft = 120;
+
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
-    .domain(data.types)
+    .domain(data.types.map(function (type) { return type.name }))
     .rangeBands([0, height]);
 
   /* Create a scale for the dates i.e., the x-axis */
   var xScale = d3.time.scale()
     .domain([data.minDate, data.maxDate])
-    .rangeRound([120, width]);
+    .rangeRound([marginLeft, width]);
 
   /**
    * Given number of additions and deletions, returns an appropriate,
@@ -356,31 +372,45 @@ function drawGraph(data, width, height) {
       .attr("width", width)
       .attr("height", height);
 
-  /* Create all the cells. */
-  var cells = svg.selectAll('.cell')
-      .data(data.cells)
+  var row = svg.selectAll('.row')
+      .data(data.types)
     .enter().append('g')
-      /* Only do cool things with cells that *HAVE* data! */
-      .filter(function (cell) { return cell.hasData; })
-      .attr('class', 'cell')
-      .attr('transform', function (cell) {
-        return 'translate(' +
-          xScale(cell.startDate) +
-          ',' +
-          yScale(cell.type) +
-          ')';
-      });
+      .classed('row', true)
+      .attr('transform', function (type) {
+        return 'translate(0, ' + yScale(type.name) + ')';
+      })
+      .each(createCellsForType);
 
-  cells.append('rect')
-    .attr('class', 'cell-data')
-    .attr('width', cellWidthFromScale(data.cells[0], xScale))
-    .attr('transform', 'translate(0, 1)')
-    .attr('height', yScale.rangeBand() - 2)
-    .style('fill', function (cell) {
-      assert(cell.hasData);
-      /* Use a gradient that shows proportion of additions and deletions. */
-      return colorScale(cell.numberOfAdds, cell.numberOfRemoves);
-    })
+  row.append('text')
+      .attr('y', yScale.rangeBand() / 2)
+      .attr('dy', '.32em')
+      .attr('x', `${marginLeft - 10}px`)
+      .attr('text-anchor', 'end')
+      .text(function (type) { return type.name });
+
+  function createCellsForType(type) {
+    /* Create all the cells. */
+    var cell = d3.select(this).selectAll('.cell')
+        .data(type.cells)
+      .enter().append('g')
+        /* Only do cool things with cells that *HAVE* data! */
+        .filter(function (cell) { return cell.hasData; })
+        .classed('cell', true)
+        .attr('transform', function (cell) {
+          return 'translate(' + xScale(cell.startDate) + ', 0)';
+        });
+
+    cell.append('rect')
+      .classed('cell-data', true)
+      .attr('width', cellWidthFromScale(first(type.cells), xScale))
+      .attr('transform', 'translate(0, 1)')
+      .attr('height', yScale.rangeBand() - 2)
+      .style('fill', function (cell) {
+        assert(cell.hasData);
+        /* Use a gradient that shows proportion of additions and deletions. */
+        return colorScale(cell.numberOfAdds, cell.numberOfDeletions);
+      });
+  }
 }
 
 /*=== Utilties ===*/
@@ -390,6 +420,16 @@ function cellWidthFromScale(cell, scale) {
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
   return bigger - smaller;
+}
+
+function first(array) {
+  assert(array instanceof Array);
+  return array[0];
+}
+
+function last(array) {
+  assert(array instanceof Array);
+  return array[array.length - 1];
 }
 
 /*=== Predicates used in assertions and checks ===*/
