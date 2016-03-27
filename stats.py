@@ -1,5 +1,6 @@
 import sys
 import os
+from flask import Flask, request, send_from_directory
 
 projects = []
 
@@ -7,6 +8,7 @@ class Project:
     def __init__(self):
         self._dir = ""
         self._commits = []
+        self._authors = {}
 
     def setDir(self, name):
         self._dir = name
@@ -20,76 +22,67 @@ class Project:
     def getCommits(self):
         return self._commits
 
-    def getJSON(self):
-        dump = self._dir
-        libs_csv = ""
-        libs = set()
-        author_names = set()
-        authors = {}
+    def calculateAuthors(self):
+        declarations = set()
+        invocations = set()
 
+        author_names = set()
+        
         # Get authors and libs used in project
         for commit in self._commits:
             author = commit.getAuthor()
             author_names.add(author)
 
             for f in commit.getFiles():
-                for lib in f.getLibs().getHist():
-                    libs.add(lib)
+                for lib in f.getDeclarations().getAdditionHist():
+                    declarations.add(lib)
+
+                for lib in f.getDeclarations().getDeletionsHist():
+                    declarations.add(lib)
+
+                for lib in f.getInvocations().getAdditionHist():
+                    invocations.add(lib)
+
+                for lib in f.getInvocations().getDeletionsHist():
+                    invocations.add(lib)
 
         # Create authors and set up lib histogram
         for author in author_names:
-            authors[author] = Author()
-            authors[author].setName(author)
+            self._authors[author] = Author()
+            self._authors[author].setName(author)
 
-            author_libs = authors[author].getLibs()
-
-            for lib in libs:
-                author_libs.add(lib, 0)
+#            author_declarations = authors[author].getDeclarations()
+#            author_invocations = authors[author].getInvocations()
+#
+#            for lib in declarations:
+#                author_declarations.add(lib, "INSERT", 0)
+#                author_declarations.add(lib, "DELETE", 0)
+#
+#            for lib in invocations:
+#                author_invocations.add(lib, "INSERT", 0)
+#                author_invocations.add(lib, "DELETE", 0)
 
         # Get libs and histogram for each author
         for commit in self._commits:
             name = commit.getAuthor()
-            author = authors[name]
+            author = self._authors[name]
 
             for f in commit.getFiles():
-                for lib, count in f.getLibs().getHist().items():
-                    author.getLibs().add(lib, count)
+                for lib, count in f.getDeclarations().getAdditionHist().items():
+                    author.getDeclarations().add(lib, "INSERT", count)
 
-        # Get Stats
-        # Get dump of authors
-        for key, author in authors.items():
-            # Get dump for author
-            dump += author.toStr("\t")
+                for lib, count in f.getDeclarations().getDeletionsHist().items():
+                    author.getDeclarations().add(lib, "DELETE", count)
 
-            # Libs
-            libs_hist = author.getLibs().getHist()
+                for lib, count in f.getInvocations().getAdditionHist().items():
+                    author.getInvocations().add(lib, "INSERT", count)
 
-            if libs_csv == "":
-                libs_csv += "Project, Author, "
-                for name in libs_hist:
-                    libs_csv += name + ", "
+                for lib, count in f.getInvocations().getDeletionsHist().items():
+                    author.getInvocations().add(lib, "DELETE", count)
 
-                libs_csv += "\n"
 
-            if len(libs_hist) > 0:
-                libs_csv += self._dir + ", " + author.getName().replace(",", "") + ", "
-                count = 0
-                total = 0
-                touched = 0
-                for value in libs_hist.itervalues():
-                    libs_csv += str(value) + ", "
-
-                    if value > 0:
-                        touched += 1
-                    count += 1
-
-                    total += value
-
-                libs_csv += "\n"
-
-        #Libs
-
-        return json
+    def getJSON(self):
+        return ""
 
     def __str__(self):
         output = self._dir + "\n"
@@ -106,7 +99,8 @@ class Project:
 class Author:
     def __init__(self):
         self._name = ""
-        self._libs = Histogram()
+        self._declarations = Histogram("Declarations")
+        self._invocations = Histogram("Invocations")
 
     def setName(self, name):
         self._name = name
@@ -114,13 +108,17 @@ class Author:
     def getName(self):
         return self._name
 
-    def getLibs(self):
-        return self._libs
+    def getDeclarations(self):
+        return self._declarations
+
+    def getInvocations(self):
+        return self._invocations
 
     def toStr(self, tab):
         output = tab + "Author: " + self._name + "\n"
         output += "\n"
-        output += self._libs.toStr(tab + "\t")
+        output += self._declarations.toStr(tab + "\t")
+        output += self._invocations.toStr(tab + "\t")
 
         return output
 
@@ -390,10 +388,31 @@ for f in files:
 print("Number of Projects: " + str(len(projects)))
 print("Gathering Stats ...")
 
-dump_file = open('dump.out', 'w')
+# set the project root directory as the static folder, you can set others.
+path = os.path.dirname(os.path.realpath(__file__))
+static_folder = path + '/www'
+app = Flask(__name__, static_folder=static_folder, static_url_path='/www')
+app.config['DEBUG'] = True
 
-for project in projects:
-    #print(project.getStats()[2])
-    stats = project.getJSON()
-    
-    dump_file.write(stats)
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory(app.static_folder + '/js', path)
+
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory(app.static_folder + '/css', path)
+
+@app.route('/')
+def root():
+    return app.send_static_file('index.html')
+
+if __name__ == "__main__":
+    app.run()
+
+#dump_file = open('dump.out', 'w')
+#
+#for project in projects:
+#    #print(project.getStats()[2])
+#    stats = project.getJSON()
+#    
+#    dump_file.write(stats)
