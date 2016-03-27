@@ -246,6 +246,7 @@ function filterTypes(data, filters) {
 
   assert(sortedTypeNames.length > 0);
 
+  /* TODO: actually return types... it's totally fine, d3 can deal with it! */
   var cells = [];
   var numberOfColumns = 0;
 
@@ -326,8 +327,6 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 /*=== Graph ===*/
 
 function drawGraph(data, width, height) {
-  //var cellWidth = width / data.numberOfColumns;
-
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
     .domain(data.types)
@@ -336,7 +335,7 @@ function drawGraph(data, width, height) {
   /* Create a scale for the dates i.e., the x-axis */
   var xScale = d3.time.scale()
     .domain([data.minDate, data.maxDate])
-    .rangeRound([0, width]);
+    .rangeRound([120, width]);
 
   /**
    * Given number of additions and deletions, returns an appropriate,
@@ -361,6 +360,8 @@ function drawGraph(data, width, height) {
   var cells = svg.selectAll('.cell')
       .data(data.cells)
     .enter().append('g')
+      /* Only do cool things with cells that *HAVE* data! */
+      .filter(function (cell) { return cell.hasData; })
       .attr('class', 'cell')
       .attr('transform', function (cell) {
         return 'translate(' +
@@ -373,13 +374,12 @@ function drawGraph(data, width, height) {
   cells.append('rect')
     .attr('class', 'cell-data')
     .attr('width', cellWidthFromScale(data.cells[0], xScale))
-    .attr('height', yScale.rangeBand())
+    .attr('transform', 'translate(0, 1)')
+    .attr('height', yScale.rangeBand() - 2)
     .style('fill', function (cell) {
-      if (cell.hasData) {
-        return colorScale(cell.numberOfAdds, cell.numberOfRemoves);
-      } else {
-        return 'none';
-      }
+      assert(cell.hasData);
+      /* Use a gradient that shows proportion of additions and deletions. */
+      return colorScale(cell.numberOfAdds, cell.numberOfRemoves);
     })
 }
 
@@ -390,7 +390,6 @@ function cellWidthFromScale(cell, scale) {
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
   return bigger - smaller;
-
 }
 
 /*=== Predicates used in assertions and checks ===*/
