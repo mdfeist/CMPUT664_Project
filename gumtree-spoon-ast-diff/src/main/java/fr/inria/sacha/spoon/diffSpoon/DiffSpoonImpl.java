@@ -662,6 +662,16 @@ public class DiffSpoonImpl implements DiffSpoon {
 			ds.treeStats(rootSpoon, astAction);
 			ds.getASTAction(ASTAction.Action.ADD).add(astAction);
 			//System.out.println(ds.printTree(":", rootSpoon));
+		} else if (!f2.getPath().contains(".java") && args[0].equals("cmp")) {
+			System.out.println("AST DIFF: DELETE FILE");
+			//System.out.println(f1.getPath());
+			CtType<?> clazz = ds.getCtClass(f1);
+			ITree rootSpoon = ds.getTree(clazz);
+
+			ASTAction astAction = new ASTAction();
+			ds.treeStats(rootSpoon, astAction);
+			ds.getASTAction(ASTAction.Action.DELETE).add(astAction);
+			//System.out.println(ds.printTree(":", rootSpoon));
 		} else if (args[0].equals("cmp")) {
 			// File Changed
 			CtDiffImpl result = ds.compare(f1, f2);

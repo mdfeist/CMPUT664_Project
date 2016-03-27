@@ -13,8 +13,8 @@ if [ ! -d "$GIT" ]; then
 	exit
 fi
 
-if [ ! -d "$CMPUT644_PROJECT/tmp" ]; then
-	mkdir $CMPUT644_PROJECT/tmp
+if [ ! -d "$CMPUT664_PROJECT/tmp" ]; then
+	mkdir $CMPUT664_PROJECT/tmp
 fi
 
 git log --reverse --date=iso8601 --format="%H %aE %ad" | while read line
@@ -73,8 +73,8 @@ do
 			if [[ $file == *".java"* ]]
 			then
 			  fname=${commit: -5}_${file##*/}
-			  git show $commit:$file > $CMPUT644_PROJECT/tmp/$fname
-			  bash $CMPUT644_PROJECT/ast.sh one $CMPUT644_PROJECT/tmp/$fname /dev/null
+			  git show $commit:$file > $CMPUT664_PROJECT/tmp/$fname
+			  bash $CMPUT664_PROJECT/ast.sh one $CMPUT664_PROJECT/tmp/$fname /dev/null
 			fi
 		done
 	fi
