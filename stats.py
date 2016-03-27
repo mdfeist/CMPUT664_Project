@@ -248,8 +248,6 @@ class Histogram:
         self._hist_delete = {}
 
     def add(self, name, edit, value):
-        print(name)
-        print(edit)
         if edit == "INSERT":
             if name in self._hist_add:
                 self._hist_add[name] += value
