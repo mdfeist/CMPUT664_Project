@@ -11,10 +11,12 @@
  * From: http://colorbrewer2.org/?type=diverging&scheme=RdBu&n=3
  * ['#ef8a62','#f7f7f7','#67a9cf'];
  */
-var COLOR_START = '#ef8a62';
-var COLOR_END = '#67a9cf';
+var COLOR_ADDITIONS = '#ef8a62';
+var COLOR_DELETIONS = '#67a9cf';
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
+/** The set of edit kinds.  */
+ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 
 /* Shim the assert function in there! */
 !window.assert ? (window.assert = console.assert.bind(console)) : undefined;
@@ -62,11 +64,6 @@ function ASTDiff(original) {
   this.edit = original.edit;
   this.commit = original.commitID;
 }
-
-/**
- * The set of edit kinds.
- */
-ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 
 /**
  * ASTDiff methods and computed properties.
@@ -132,8 +129,7 @@ Object.defineProperties(Cell.prototype, {
       var typeName = this.type;
 
       var lowerIndex = d3.bisectLeft(astDiffs, this.startDate);
-      /* Do not include upper index. */
-      var upperIndex = d3.bisectLeft(astDiffs, this.endDate);
+      var upperIndex = d3.bisectRight(astDiffs, this.endDate);
 
       this.data = astDiffs
         .slice(lowerIndex, upperIndex)
@@ -273,9 +269,9 @@ function preprocessData(data) {
 function filterTypes(data, filters) {
   assert(filters);
   /* Either the date provided, or the first date attested. */
-  var startDate = filters.start || data.astDiffs[0].date;
-  /* Either the date provided or right NOW! */
-  var endDate = filters.end || new Date();
+  var startDate = filters.start || first(data.astDiffs).date;
+  /* Either the date provided or the last date attested. */
+  var endDate = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var cellSize = filters.stepSize || 'day';
 
@@ -400,7 +396,7 @@ function drawGraph(data, width, height) {
    * interpoloated colour.
    */
   var colorScale = (function () {
-    var colorInterpolator = d3.interpolateHsl(COLOR_START, COLOR_END);
+    var colorInterpolator = d3.interpolateHsl(COLOR_ADDITIONS, COLOR_DELETIONS);
 
     return function (additions, deletions) {
       assert(additions + deletions > 0);
