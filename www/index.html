@@ -13,12 +13,25 @@
     <script src="./js/moment.min.js"></script>
     <script src="./js/jquery-ui.min.js"></script>
 
-    <script src="./js/table.js"></script>
+    <!--script src="./js/table.js"></script-->
+    <script src="./js/table_example.js"></script>
     <script>
-    $(function() {
-      $( "#min-datepicker" ).datepicker();
-      $( "#max-datepicker" ).datepicker();
-    });
+      if (!hasDatePicker()) {
+        $(function() {
+          $('input[type="date"]').datepicker();
+        });
+      }
+
+      /* Stolen from: http://stackoverflow.com/a/10199306 */
+      function hasDatePicker() {
+        var input = document.createElement('input');
+        input.setAttribute('type','date');
+
+        var notADateValue = 'not-a-date';
+        input.setAttribute('value', notADateValue); 
+
+        return (input.value !== notADateValue);
+      }
     </script>
   </head>
   <body>
@@ -38,28 +51,26 @@
         <div class="col-xs-12 col-md-8 date-range">
           <!-- TODO: Make this like... a month ago... -->
           <label> Starting from
-            <input class="text" value="" type="text" id="min-datepicker" name="min">
+            <input class="text" value="" type="date" id="min-datepicker" name="min">
           </label>
           <label> to
-            <input class="text" value="" type="text" id="max-datepicker" name="max">
+            <input class="text" value="" type="date" id="max-datepicker" name="max">
           </label>
 
           <label> Cluster by
             <select name="step">
-              <option value="year">Year</option>
-              <option value="month">Month</option>
-              <option value="week">Week</option>
-              <option value="day">Day</option>
               <option value="hour">Hour</option>
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
             </select>
           </label>
 
-
           <label> Show classes
             <select name="filter">
-              <option value=""> Top 10 </option>
-              <option value=""> Top 100 </option>
-              <option value=""> All </option>
+              <option value="10"> Top 10 </option>
+              <option value="100"> Top 100 </option>
+              <option value="Infinity"> All </option>
             </select>
           </label>
 
@@ -67,7 +78,7 @@
       </nav>
 
       <main class="row">
-      <div class="dna-table">
+      <div id="dna-table" class="dna-table">
       </div>
       </main>
     </div>
