@@ -99,7 +99,6 @@ Object.defineProperties(ASTDiff.prototype, {
   }
 });
 
-
 /**
  * Class: Cell
  *
@@ -180,6 +179,50 @@ Object.defineProperties(Cell.prototype, {
 });
 
 
+/**
+ * Class: JavaType
+ *
+ * Represents a type in Java.
+ */
+function JavaType(name) {
+  /* Instantiate a new Cell object if called without `new`. */
+  if (!(this instanceof JavaType)) {
+    return new JavaType(name);
+  }
+
+  /* TODO: primitive types? */
+  /* TODO: generics? */
+  var components = name.split('.');
+  this.name = components.pop();
+  this.package = components.join('.');
+  this.cells = [];
+}
+
+Object.defineProperties(JavaType.prototype, {
+  /**
+   * Given a bunch of ASTDiffs,
+   * sets this cell's data to the appropriate ASTDiff.
+   */
+  fullyQualifiedName: {
+    get: function () {
+      return this.package + '.' + this.name;
+    }
+  },
+
+  addCell: {
+    value: function (cell) {
+      assert(cell instanceof Cell);
+      return this.cells.push(cell);
+    }
+  },
+
+  toString: {
+    value: function () {
+      return this.className;
+    }
+  }
+});
+
 
 /*=== Core functions ====*/
 
@@ -220,6 +263,7 @@ function preprocessData(data) {
   };
 }
 
+
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
  * of popularity.
@@ -258,17 +302,15 @@ function filterTypes(data, filters) {
   assert(sortedTypeNames.length > 0);
 
   /* Create an entry for each type. */
-  var types = sortedTypeNames.map(function (name) {
-    return { name: name, cells: [] };
-  });
+  var types = sortedTypeNames.map(JavaType);
 
   /* Create all cells applicable to display.  */
   forEachDateLimitsDescending(startDate, endDate, cellSize, function (start, end) {
     /* For each type... */
     types.forEach(function (type) {
       /* ...add all data cells. */
-      type.cells.push(
-        new Cell(start, end, type.name)
+      type.addCell(
+        new Cell(start, end, type.fullyQualifiedName)
           .setDataFromSortedASTDiffs(applicableDiffs)
       );
     });
