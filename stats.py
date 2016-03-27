@@ -1,6 +1,5 @@
 import sys
 import os
-from sets import Set
 
 projects = []
 
@@ -21,14 +20,11 @@ class Project:
     def getCommits(self):
         return self._commits
 
-    def getStats(self):
+    def getJSON(self):
         dump = self._dir
-        histogram_csv = "Project, Author, Do, For, Inheritance, Generic, Try, Catch, While, ForEach, Interface, Class, If, \n"
-        histogram_stats_csv = "Project, Author, Generic, Catch/Try, Try/If, Inheritance/Class, Interface/Class, \n"
         libs_csv = ""
-        libs_stats_csv = "Project, Author, Percent of Libs Used, Number of Libraries, \n"
-        libs = Set()
-        author_names = Set()
+        libs = set()
+        author_names = set()
         authors = {}
 
         # Get authors and libs used in project
@@ -56,8 +52,6 @@ class Project:
             author = authors[name]
 
             for f in commit.getFiles():
-                for hist, count in f.getHistogram().getHist().items():
-                    author.getHistogram().add(hist, count)
                 for lib, count in f.getLibs().getHist().items():
                     author.getLibs().add(lib, count)
 
@@ -66,44 +60,6 @@ class Project:
         for key, author in authors.items():
             # Get dump for author
             dump += author.toStr("\t")
-
-            # Get Histogram and stats
-            hist = author.getHistogram().getHist()
-
-            histogram_csv += self._dir + ", " + author.getName().replace(",", "") + ", "
-            histogram_stats_csv += self._dir + ", " + author.getName().replace(",", "") + ", "
-
-            if len(hist) < 1:
-                histogram_csv += "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,"
-                histogram_stats_csv += "0, 0, 0, 0, 0,"
-            else:
-                for value in hist.itervalues():
-                    histogram_csv += str(value) + ", "
-
-                histogram_stats_csv += str(hist["Generic"]) + ", "
-                
-                if hist["Try"] == 0:
-                    histogram_stats_csv += "0, "
-                else:
-                    histogram_stats_csv += str(hist["Catch"]/float(hist["Try"])) + ", "
-                
-                if hist["If"] == 0:
-                    histogram_stats_csv += "0, "
-                else:
-                    histogram_stats_csv += str(hist["Try"]/float(hist["If"])) + ", "
-                
-                if hist["Class"] == 0:
-                    histogram_stats_csv += "0, "
-                else:
-                    histogram_stats_csv += str(hist["Inheritance"]/float(hist["Class"])) + ", "
-                
-                if hist["Class"] == 0:
-                    histogram_stats_csv += "0, "
-                else:
-                    histogram_stats_csv += str(hist["Interface"]/float(hist["Class"])) + ", "
-
-            histogram_csv += "\n"
-            histogram_stats_csv += "\n"
 
             # Libs
             libs_hist = author.getLibs().getHist()
@@ -117,8 +73,6 @@ class Project:
 
             if len(libs_hist) > 0:
                 libs_csv += self._dir + ", " + author.getName().replace(",", "") + ", "
-                libs_stats_csv += self._dir + ", " + author.getName().replace(",", "") + ", "
-
                 count = 0
                 total = 0
                 touched = 0
@@ -131,14 +85,11 @@ class Project:
 
                     total += value
 
-                libs_stats_csv += str((100.0*touched)/float(count)) + ", " + str(count) + ", "
-
                 libs_csv += "\n"
-                libs_stats_csv += "\n"
 
         #Libs
 
-        return (dump, histogram_csv, histogram_stats_csv, libs_csv, libs_stats_csv)
+        return json
 
     def __str__(self):
         output = self._dir + "\n"
@@ -155,7 +106,6 @@ class Project:
 class Author:
     def __init__(self):
         self._name = ""
-        self._hist = Histogram()
         self._libs = Histogram()
 
     def setName(self, name):
@@ -164,15 +114,11 @@ class Author:
     def getName(self):
         return self._name
 
-    def getHistogram(self):
-        return self._hist
-
     def getLibs(self):
         return self._libs
 
     def toStr(self, tab):
         output = tab + "Author: " + self._name + "\n"
-        output += self._hist.toStr(tab + "\t")
         output += "\n"
         output += self._libs.toStr(tab + "\t")
 
@@ -188,7 +134,9 @@ class Commit:
     def __init__(self):
         self._author = ""
         self._commit = ""
-        self._prevcommit = ""
+        self._date = ""
+        self._message = ""
+        self._file_names = []
         self._files = []
 
     def setAuthor(self, name):
@@ -203,11 +151,23 @@ class Commit:
     def getCommitID(self):
         return self._commit
 
-    def setPrevCommitID(self, commit):
-        self._prevcommit = commit
+    def setDate(self, date):
+        self._date = date
 
-    def getPrevCommitID(self):
-        return self._prevcommit
+    def getDate(self):
+        return self._date
+
+    def setMessage(self, message):
+        self._message = message
+
+    def getMessage(self):
+        return self._message
+
+    def addTFile(self, f):
+        self._file_names.append(f)
+
+    def getTFiles(self):
+        return self._file_names
 
     def addFile(self, f):
         self._files.append(f)
@@ -216,10 +176,22 @@ class Commit:
         return self._files
 
     def toStr(self, tab):
-        output = tab + "Author: " + self._author + "\n"
+        output = tab + "####################### COMMIT #######################\n"
+        output += tab + "Author: " + self._author + "\n"
         output += tab + "Commit ID: " + self._commit + "\n"
-        output += tab + "Previous Commit ID: " + self._prevcommit + "\n"
+        output += tab + "Date: " + self._date + "\n"
+
         output += tab + "Number of Files: " + str(len(self._files)) + "\n"
+        for f in self._file_names:
+            output += tab + "\t" + f + "\n"
+
+        output += tab + "Message: \n" + tab + "\t" + \
+            self._message.replace("\n", "\n" + tab + "\t") + "\n"
+
+        output += tab + "Stats: \n"
+        for f in self._files:
+            output += f.toStr(tab + "\t") + "\n" 
+        output += tab + "######################################################\n"
 
         return output
 
@@ -233,8 +205,8 @@ class File:
     def __init__(self):
         self._local = ""
         self._remote = ""
-        self._libs = Histogram()
-        self._hist = Histogram()
+        self._declarations = Histogram("Declarations")
+        self._invocations = Histogram("Invocations")
 
     def setLocal(self, name):
         self._local = name
@@ -248,18 +220,18 @@ class File:
     def getRemote(self):
         return self._remote
 
-    def getHistogram(self):
-        return self._hist
+    def getDeclarations(self):
+        return self._declarations
 
-    def getLibs(self):
-        return self._libs
+    def getInvocations(self):
+        return self._invocations
 
     def toStr(self, tab):
         output = tab + "Local File: " + self._local + "\n"
         output += tab + "Remote File: " + self._remote + "\n"
 
-        output += self._hist.toStr(tab + "\t")
-        output += self._libs.toStr(tab + "\t")
+        output += self._declarations.toStr(tab + "\t")
+        output += self._invocations.toStr(tab + "\t")
 
         return output
 
@@ -270,26 +242,42 @@ class File:
         return self.__str__()
 
 class Histogram:
-    def __init__(self):
-        self._hist = {}
+    def __init__(self, name):
+        self._name = name
+        self._hist_add = {}
+        self._hist_delete = {}
 
-    def add(self, name, value):
-        if name in self._hist:
-            self._hist[name] += value
-        else:
-            self._hist[name] = value
+    def add(self, name, edit, value):
+        print(name)
+        print(edit)
+        if edit == "INSERT":
+            if name in self._hist_add:
+                self._hist_add[name] += value
+            else:
+                self._hist_add[name] = value
+        elif edit == "DELETE":
+            if name in self._hist_delete:
+                self._hist_delete[name] += value
+            else:
+                self._hist_delete[name] = value
 
-    def get(self, name):
-        return self._hist[name]
+    def getAdditionHist(self):
+        return self._hist_add
 
-    def getHist(self):
-        return self._hist
+    def getDeletionHist(self):
+        return self._hist_delete
 
     def toStr(self, tab):
-        output = ""
+        output = tab + self._name + "\n"
+        output += tab + "\tAdditions\n"
 
-        for key, value in self._hist.iteritems():
-            output += tab + key + ": " + str(value) + "\n"
+        for key, value in self._hist_add.items():
+            output += tab + "\t\t" + key + ": " + str(value) + "\n"
+
+        output += tab + "\tDeletions\n"
+
+        for key, value in self._hist_delete.items():
+            output += tab + "\t\t" + key + ": " + str(value) + "\n"
 
         return output
 
@@ -303,8 +291,9 @@ def getStats(filename):
     current_project = None
     current_commit = None
     current_file = None
-    hist_has_titles = False
-    hist_tmp_titles = []
+    message_start = False
+    message = ""
+    file_touched_start = False
     with open(filename) as f:
         for line in f:
             if ("#PROJECT_START" in line):
@@ -323,55 +312,61 @@ def getStats(filename):
             if ("#AUTHOR" in line):
                 name = line.split("|")[1].replace('\n','').strip()
                 current_commit.setAuthor(name)
-            if ("#COMMIT |" in line):
+            if ("#COMMIT_ID |" in line):
                 commits = line.split("|")[1].replace('\n','').strip().split()
                 current_commit.setCommitID(commits[0])
-
-                if len(commits) > 1:
-                    current_commit.setPrevCommitID(commits[1])
+            if ("#DATE |" in line):
+                date = line.split("|")[1].replace('\n','').strip()
+                current_commit.setDate(date)
+            if ("#COMMIT_MESSAGE_END" in line):
+                current_commit.setMessage(message)
+                message_start = False
+                message = ""
+            if (message_start):
+                message += line
+            if ("#COMMIT_MESSAGE_START" in line):
+                message_start = True
+            if ("#FILES_TOUCHED_END" in line):
+                file_touched_start = False
+            if (file_touched_start):
+                current_commit.addTFile(line.replace('\n','').strip())
+            if ("#FILES_TOUCHED_START" in line):
+                file_touched_start = True
             if ("#FILE1" in line):
-                current_file = File()
-
                 name = line.split("|")[1].replace('\n','').strip()
                 current_file.setLocal(name)
             if ("#FILE2" in line):
                 name = line.split("|")[1].replace('\n','').strip()
                 current_file.setRemote(name)
             if ("#STATS_START" in line):
-                hist_has_titles = False
-                hist_tmp_titles = []
+                current_file = File()
             if ("#STATS_END" in line):
                 #print(current_file)
                 current_commit.addFile(current_file)
-            if ("#HISTOGRAM" in line):
-                if not hist_has_titles:
-                    split_str = line.split("|")
-                    for i in range(1, len(split_str)-1):
-                        hist_tmp_titles.append(split_str[i].strip())
-
-                    hist_has_titles = True
-                else:
-                    hist = current_file.getHistogram()
-
-                    split_str = line.split("|")
-                    for i in range(0, len(hist_tmp_titles)):
-                        name = hist_tmp_titles[i]
-                        v = split_str[i+1].strip()
-
-                        if not v.isdigit():
-                            break
-
-                        value = int(v)
-                        hist.add(name, value)
-
-                    hist_has_titles = False
-                    hist_tmp_titles = []
-            if ("#LIB" in line):
-                libs = current_file.getLibs()
+            if ("#DECLARE" in line):
                 split_str = line.split("|")
-                name = split_str[1].strip()
-                value = int(split_str[2].strip())
-                libs.add(name, value)
+                edit = split_str[1].strip()
+                name = split_str[2].strip()
+                value = int(split_str[3].strip())
+                current_file.getDeclarations().add(name, edit, value)
+#            if ("#GENERIC_DECLARE" in line):
+#                split_str = line.split("|")
+#                edit = split_str[1].strip()
+#                name = split_str[2].strip()
+#                value = int(split_str[3].strip())
+#                current_file.getGenericDeclarations().add(name, edit, value)
+#            if ("#USED_IN_GENERIC_DECLARE" in line):
+#                split_str = line.split("|")
+#                edit = split_str[1].strip()
+#                name = split_str[2].strip()
+#                value = int(split_str[3].strip())
+#                current_file.getUsedInGenericDeclarations().add(name, edit, value)
+            if ("#INVOCATIONS" in line):
+                split_str = line.split("|")
+                edit = split_str[1].strip()
+                name = split_str[2].strip()
+                value = int(split_str[3].strip())
+                current_file.getInvocations().add(name, edit, value)
 
 
 def mergeProjectCSV(csv):
@@ -389,7 +384,7 @@ files = ["out1.out",
         "out6.out",
         "out7.out"]
 
-#files = ["test.out"]
+files = ["test.out"]
 
 print("Gathering Dump Data ...")
 for f in files:
@@ -398,29 +393,9 @@ print("Number of Projects: " + str(len(projects)))
 print("Gathering Stats ...")
 
 dump_file = open('dump.out', 'w')
-hist_file = open('histogram.csv', 'w')
-hist_stats_file = open('histogram_stats.csv', 'w')
-libs_stats_file = open('libs_stats.csv', 'w')
-
-hist_csv = ""
-hist_stats_csv = ""
-
-libs_stats_csv = ""
 
 for project in projects:
     #print(project.getStats()[2])
-    stats = project.getStats()
+    stats = project.getJSON()
     
-    dump_file.write(stats[0])
-
-    hist_csv += stats[1]
-    hist_stats_csv += stats[2]
-
-    libs_file = open('libsOutput/' + project.getDir().replace("/", "") + '.csv', 'w')
-    libs_file.write(stats[3])
-
-    libs_stats_csv += stats[4]
-
-hist_file.write(mergeProjectCSV(hist_csv))
-hist_stats_file.write(mergeProjectCSV(hist_stats_csv))
-libs_stats_file.write(mergeProjectCSV(libs_stats_csv))
+    dump_file.write(stats)
