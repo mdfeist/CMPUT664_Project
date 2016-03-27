@@ -142,12 +142,28 @@ Object.defineProperties(Cell.prototype, {
     },
   },
 
-  /**
-   * if the cell has demonstrable data.
-   */
+  /** True if the cell contains at least one AST diff.  */
   hasData: {
     get: function () {
       return this.data && (this.data.length > 0);
+    }
+  },
+
+  /** Returns number of additions.  */
+  numberOfAdds: {
+    get: function () {
+      return this.data.filter(function (diff) {
+        return diff.isAdd;
+      }).length;
+    }
+  },
+
+  /** Returns number of removes.  */
+  numberOfRemoves: {
+    get: function () {
+      return this.data.filter(function (diff) {
+        return diff.isRemove;
+      }).length;
     }
   }
 });
@@ -323,14 +339,19 @@ function drawGraph(data, width, height) {
     .rangeRound([0, width]);
 
   /**
-   * Interpolates colours
+   * Given number of additions and deletions, returns an appropriate,
+   * interpoloated colour.
    */
-  var colorInterpolator = d3.interpolateHsl(COLOR_START, COLOR_END);
-  var colorScale = function (_additions, _deletions) {
-    var score = 0;
-    assert(0 <= score && score <= 1);
-    return colorInterpolator(score);
-  };
+  var colorScale = (function () {
+    var colorInterpolator = d3.interpolateHsl(COLOR_START, COLOR_END);
+
+    return function (additions, deletions) {
+      assert(additions + deletions > 0);
+      var score = additions / (additions + deletions);
+      assert(0 <= score && score <= 1);
+      return colorInterpolator(score);
+    };
+  }());
 
   var svg = d3.select('#dna-table').append('svg')
       .attr("width", width)
@@ -355,7 +376,7 @@ function drawGraph(data, width, height) {
     .attr('height', yScale.rangeBand())
     .style('fill', function (cell) {
       if (cell.hasData) {
-        return colorScale(0, 0);
+        return colorScale(cell.numberOfAdds, cell.numberOfRemoves);
       } else {
         return 'none';
       }
@@ -391,6 +412,5 @@ function looksLikeAGitSha(thing) {
 
   return thing.match(/^[0-9a-f]{5,}$/i);
 }
-
 
 /*globals d3, moment*/
