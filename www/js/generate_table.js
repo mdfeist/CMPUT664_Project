@@ -23,8 +23,28 @@ ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 
 
 /* Run right after the page (and this script) finishes loading. */
-document.addEventListener('DOMContentLoaded', function () {
+//document.addEventListener('DOMContentLoaded', function () {
+//  var container = document.getElementById('dna-table');
+//
+//  /* XXX: */
+//  var processed = window.preprocessedData = preprocessData(window.DATA);
+//  var filtered = window.filteredData = filterTypes(processed, {
+//  });
+//
+//  /* Make this arbitrarily large. */
+//  var height = 20 * filtered.types.length;
+//
+//  drawGraph(filtered, container.offsetWidth, height);
+//});
+
+/* Draw table given JSON */
+function createTable(data) {
   var container = document.getElementById('dna-table');
+
+  /* Clear previous table */
+  container.innerHTML = "";
+
+  window.DATA = JSON.parse(data);
 
   /* XXX: */
   var processed = window.preprocessedData = preprocessData(window.DATA);
@@ -35,27 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var height = 20 * filtered.types.length;
 
   drawGraph(filtered, container.offsetWidth, height);
-});
-
-/* Draw table given JSON */
-function createTable(data) {
-  var container = document.getElementById('dna-table');
-
-  /* Clear previous table */
-  container.innerHTML = "";
-
-  /* Display JSON as test */
-  container.innerHTML = data;
-
-//  /* XXX: */
-//  var processed = window.preprocessedData = preprocessData(data);
-//  var filtered = window.filteredData = filterTypes(processed, {
-//  });
-//
-//  /* Make this arbitrarily large. */
-//  var height = 20 * filtered.types.length;
-//
-//  drawGraph(filtered, container.offsetWidth, height);
 }
 
 /*=== Classes ===*/

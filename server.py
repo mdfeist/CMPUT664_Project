@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 from flask import Flask, request, send_from_directory, render_template
 
 projects = []
@@ -35,9 +36,69 @@ class Project:
 
         return authors
 
+    def getEdit(self, commit, edit, t):
+        date_json = {}
+        date_json["author"] = commit.getAuthor()
+        date_json["commitID"] = commit.getCommitID()
+        date_json["date"] = commit.getDate()
+        date_json["type"] = t
+        date_json["edit"] = edit
+
+        return date_json
+
     def getJSON(self, options):
         print(options)
-        return "JSON" + self._dir
+
+        json_data = {}
+        types = set()
+
+        json_data["commits"] = list()
+        json_data["dates"] = list()
+
+        # Build JSON
+        for commit in self._commits:
+            commit_json = {}
+            commit_json["author"] = commit.getAuthor()
+            commit_json["commitID"] = commit.getCommitID()
+            commit_json["date"] = commit.getDate()
+            commit_json["message"] = commit.getMessage()
+
+            json_data["commits"].append(commit_json)
+
+            # Get types
+            for f in commit.getFiles():
+                if options.types == "Declarations" or options.types == "Types":
+                    for t in f.getDeclarations().getAdditionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "ADD", t))
+                    for t in f.getDeclarations().getDeletionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
+
+                if options.types == "Types":
+                    for t in f.getInvocations().getAdditionHist():
+                        tt = t.split("#")
+                        if (tt[0] != ""):
+                            types.add(tt[0])
+                            json_data["dates"].append(self.getEdit(commit, "ADD", tt[0]))
+                    for t in f.getInvocations().getDeletionHist():
+                        tt = t.split("#")
+                        if (tt[0] != ""):
+                            types.add(tt[0])
+                            json_data["dates"].append(self.getEdit(commit, "REMOVE", tt[0]))
+
+                if options.types == "Invocations":
+                    for t in f.getInvocations().getAdditionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "ADD", t))
+                    for t in f.getInvocations().getDeletionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
+
+        json_data["types"] = list(types)
+
+
+        return json.dumps(json_data)
 
     def __str__(self):
         output = self._dir + "\n"
@@ -236,7 +297,8 @@ def getStats(filename):
                 current_commit.setCommitID(commits[0])
             if ("#DATE |" in line):
                 date = line.split("|")[1].replace('\n','').strip()
-                current_commit.setDate(date)
+                d = date.split()
+                current_commit.setDate(d[0] + "T" + d[1] + d[2])
             if ("#COMMIT_MESSAGE_END" in line):
                 current_commit.setMessage(message)
                 message_start = False
@@ -343,7 +405,8 @@ def get_project(path):
     for project in projects:
         if (project.getDir() == path):
             options = attrdict()
-            options.type = "Project"
+            options.get = "Project"
+            options.types = "Types"
             return project.getJSON(options)
 
     return ""

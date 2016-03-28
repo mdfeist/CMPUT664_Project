@@ -51,6 +51,10 @@
         xhttp.open("GET", "get_project", true);
         xhttp.send();
       }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        loadProject();
+      });
     </script>
   </head>
   <body>
