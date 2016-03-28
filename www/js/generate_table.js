@@ -175,6 +175,18 @@ Object.defineProperties(Cell.prototype, {
         return diff.isRemove;
       }).length;
     }
+  },
+
+  authors: {
+    get: function () {
+      var authors = d3.set();
+
+      this.data.forEach( function (diff) {
+        authors.add(diff.author);
+      });
+
+      return authors.values();
+    }
   }
 });
 
@@ -390,6 +402,22 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
+  var CELL_INFO_WIDTH = 500
+
+  /* Cell Info */
+  var cellInfo = d3.select("body")
+  .append("div")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("visibility", "hidden")
+  .style("width", String(CELL_INFO_WIDTH) + "px")
+  .classed('panel panel-default', true);
+
+  cellInfo.append('div')
+    .classed('panel-heading', true)
+    .style("font-weight", "bold")
+    .text('Info');
+
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -410,7 +438,7 @@ function drawGraph(data, width, height) {
 
   var row = svg.selectAll('.row')
       .data(data.types)
-    .enter().append('g')
+      .enter().append('g')
       .classed('row', true)
       .attr('transform', function (type) {
         return 'translate(0, ' + yScale(type.fullyQualifiedName) + ')';
@@ -428,7 +456,7 @@ function drawGraph(data, width, height) {
   function createCellsForType(type) {
     /* Create all the cells. */
     var cell = d3.select(this).selectAll('.cell')
-        .data(type.cells)
+      .data(type.cells)
       .enter().append('g')
         /* Only do cool things with cells that *HAVE* data! */
         .filter(function (cell) { return cell.hasData; })
@@ -470,6 +498,71 @@ function drawGraph(data, width, height) {
       .attr('height', maxCellHeight)
       /* Bump down a pixel. */
       .attr('transform', 'translate(0, 1)');
+
+
+    cell.on("mouseover", function(cell_data) {
+      cellInfo.selectAll('ul').remove();
+      var info = cellInfo.append('ul')
+        .classed('list-group', true);
+
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("Type: " + cell_data.type);
+
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("Additions: " + cell_data.numberOfAdds);
+
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("Deletions: " + cell_data.numberOfDeletions);
+
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("Authors: " + cell_data.authors.length);
+
+      var coords = d3.mouse(document.body);
+      var currentx = coords[0];
+      var currenty = coords[1];
+      //console.log(currenty)
+
+      //var div_height = cell.node().getBoundingClientRect().height;
+
+      var x = currentx - CELL_INFO_WIDTH/2;
+
+      if (x < 10) x = 10;
+      if (x > width - CELL_INFO_WIDTH - 10) x = width - CELL_INFO_WIDTH -10;
+
+      var y = currenty + maxCellHeight + 10;
+
+      cellInfo.style('left', String(x) + "px");
+      cellInfo.style('top', String(y) + "px");
+
+      cellInfo.style("visibility", "visible");
+      
+      //console.log("over");
+    });
+
+    cell.on("mousemove", function (cell_data) {
+      var coords = d3.mouse(document.body);
+      var currentx = coords[0];
+      var currenty = coords[1];
+
+      var x = currentx - CELL_INFO_WIDTH/2;
+
+      if (x < 10) x = 10;
+      if (x > width - CELL_INFO_WIDTH - 10) x = width - CELL_INFO_WIDTH -10;
+
+      var y = currenty + maxCellHeight + 10;
+
+      cellInfo.style('left', String(x) + "px");
+      cellInfo.style('top', String(y) + "px");
+    });
+
+    cell.on("mouseout", function(cell) {
+      cellInfo.style("visibility", "hidden");
+      //console.log("out");
+    });
   }
 }
 
