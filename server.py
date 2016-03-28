@@ -37,7 +37,7 @@ class Project:
 
     def getJSON(self, options):
         print(options)
-        return ""
+        return "JSON" + self._dir
 
     def __str__(self):
         output = self._dir + "\n"
@@ -221,7 +221,7 @@ def getStats(filename):
                 #print(current_project)
                 projects.append(current_project)
             if ("#PROJECT_NAME" in line):
-                name = line.split("|")[1].replace('\n','').strip()
+                name = line.split("|")[1].replace('\n','').replace('/','').strip()
                 current_project.setDir(name)
             if ("#COMMIT_START" in line):
                 current_commit = Commit()
@@ -332,7 +332,6 @@ def root():
 
 @app.route('/projects')
 def dashboard():
-    print(len(projects))
     return render_template('projects.html', projects=projects)
 
 @app.route('/projects/<path:path>')
@@ -341,8 +340,13 @@ def show_project(path):
 
 @app.route('/projects/<path:path>/get_project')
 def get_project(path):
-    print('/get_project/' + path)
-    return path
+    for project in projects:
+        if (project.getDir() == path):
+            options = attrdict()
+            options.type = "Project"
+            return project.getJSON(options)
+
+    return ""
 
 if __name__ == "__main__":
     app.run()
