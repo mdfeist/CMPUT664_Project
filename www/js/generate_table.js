@@ -401,7 +401,7 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 /*=== Graph ===*/
 
 function drawGraph(data, width, height) {
-  var marginLeft = 120;
+  var marginLeft = 150;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -443,7 +443,7 @@ function drawGraph(data, width, height) {
 
   row.append('text')
       .attr('y', yScale.rangeBand() / 2)
-      .attr('dy', '.32em')
+      .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
       .text(function (type) { return type.name });
