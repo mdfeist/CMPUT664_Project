@@ -4,13 +4,12 @@
 .cell > .ast-additions { fill: #67a9cf; }
 .cell > .ast-deletions { fill: #ef8a62; }
 
-body.colorblind-safe
+body:not(.colorblind-safe)
 .cell > .ast-additions { fill: #a6f3a6; }
-body.colorblind-safe
+body:not(.colorblind-safe)
 .cell > .ast-deletions { fill: #f8cbcb; }
 
 .row .type-title { font-weight: bold; }
-
 
 .cell .cell-outline {
     fill: none;

@@ -9,18 +9,11 @@
     <link type="text/css" href="./css/bootstrap-theme.min.css" rel="stylesheet" media="all">
     <link type="text/css" href="./css/graph-styles.css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="./css/jquery-ui.min.css" rel="stylesheet" media="all">
-    <style>
-      rect.cell-data {
-        rx: 1.7px;
-        ry: 2.9px;
-      }
-    </style>
     <script src="./js/jquery-1.12.2.min.js"></script>
     <script src="./js/d3.v3.min.js"></script>
     <script src="./js/moment.min.js"></script>
     <script src="./js/jquery-ui.min.js"></script>
 
-    <!--script src="./js/table.js"></script-->
     <script src="./js/table_example.js"></script>
     <script>
       if (!hasDatePicker()) {
@@ -35,13 +28,13 @@
         input.setAttribute('type','date');
 
         var notADateValue = 'not-a-date';
-        input.setAttribute('value', notADateValue); 
+        input.setAttribute('value', notADateValue);
 
         return (input.value !== notADateValue);
       }
     </script>
   </head>
-  <body>
+  <body class="colorblind-safe">
     <div class="container-fluid">
       <nav class="row">
         <div class="col-xs-6 col-md-4">
@@ -90,5 +83,11 @@
       </main>
     </div>
     <script src="./js/generate_table.js"></script>
+    <script>
+      /* XXX: Run right after the page (and this script) finishes loading. */
+      document.addEventListener('DOMContentLoaded', function() {
+        createTable(window.DATA);
+      });
+    </script>
   </body>
 </html>

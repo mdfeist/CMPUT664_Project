@@ -45,7 +45,7 @@
         xhttp.onreadystatechange = function() {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
            //document.getElementById("demo").innerHTML = xhttp.responseText;
-           createTable(xhttp.responseText);
+           createTable(JSON.parse(xhttp.responseText));
           }
         };
         xhttp.open("GET", "get_project", true);
@@ -57,7 +57,7 @@
       });
     </script>
   </head>
-  <body>
+  <body class="colorblind-safe">
     <div id="demo"></div>
     <div class="container-fluid">
       <nav class="row">
