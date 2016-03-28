@@ -14,8 +14,6 @@
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery-ui.min.js"></script>
 
-    <!--script src="./js/table.js"></script-->
-    <!--script src="/js/table_example.js"></script-->
     <script>
       /* Add date picker widgets on platforms that don't have them. */
       if (!hasDatePicker()) {
@@ -30,7 +28,7 @@
         input.setAttribute('type','date');
 
         var notADateValue = 'not-a-date';
-        input.setAttribute('value', notADateValue); 
+        input.setAttribute('value', notADateValue);
 
         return (input.value !== notADateValue);
       }
@@ -39,11 +37,8 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
-            debugger;
-           //document.getElementById("demo").innerHTML = xhttp.responseText;
             var filter = getFilters();
-           createTable(JSON.parse(xhttp.responseText), filter);
-           debugger;
+            createTable(JSON.parse(xhttp.responseText), filter);
           }
         };
         xhttp.open("GET", "get_project", true);
@@ -73,7 +68,7 @@
       });
 
       function toggleAuthors() {
-        $("#authors").toggleClass( "collapse" ); 
+        $("#authors").toggleClass( "collapse" );
       }
     </script>
   </head>

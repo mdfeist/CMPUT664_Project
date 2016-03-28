@@ -205,7 +205,7 @@ Object.defineProperties(JavaType.prototype, {
    */
   fullyQualifiedName: {
     get: function () {
-      if (this.package !== '') {
+      if (this.package) {
         return this.package + '.' + this.name;
       }
 
@@ -423,7 +423,7 @@ function drawGraph(data, width, height) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.fullyQualifiedName });
+      .text(function (type) { return type.name });
 
   function createCellsForType(type) {
     /* Create all the cells. */
@@ -467,7 +467,9 @@ function drawGraph(data, width, height) {
     cell.append('rect')
       .classed('cell-outline', true)
       .attr('width', cellWidth)
-      .attr('height', maxCellHeight);
+      .attr('height', maxCellHeight)
+      /* Bump down a pixel. */
+      .attr('transform', 'translate(0, 1)');
   }
 }
 
