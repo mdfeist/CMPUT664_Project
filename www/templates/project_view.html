@@ -8,20 +8,16 @@
     <link type="text/css" href="/css/bootstrap.min.css" rel="stylesheet" media="all">
     <link type="text/css" href="/css/bootstrap-theme.min.css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="/css/jquery-ui.min.css" rel="stylesheet" media="all">
-    <style>
-      rect.cell-data {
-        rx: 1.7px;
-        ry: 2.9px;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/graph-styles.css" rel="stylesheet" media="all">
     <script src="/js/jquery-1.12.2.min.js"></script>
     <script src="/js/d3.v3.min.js"></script>
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery-ui.min.js"></script>
 
     <!--script src="./js/table.js"></script-->
-    <script src="/js/table_example.js"></script>
+    <!--script src="/js/table_example.js"></script-->
     <script>
+      /* Add date picker widgets on platforms that don't have them. */
       if (!hasDatePicker()) {
         $(function() {
           $('input[type="date"]').datepicker();
@@ -39,19 +35,15 @@
         return (input.value !== notADateValue);
       }
 
-
       function loadProject() {
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
+            debugger;
            //document.getElementById("demo").innerHTML = xhttp.responseText;
-            var filter = {
-              start: $("#min-datepicker").val(),
-              end: $("#max-datepicker").val(),
-              stepSize: $("#step").val(),
-              limit: $("#filter").val()
-            };
+            var filter = getFilters();
            createTable(JSON.parse(xhttp.responseText), filter);
+           debugger;
           }
         };
         xhttp.open("GET", "get_project", true);
@@ -59,14 +51,17 @@
       }
 
       function redrawTable() {
-        var filter = {
+        var filter = getFilters();
+        createTable2(filter);
+      }
+
+      function getFilters() {
+        return {
           start: $("#min-datepicker").val(),
           end: $("#max-datepicker").val(),
           stepSize: $("#step").val(),
-          limit: $("#filter").val()
+          limit: +$("#filter").val()
         };
-        
-        createTable2(filter);
       }
 
       document.addEventListener('DOMContentLoaded', function () {
@@ -131,15 +126,15 @@
       </nav>
 
       <main class="row">
-      <div id="authors" class="collapse">
-        {% for author in authors %}
-          <div class="checkbox">
-            <label><input type="checkbox" value="{{ author }}">{{ author }}</label>
-          </div>
-        {% endfor %}
-      </div>
-      <div id="dna-table" class="dna-table">
-      </div>
+        <div id="authors" class="collapse">
+          {% for author in authors %}
+            <div class="checkbox">
+              <label><input type="checkbox" value="{{ author }}">{{ author }}</label>
+            </div>
+          {% endfor %}
+        </div>
+        <div id="dna-table" class="dna-table">
+        </div>
       </main>
     </div>
     <script src="/js/generate_table.js"></script>
