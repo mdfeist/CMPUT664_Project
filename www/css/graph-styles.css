@@ -1,0 +1,19 @@
+/**
+ * From: http://colorbrewer2.org/?type=diverging&scheme=RdBu&n=3
+ */
+.cell > .ast-additions { fill: #67a9cf; }
+.cell > .ast-deletions { fill: #ef8a62; }
+
+body.colorblind-safe
+.cell > .ast-additions { fill: #a6f3a6; }
+body.colorblind-safe
+.cell > .ast-deletions { fill: #f8cbcb; }
+
+.row .type-title { font-weight: bold; }
+
+
+.cell .cell-outline {
+    fill: none;
+    stroke: #333;
+    stroke-width: 2px;
+}

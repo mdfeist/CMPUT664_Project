@@ -7,12 +7,6 @@
  *  - Ian Watts
  */
 
-/**
- * From: http://colorbrewer2.org/?type=diverging&scheme=RdBu&n=3
- * ['#ef8a62','#f7f7f7','#67a9cf'];
- */
-var COLOR_ADDITIONS = '#ef8a62';
-var COLOR_DELETIONS = '#67a9cf';
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
 /** The set of edit kinds.  */
@@ -28,8 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* XXX: */
   var processed = window.preprocessedData = preprocessData(window.DATA);
-  var filtered = window.filteredData = filterTypes(processed, {
-  });
+  var filtered = window.filteredData = filterTypes(processed);
 
   /* Make this arbitrarily large. */
   var height = 20 * filtered.types.length;
@@ -267,19 +260,21 @@ function preprocessData(data) {
  * Each type has its Cells, with ASTDiffs.
  */
 function filterTypes(data, filters) {
-  assert(filters);
+  /* Let filters be undefined or null. */
+  filters = filters ? filters : {};
+
   /* Either the date provided, or the first date attested. */
   var startDate = filters.start || first(data.astDiffs).date;
   /* Either the date provided or the last date attested. */
   var endDate = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
-  var cellSize = filters.stepSize || 'day';
+  var stepSize = filters.stepSize || 'day';
 
   assert(startDate instanceof Date);
   assert(endDate instanceof Date);
   assert(startDate < endDate);
   assert(typeof numberOfTypesUpperBound === 'number');
-  assert(VALID_STEP_SIZES.has(cellSize));
+  assert(VALID_STEP_SIZES.has(stepSize));
 
   /* Find the range of diffs to use. */
   var lowerIndex = d3.bisectLeft(data.astDiffs, startDate);
@@ -301,7 +296,7 @@ function filterTypes(data, filters) {
   var types = sortedTypeNames.map(JavaType);
 
   /* Create all cells applicable to display.  */
-  forEachDateLimitsDescending(startDate, endDate, cellSize, function (start, end) {
+  forEachDateLimitsDescending(startDate, endDate, stepSize, function (start, end) {
     /* For each type... */
     types.forEach(function (type) {
       /* ...add all data cells. */
@@ -379,7 +374,7 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 /*=== Graph ===*/
 
 function drawGraph(data, width, height) {
-  var marginLeft = 120;
+  var marginLeft = 160;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -391,20 +386,8 @@ function drawGraph(data, width, height) {
     .domain([data.minDate, data.maxDate])
     .rangeRound([marginLeft, width]);
 
-  /**
-   * Given number of additions and deletions, returns an appropriate,
-   * interpoloated colour.
-   */
-  var colorScale = (function () {
-    var colorInterpolator = d3.interpolateHsl(COLOR_ADDITIONS, COLOR_DELETIONS);
-
-    return function (additions, deletions) {
-      assert(additions + deletions > 0);
-      var score = additions / (additions + deletions);
-      assert(0 <= score && score <= 1);
-      return colorInterpolator(score);
-    };
-  }());
+  var cellWidth = cellWidthFromScale(first(first(data.types).cells), xScale);
+  var maxCellHeight = yScale.rangeBand() - 2;
 
   var svg = d3.select('#dna-table').append('svg')
       .attr("width", width)
@@ -420,6 +403,7 @@ function drawGraph(data, width, height) {
       .each(createCellsForType);
 
   row.append('text')
+      .classed('type-title', true)
       .attr('y', yScale.rangeBand() / 2)
       .attr('dy', '.32em')
       .attr('x', `${marginLeft - 10}px`)
@@ -438,16 +422,37 @@ function drawGraph(data, width, height) {
           return 'translate(' + xScale(cell.startDate) + ', 0)';
         });
 
+    /* Make the addition bar. */
     cell.append('rect')
-      .classed('cell-data', true)
-      .attr('width', cellWidthFromScale(first(type.cells), xScale))
+      .classed('ast-additions', true)
+      .attr('width', cellWidth)
+      /* Bump it down... */
       .attr('transform', 'translate(0, 1)')
-      .attr('height', yScale.rangeBand() - 2)
-      .style('fill', function (cell) {
-        assert(cell.hasData);
-        /* Use a gradient that shows proportion of additions and deletions. */
-        return colorScale(cell.numberOfAdds, cell.numberOfDeletions);
+      .attr('height', function (cell) {
+        var proportion = cell.numberOfAdds / cell.numberOfObservations;
+        return proportion * maxCellHeight;
       });
+
+    /* Make the deletion bar. */
+    cell.append('rect')
+      .classed('ast-deletions', true)
+      .attr('width', cellWidth)
+      /* Bump it down... */
+      .attr('transform', function (cell) {
+        var proportion = cell.numberOfAdds / cell.numberOfObservations;
+        var topHalf = 1 + proportion * maxCellHeight;
+
+        return 'translate(0, ' + topHalf + ')'
+      })
+      .attr('height', function (cell) {
+        var proportion = cell.numberOfDeletions / cell.numberOfObservations;
+        return proportion * maxCellHeight;
+      });
+
+    cell.append('rect')
+      .classed('cell-outline', true)
+      .attr('width', cellWidth)
+      .attr('height', maxCellHeight);
   }
 }
 
