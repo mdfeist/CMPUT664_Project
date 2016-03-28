@@ -1,14 +1,18 @@
 import sys
 import os
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, render_template
 
 projects = []
+
+class attrdict(dict):
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self.__dict__ = self
 
 class Project:
     def __init__(self):
         self._dir = ""
         self._commits = []
-        self._authors = {}
 
     def setDir(self, name):
         self._dir = name
@@ -22,66 +26,17 @@ class Project:
     def getCommits(self):
         return self._commits
 
-    def calculateAuthors(self):
-        declarations = set()
-        invocations = set()
-
-        author_names = set()
+    def getAuthors(self):
+        authors = set()
         
-        # Get authors and libs used in project
         for commit in self._commits:
             author = commit.getAuthor()
-            author_names.add(author)
+            authors.add(author)
 
-            for f in commit.getFiles():
-                for lib in f.getDeclarations().getAdditionHist():
-                    declarations.add(lib)
+        return authors
 
-                for lib in f.getDeclarations().getDeletionsHist():
-                    declarations.add(lib)
-
-                for lib in f.getInvocations().getAdditionHist():
-                    invocations.add(lib)
-
-                for lib in f.getInvocations().getDeletionsHist():
-                    invocations.add(lib)
-
-        # Create authors and set up lib histogram
-        for author in author_names:
-            self._authors[author] = Author()
-            self._authors[author].setName(author)
-
-#            author_declarations = authors[author].getDeclarations()
-#            author_invocations = authors[author].getInvocations()
-#
-#            for lib in declarations:
-#                author_declarations.add(lib, "INSERT", 0)
-#                author_declarations.add(lib, "DELETE", 0)
-#
-#            for lib in invocations:
-#                author_invocations.add(lib, "INSERT", 0)
-#                author_invocations.add(lib, "DELETE", 0)
-
-        # Get libs and histogram for each author
-        for commit in self._commits:
-            name = commit.getAuthor()
-            author = self._authors[name]
-
-            for f in commit.getFiles():
-                for lib, count in f.getDeclarations().getAdditionHist().items():
-                    author.getDeclarations().add(lib, "INSERT", count)
-
-                for lib, count in f.getDeclarations().getDeletionsHist().items():
-                    author.getDeclarations().add(lib, "DELETE", count)
-
-                for lib, count in f.getInvocations().getAdditionHist().items():
-                    author.getInvocations().add(lib, "INSERT", count)
-
-                for lib, count in f.getInvocations().getDeletionsHist().items():
-                    author.getInvocations().add(lib, "DELETE", count)
-
-
-    def getJSON(self):
+    def getJSON(self, options):
+        print(options)
         return ""
 
     def __str__(self):
@@ -92,38 +47,6 @@ class Project:
             output += commit.toStr("\t")
 
         return output
-    
-    def __repr__(self):
-        return self.__str__()
-
-class Author:
-    def __init__(self):
-        self._name = ""
-        self._declarations = Histogram("Declarations")
-        self._invocations = Histogram("Invocations")
-
-    def setName(self, name):
-        self._name = name
-
-    def getName(self):
-        return self._name
-
-    def getDeclarations(self):
-        return self._declarations
-
-    def getInvocations(self):
-        return self._invocations
-
-    def toStr(self, tab):
-        output = tab + "Author: " + self._name + "\n"
-        output += "\n"
-        output += self._declarations.toStr(tab + "\t")
-        output += self._invocations.toStr(tab + "\t")
-
-        return output
-
-    def __str__(self):
-        return self.toStr("")
     
     def __repr__(self):
         return self.__str__()
@@ -391,7 +314,8 @@ print("Gathering Stats ...")
 # set the project root directory as the static folder, you can set others.
 path = os.path.dirname(os.path.realpath(__file__))
 static_folder = path + '/www'
-app = Flask(__name__, static_folder=static_folder, static_url_path='/www')
+template_folder = path + '/www/templates'
+app = Flask(__name__, static_folder=static_folder, static_url_path='/www', template_folder=template_folder)
 app.config['DEBUG'] = True
 
 @app.route('/js/<path:path>')
@@ -405,6 +329,20 @@ def send_css(path):
 @app.route('/')
 def root():
     return app.send_static_file('index.html')
+
+@app.route('/projects')
+def dashboard():
+    print(len(projects))
+    return render_template('projects.html', projects=projects)
+
+@app.route('/projects/<path:path>')
+def show_project(path):
+    return render_template('project_view.html')
+
+@app.route('/projects/<path:path>/get_project')
+def get_project(path):
+    print('/get_project/' + path)
+    return path
 
 if __name__ == "__main__":
     app.run()

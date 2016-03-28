@@ -37,6 +37,26 @@ document.addEventListener('DOMContentLoaded', function () {
   drawGraph(filtered, container.offsetWidth, height);
 });
 
+/* Draw table given JSON */
+function createTable(data) {
+  var container = document.getElementById('dna-table');
+
+  /* Clear previous table */
+  container.innerHTML = "";
+
+  /* Display JSON as test */
+  container.innerHTML = data;
+
+//  /* XXX: */
+//  var processed = window.preprocessedData = preprocessData(data);
+//  var filtered = window.filteredData = filterTypes(processed, {
+//  });
+//
+//  /* Make this arbitrarily large. */
+//  var height = 20 * filtered.types.length;
+//
+//  drawGraph(filtered, container.offsetWidth, height);
+}
 
 /*=== Classes ===*/
 
