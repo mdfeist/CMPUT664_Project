@@ -38,12 +38,12 @@ ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 //});
 
 /* Draw table given JSON */
-function createTable(data) {
+function createTable(data, filter) {
   window.DATA = JSON.parse(data);
-  createTable();
+  createTable2(filter);
 }
 
-function createTable() {
+function createTable2(filter) {
   var container = document.getElementById('dna-table');
 
   /* Clear previous table */
@@ -51,8 +51,7 @@ function createTable() {
 
   /* XXX: */
   var processed = window.preprocessedData = preprocessData(window.DATA);
-  var filtered = window.filteredData = filterTypes(processed, {
-  });
+  var filtered = window.filteredData = filterTypes(processed, filter);
 
   /* Make this arbitrarily large. */
   var height = 20 * filtered.types.length;
