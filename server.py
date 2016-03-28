@@ -57,7 +57,7 @@ class Project:
 
         # Build JSON
         for commit in self._commits:
-            if len(commit.getFiles()) > 20:
+            if len(commit.getFiles()) > 50:
                 continue
 
             commit_json = {}

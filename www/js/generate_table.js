@@ -40,6 +40,8 @@ ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 /* Draw table given JSON */
 function createTable(data, filter) {
   window.DATA = JSON.parse(data);
+  window.preprocessedData = preprocessData(window.DATA);
+
   createTable2(filter);
 }
 
@@ -50,7 +52,7 @@ function createTable2(filter) {
   container.innerHTML = "";
 
   /* XXX: */
-  var processed = window.preprocessedData = preprocessData(window.DATA);
+  var processed = window.preprocessedData;
   var filtered = window.filteredData = filterTypes(processed, filter);
 
   /* Make this arbitrarily large. */
@@ -78,7 +80,7 @@ function ASTDiff(original) {
   assert(date > new Date('1970-01-01') && date < new Date());
   assert(typeof original.type === 'string');
   assert(ASTDiff.EDIT_KIND.has(original.edit));
-  assert(looksLikeAnEmail(original.author));
+  //assert(looksLikeAnEmail(original.author));
 
   this.date = date;
   this.type = original.type;
@@ -295,7 +297,7 @@ function filterTypes(data, filters) {
   /* Either the date provided or the last date attested. */
   var endDate = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
-  var cellSize = filters.stepSize || 'day';
+  var cellSize = filters.stepSize || 'month';
 
   assert(startDate instanceof Date);
   assert(endDate instanceof Date);

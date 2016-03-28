@@ -45,7 +45,13 @@
         xhttp.onreadystatechange = function() {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
            //document.getElementById("demo").innerHTML = xhttp.responseText;
-           createTable(xhttp.responseText, {});
+            var filter = {
+              start: $("#min-datepicker").val(),
+              end: $("#max-datepicker").val(),
+              stepSize: $("#step").val(),
+              limit: $("#filter").val()
+            };
+           createTable(xhttp.responseText, filter);
           }
         };
         xhttp.open("GET", "get_project", true);
@@ -105,15 +111,19 @@
               <option value="hour">Hour</option>
               <option value="day">Day</option>
               <option value="week">Week</option>
-              <option value="month">Month</option>
+              <option value="month" selected>Month</option>
             </select>
           </label>
 
           <label> Show classes
             <select id="filter" class="filter_info">
               <option value="10"> Top 10 </option>
+              <option value="50"> Top 50 </option>
               <option value="100"> Top 100 </option>
-              <option value="Infinity"> All </option>
+              <option value="250"> Top 250 </option>
+              <option value="500"> Top 500 </option>
+              <option value="1000"> Top 1000 </option>
+              <option value="Infinity" selected> All </option>
             </select>
           </label>
 
