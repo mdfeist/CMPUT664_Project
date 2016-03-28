@@ -1,7 +1,14 @@
 import sys
 import os
+import json
+from flask import Flask, request, send_from_directory, render_template
 
 projects = []
+
+class attrdict(dict):
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self.__dict__ = self
 
 class Project:
     def __init__(self):
@@ -20,76 +27,78 @@ class Project:
     def getCommits(self):
         return self._commits
 
-    def getJSON(self):
-        dump = self._dir
-        libs_csv = ""
-        libs = set()
-        author_names = set()
-        authors = {}
-
-        # Get authors and libs used in project
+    def getAuthors(self):
+        authors = set()
+        
         for commit in self._commits:
             author = commit.getAuthor()
-            author_names.add(author)
+            authors.add(author)
 
-            for f in commit.getFiles():
-                for lib in f.getLibs().getHist():
-                    libs.add(lib)
+        return authors
 
-        # Create authors and set up lib histogram
-        for author in author_names:
-            authors[author] = Author()
-            authors[author].setName(author)
+    def getEdit(self, commit, edit, t):
+        date_json = {}
+        date_json["author"] = commit.getAuthor()
+        date_json["commitID"] = commit.getCommitID()
+        date_json["date"] = commit.getDate()
+        date_json["type"] = t
+        date_json["edit"] = edit
 
-            author_libs = authors[author].getLibs()
+        return date_json
 
-            for lib in libs:
-                author_libs.add(lib, 0)
+    def getJSON(self, options):
+        print(options)
 
-        # Get libs and histogram for each author
+        json_data = {}
+        types = set()
+
+        json_data["commits"] = list()
+        json_data["dates"] = list()
+
+        # Build JSON
         for commit in self._commits:
-            name = commit.getAuthor()
-            author = authors[name]
+            commit_json = {}
+            commit_json["author"] = commit.getAuthor()
+            commit_json["commitID"] = commit.getCommitID()
+            commit_json["date"] = commit.getDate()
+            commit_json["message"] = commit.getMessage()
 
+            json_data["commits"].append(commit_json)
+
+            # Get types
             for f in commit.getFiles():
-                for lib, count in f.getLibs().getHist().items():
-                    author.getLibs().add(lib, count)
+                if options.types == "Declarations" or options.types == "Types":
+                    for t in f.getDeclarations().getAdditionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "ADD", t))
+                    for t in f.getDeclarations().getDeletionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
 
-        # Get Stats
-        # Get dump of authors
-        for key, author in authors.items():
-            # Get dump for author
-            dump += author.toStr("\t")
+                if options.types == "Types":
+                    for t in f.getInvocations().getAdditionHist():
+                        tt = t.split("#")
+                        if (tt[0] != ""):
+                            types.add(tt[0])
+                            json_data["dates"].append(self.getEdit(commit, "ADD", tt[0]))
+                    for t in f.getInvocations().getDeletionHist():
+                        tt = t.split("#")
+                        if (tt[0] != ""):
+                            types.add(tt[0])
+                            json_data["dates"].append(self.getEdit(commit, "REMOVE", tt[0]))
 
-            # Libs
-            libs_hist = author.getLibs().getHist()
+                if options.types == "Invocations":
+                    for t in f.getInvocations().getAdditionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "ADD", t))
+                    for t in f.getInvocations().getDeletionHist():
+                        types.add(t)
+                        json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
 
-            if libs_csv == "":
-                libs_csv += "Project, Author, "
-                for name in libs_hist:
-                    libs_csv += name + ", "
+        json_data["types"] = list(types)
 
-                libs_csv += "\n"
 
-            if len(libs_hist) > 0:
-                libs_csv += self._dir + ", " + author.getName().replace(",", "") + ", "
-                count = 0
-                total = 0
-                touched = 0
-                for value in libs_hist.itervalues():
-                    libs_csv += str(value) + ", "
-
-                    if value > 0:
-                        touched += 1
-                    count += 1
-
-                    total += value
-
-                libs_csv += "\n"
-
-        #Libs
-
-        return json
+        return json.dumps(json_data)
 
     def __str__(self):
         output = self._dir + "\n"
@@ -99,33 +108,6 @@ class Project:
             output += commit.toStr("\t")
 
         return output
-    
-    def __repr__(self):
-        return self.__str__()
-
-class Author:
-    def __init__(self):
-        self._name = ""
-        self._libs = Histogram()
-
-    def setName(self, name):
-        self._name = name
-
-    def getName(self):
-        return self._name
-
-    def getLibs(self):
-        return self._libs
-
-    def toStr(self, tab):
-        output = tab + "Author: " + self._name + "\n"
-        output += "\n"
-        output += self._libs.toStr(tab + "\t")
-
-        return output
-
-    def __str__(self):
-        return self.toStr("")
     
     def __repr__(self):
         return self.__str__()
@@ -300,7 +282,7 @@ def getStats(filename):
                 #print(current_project)
                 projects.append(current_project)
             if ("#PROJECT_NAME" in line):
-                name = line.split("|")[1].replace('\n','').strip()
+                name = line.split("|")[1].replace('\n','').replace('/','').strip()
                 current_project.setDir(name)
             if ("#COMMIT_START" in line):
                 current_commit = Commit()
@@ -315,7 +297,8 @@ def getStats(filename):
                 current_commit.setCommitID(commits[0])
             if ("#DATE |" in line):
                 date = line.split("|")[1].replace('\n','').strip()
-                current_commit.setDate(date)
+                d = date.split()
+                current_commit.setDate(d[0] + "T" + d[1] + d[2])
             if ("#COMMIT_MESSAGE_END" in line):
                 current_commit.setMessage(message)
                 message_start = False
@@ -390,10 +373,51 @@ for f in files:
 print("Number of Projects: " + str(len(projects)))
 print("Gathering Stats ...")
 
-dump_file = open('dump.out', 'w')
+# set the project root directory as the static folder, you can set others.
+path = os.path.dirname(os.path.realpath(__file__))
+static_folder = path + '/www'
+template_folder = path + '/www/templates'
+app = Flask(__name__, static_folder=static_folder, static_url_path='/www', template_folder=template_folder)
+app.config['DEBUG'] = True
 
-for project in projects:
-    #print(project.getStats()[2])
-    stats = project.getJSON()
-    
-    dump_file.write(stats)
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory(app.static_folder + '/js', path)
+
+@app.route('/css/<path:path>')
+def send_css(path):
+    return send_from_directory(app.static_folder + '/css', path)
+
+@app.route('/')
+def root():
+    return app.send_static_file('index.html')
+
+@app.route('/projects')
+def dashboard():
+    return render_template('projects.html', projects=projects)
+
+@app.route('/projects/<path:path>')
+def show_project(path):
+    return render_template('project_view.html')
+
+@app.route('/projects/<path:path>/get_project')
+def get_project(path):
+    for project in projects:
+        if (project.getDir() == path):
+            options = attrdict()
+            options.get = "Project"
+            options.types = "Types"
+            return project.getJSON(options)
+
+    return ""
+
+if __name__ == "__main__":
+    app.run()
+
+#dump_file = open('dump.out', 'w')
+#
+#for project in projects:
+#    #print(project.getStats()[2])
+#    stats = project.getJSON()
+#    
+#    dump_file.write(stats)
