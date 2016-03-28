@@ -347,11 +347,13 @@ function filterTypes(data, filters) {
     var upperIndex = d3.bisectRight(applicableDiffs, end);
     var i, diff, type;
 
-    /* For each item... */
+    /* For each diff... */
     for (i = lowerIndex; i < upperIndex; i++) {
       diff = applicableDiffs[i];
       type = typeMap[diff.type];
-      assert(type instanceof JavaType);
+      if (type === undefined) {
+        continue;
+      }
       type.addDiff(diff, start, end);
     }
   });
