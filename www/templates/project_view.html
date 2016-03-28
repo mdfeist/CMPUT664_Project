@@ -51,9 +51,24 @@
       }
 
       function getFilters() {
+        start_date = null;
+        end_date = null;
+
+        var timestamp=Date.parse($("#min-datepicker").val())
+        if (isNaN(timestamp)==false)
+        {
+          start_date = new Date(timestamp);
+        }
+
+        timestamp=Date.parse($("#max-datepicker").val())
+        if (isNaN(timestamp)==false)
+        {
+          end_date = new Date(timestamp);
+        }
+        
         return {
-          start: $("#min-datepicker").val(),
-          end: $("#max-datepicker").val(),
+          start: start_date,
+          end: end_date,
           stepSize: $("#step").val(),
           limit: +$("#filter").val()
         };
