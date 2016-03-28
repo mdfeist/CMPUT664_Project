@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-from flask import Flask, request, send_from_directory, render_template
+from flask import Flask, request, redirect, send_from_directory, render_template
 
 projects = []
 
@@ -57,6 +57,9 @@ class Project:
 
         # Build JSON
         for commit in self._commits:
+            if len(commit.getFiles()) > 50:
+                continue
+
             commit_json = {}
             commit_json["author"] = commit.getAuthor()
             commit_json["commitID"] = commit.getCommitID()
@@ -268,6 +271,7 @@ class Histogram:
         return self.__str__()
 
 def getStats(filename):
+    project_start = False
     current_project = None
     current_commit = None
     current_file = None
@@ -278,9 +282,11 @@ def getStats(filename):
         for line in f:
             if ("#PROJECT_START" in line):
                 current_project = Project()
+                project_start = True
             if ("#PROJECT_END" in line):
                 #print(current_project)
                 projects.append(current_project)
+                project_start = False
             if ("#PROJECT_NAME" in line):
                 name = line.split("|")[1].replace('\n','').replace('/','').strip()
                 current_project.setDir(name)
@@ -349,6 +355,9 @@ def getStats(filename):
                 value = int(split_str[3].strip())
                 current_file.getInvocations().add(name, edit, value)
 
+    if (project_start):
+        projects.append(current_project)
+
 
 def mergeProjectCSV(csv):
     title = csv.split('\n', 1)[0]
@@ -390,7 +399,8 @@ def send_css(path):
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    #return app.send_static_file('index.html')
+    return redirect('/projects')
 
 @app.route('/projects')
 def dashboard():
@@ -398,7 +408,11 @@ def dashboard():
 
 @app.route('/projects/<path:path>')
 def show_project(path):
-    return render_template('project_view.html')
+    name = path.replace('/','')
+    for project in projects:
+        if (project.getDir() == name):
+           return render_template('project_view.html', authors=list(project.getAuthors()))
+    return name
 
 @app.route('/projects/<path:path>/get_project')
 def get_project(path):

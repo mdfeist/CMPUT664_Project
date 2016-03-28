@@ -17,16 +17,15 @@ if [ ! -d "$CMPUT664_PROJECT/tmp" ]; then
 	mkdir $CMPUT664_PROJECT/tmp
 fi
 
-git log --reverse --date=iso8601 --format="%H %aE %ad" | while read line
+git log --reverse --date=iso8601 --format="%H;%ad;%aN;%aE" | while read line
 do
-	stringarray=($line)
+	IFS=';' read -a stringarray <<< "$line"
 
 	commit=${stringarray[0]}
-	author=${stringarray[1]}
-	date=${stringarray[2]}
-	t=${stringarray[3]}
-	timeZone=${stringarray[4]}
-
+	date=${stringarray[1]}
+	name=${stringarray[2]}
+	email=${stringarray[3]}
+	
 	# Check if merge commit
 	FOUND=false
 	while read no_merge
@@ -42,19 +41,19 @@ do
 	fi
 
 	# Skip large commits as probably not authors work
-	FILE_COUNT=0
-	while read no_merge
-	do
-		FILE_COUNT=$[$FILE_COUNT +1]
-	done < <(git show --pretty="format:" --name-only $commit | sed -n '1!p')
-
-	if [ $FILE_COUNT -gt 20 ]; then
-		continue
-	fi
+#	FILE_COUNT=0
+#	while read no_merge
+#	do
+#		FILE_COUNT=$[$FILE_COUNT +1]
+#	done < <(git show --pretty="format:" --name-only $commit | sed -n '1!p')
+#
+#	if [ $FILE_COUNT -gt 20 ]; then
+#		continue
+#	fi
 	
 	echo "#COMMIT_START"
-	echo "#AUTHOR | $author"
-	echo "#DATE | $date $t $timeZone"
+	echo "#AUTHOR | $name <$email>"
+	echo "#DATE | $date"
 	echo "#COMMIT_ID | $commit"
 	echo "#COMMIT_MESSAGE_START"
 	git log --format=%B -n 1 $commit

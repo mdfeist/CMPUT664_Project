@@ -16,15 +16,22 @@ ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 !window.assert ? (window.assert = console.assert.bind(console)) : undefined;
 
 /* Draw table given JSON */
-function createTable(data) {
+function createTable(data, filter) {
+  window.DATA = data;
+  window.preprocessedData = preprocessData(window.DATA);
+
+  createTable2(filter);
+}
+
+function createTable2(filter) {
   var container = document.getElementById('dna-table');
 
   /* Clear previous table */
   container.innerHTML = "";
 
   /* XXX: */
-  var processed = window.preprocessedData = preprocessData(data);
-  var filtered = window.filteredData = filterTypes(processed);
+  var processed = window.preprocessedData;
+  var filtered = window.filteredData = filterTypes(processed, filter);
 
   /* Make this arbitrarily large. */
   var height = 20 * filtered.types.length;
@@ -32,6 +39,7 @@ function createTable(data) {
   drawGraph(filtered, container.offsetWidth, height);
 }
 window.createTable = createTable;
+
 
 /*=== Classes ===*/
 
@@ -51,7 +59,8 @@ function ASTDiff(original) {
   assert(date > new Date('1970-01-01') && date < new Date());
   assert(typeof original.type === 'string');
   assert(ASTDiff.EDIT_KIND.has(original.edit));
-  assert(looksLikeAnEmail(original.author));
+  /* We can't trust all data to look like an email address... */
+  //assert(looksLikeAnEmail(original.author));
 
   this.date = date;
   this.type = original.type;
@@ -196,7 +205,11 @@ Object.defineProperties(JavaType.prototype, {
    */
   fullyQualifiedName: {
     get: function () {
-      return this.package + '.' + this.name;
+      if (this.package !== '') {
+        return this.package + '.' + this.name;
+      }
+
+      return this.name;
     }
   },
 
@@ -270,7 +283,7 @@ function filterTypes(data, filters) {
   /* Either the date provided or the last date attested. */
   var endDate = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
-  var stepSize = filters.stepSize || 'day';
+  var stepSize = filters.stepSize || 'month';
 
   assert(startDate instanceof Date);
   assert(endDate instanceof Date);
@@ -376,11 +389,11 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 /*=== Graph ===*/
 
 function drawGraph(data, width, height) {
-  var marginLeft = 160;
+  var marginLeft = 150;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
-    .domain(data.types.map(function (type) { return type.name }))
+    .domain(data.types.map(function (type) { return type.fullyQualifiedName }))
     .rangeBands([0, height]);
 
   /* Create a scale for the dates i.e., the x-axis */
@@ -400,17 +413,17 @@ function drawGraph(data, width, height) {
     .enter().append('g')
       .classed('row', true)
       .attr('transform', function (type) {
-        return 'translate(0, ' + yScale(type.name) + ')';
+        return 'translate(0, ' + yScale(type.fullyQualifiedName) + ')';
       })
       .each(createCellsForType);
 
   row.append('text')
       .classed('type-title', true)
       .attr('y', yScale.rangeBand() / 2)
-      .attr('dy', '.32em')
+      .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.name });
+      .text(function (type) { return type.fullyQualifiedName });
 
   function createCellsForType(type) {
     /* Create all the cells. */
@@ -487,6 +500,7 @@ function looksLikeAnEmail(thing) {
   /* Emails are actually really complicated, but let's... do this: */
   return thing.match(/^.+@.+$/);
 }
+window.looksLikeAnEmail = looksLikeAnEmail;
 
 
 function looksLikeAGitSha(thing) {

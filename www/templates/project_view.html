@@ -45,16 +45,41 @@
         xhttp.onreadystatechange = function() {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
            //document.getElementById("demo").innerHTML = xhttp.responseText;
-           createTable(JSON.parse(xhttp.responseText));
+            var filter = {
+              start: $("#min-datepicker").val(),
+              end: $("#max-datepicker").val(),
+              stepSize: $("#step").val(),
+              limit: $("#filter").val()
+            };
+           createTable(JSON.parse(xhttp.responseText), filter);
           }
         };
         xhttp.open("GET", "get_project", true);
         xhttp.send();
       }
 
+      function redrawTable() {
+        var filter = {
+          start: $("#min-datepicker").val(),
+          end: $("#max-datepicker").val(),
+          stepSize: $("#step").val(),
+          limit: $("#filter").val()
+        };
+        
+        createTable2(filter);
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         loadProject();
+
+        $(".filter_info").on("change", function(){
+          redrawTable();
+        });
       });
+
+      function toggleAuthors() {
+        $("#authors").toggleClass( "collapse" ); 
+      }
     </script>
   </head>
   <body class="colorblind-safe">
@@ -64,10 +89,10 @@
         <div class="col-xs-6 col-md-4">
           <ul class="nav nav-pills">
             <li role="presentation" class="active">
-              <a href="#" onclick="loadProject()">Project Flow</a>
+              <a href="#" onclick="redrawTable()">Project Flow</a>
             </li>
             <li role="presentation">
-              <a href="#">Author View</a>
+              <a href="#" onclick="toggleAuthors()">Author View</a>
             </li>
           </ul>
         </div>
@@ -75,26 +100,30 @@
         <div class="col-xs-12 col-md-8 date-range">
           <!-- TODO: Make this like... a month ago... -->
           <label> Starting from
-            <input class="text" value="" type="date" id="min-datepicker" name="min">
+            <input class="text filter_info" value="" type="date" id="min-datepicker" name="min">
           </label>
           <label> to
-            <input class="text" value="" type="date" id="max-datepicker" name="max">
+            <input class="text filter_info" value="" type="date" id="max-datepicker" name="max">
           </label>
 
           <label> Cluster by
-            <select name="step">
+            <select id="step" class="filter_info">
               <option value="hour">Hour</option>
               <option value="day">Day</option>
               <option value="week">Week</option>
-              <option value="month">Month</option>
+              <option value="month" selected>Month</option>
             </select>
           </label>
 
           <label> Show classes
-            <select name="filter">
+            <select id="filter" class="filter_info">
               <option value="10"> Top 10 </option>
+              <option value="50"> Top 50 </option>
               <option value="100"> Top 100 </option>
-              <option value="Infinity"> All </option>
+              <option value="250"> Top 250 </option>
+              <option value="500"> Top 500 </option>
+              <option value="1000"> Top 1000 </option>
+              <option value="Infinity" selected> All </option>
             </select>
           </label>
 
@@ -102,6 +131,13 @@
       </nav>
 
       <main class="row">
+      <div id="authors" class="collapse">
+        {% for author in authors %}
+          <div class="checkbox">
+            <label><input type="checkbox" value="{{ author }}">{{ author }}</label>
+          </div>
+        {% endfor %}
+      </div>
       <div id="dna-table" class="dna-table">
       </div>
       </main>
