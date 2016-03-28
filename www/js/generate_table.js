@@ -141,7 +141,14 @@ Object.defineProperties(Cell.prototype, {
       if (!(diff instanceof ASTDiff)) {
         return false;
       }
-      return this.startDate <= diff.date && diff.date <= this.endDate;
+
+      /* Chrome V8 will bail-out of optimizing this function if you compare
+       * the dates directly (non-primitive compare);
+       * instead, compare the valueOf()s, since this ends up being a Number
+       * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
+       * generate native code for.  */
+      return this.startDate.valueOf() <= diff.date.valueOf() &&
+        diff.date.valueOf() <= this.endDate.valueOf();
     },
   },
 
