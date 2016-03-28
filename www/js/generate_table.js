@@ -116,7 +116,7 @@ function Cell(start, until, type) {
   assert(until instanceof Date);
   assert(typeof type === 'string');
 
-  this.data = []
+  this.diffs = []
   this.startDate = start;
   this.endDate = until;
   this.type = type;
@@ -124,45 +124,52 @@ function Cell(start, until, type) {
 
 Object.defineProperties(Cell.prototype, {
   /**
-   * Given a bunch of ASTDiffs,
-   * sets this cell's data to the appropriate ASTDiff.
+   * Adds a single diff.
    */
-  setDataFromSortedASTDiffs: {
-    value: function (astDiffs) {
-      assert(astDiffs instanceof Array);
-      var typeName = this.type;
-
-      var lowerIndex = d3.bisectLeft(astDiffs, this.startDate);
-      var upperIndex = d3.bisectRight(astDiffs, this.endDate);
-
-      this.data = astDiffs
-        .slice(lowerIndex, upperIndex)
-        .filter(function (diff) {
-          return diff.type === typeName;
-        });
-
+  addDiff: {
+    value: function (diff) {
+      assert(diff instanceof ASTDiff);
+      assert(this.isAcceptableDiff(diff));
+      assert(diff.type === this.type);
+      this.diffs.push(diff);
       return this;
+    },
+  },
+
+  isAcceptableDiff: {
+    value: function (diff) {
+      if (!(diff instanceof ASTDiff)) {
+        return false;
+      }
+
+      /* Chrome V8 will bail-out of optimizing this function if you compare
+       * the dates directly (non-primitive compare);
+       * instead, compare the valueOf()s, since this ends up being a Number
+       * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
+       * generate native code for.  */
+      return this.startDate.valueOf() <= diff.date.valueOf() &&
+        diff.date.valueOf() <= this.endDate.valueOf();
     },
   },
 
   /** True if the cell contains at least one AST diff.  */
   hasData: {
     get: function () {
-      return this.data && (this.data.length > 0);
+      return this.diffs && (this.diffs.length > 0);
     }
   },
 
   /** Number of observations. */
   numberOfObservations: {
     get: function () {
-      return this.data.length;
+      return this.diffs.length;
     }
   },
 
   /** Number of additions.  */
   numberOfAdds: {
     get: function () {
-      return this.data.filter(function (diff) {
+      return this.diffs.filter(function (diff) {
         return diff.isAdd;
       }).length;
     }
@@ -171,7 +178,7 @@ Object.defineProperties(Cell.prototype, {
   /** Number of deletions.  */
   numberOfDeletions: {
     get: function () {
-      return this.data.filter(function (diff) {
+      return this.diffs.filter(function (diff) {
         return diff.isRemove;
       }).length;
     }
@@ -205,26 +212,37 @@ function JavaType(name) {
   /* TODO: primitive types? */
   /* TODO: generics? */
   var components = name.split('.');
-  this.name = components.pop();
+  this.shortName = components.pop();
   this.package = components.join('.');
   this.cells = [];
 }
 
 Object.defineProperties(JavaType.prototype, {
   /**
-   * Given a bunch of ASTDiffs,
-   * sets this cell's data to the appropriate ASTDiff.
+   * Returns the fully-qualified name (package + class name) of this type.
+   */
+  name: {
+    get: function () {
+      if (this.package) {
+        return this.package + '.' + this.shortName;
+      }
+
+      return this.shortName;
+    }
+  },
+
+  /**
+   * Alias for name.
    */
   fullyQualifiedName: {
     get: function () {
-      if (this.package) {
-        return this.package + '.' + this.name;
-      }
-
       return this.name;
     }
   },
 
+  /**
+   * Adds a data cell.
+   */
   addCell: {
     value: function (cell) {
       assert(cell instanceof Cell);
@@ -232,9 +250,22 @@ Object.defineProperties(JavaType.prototype, {
     }
   },
 
+  /**
+   * Adds an AST diff to the current type.
+   */
+  addDiff: {
+    value: function (diff, startDate, endDate) {
+      if (!this.cells.length || !last(this.cells).isAcceptableDiff(diff)) {
+        /* Automatically add a new cell, if needed. */
+        this.addCell(new Cell(startDate, endDate, this.name));
+      }
+      last(this.cells).addDiff(diff);
+    }
+  },
+
   toString: {
     value: function () {
-      return this.className;
+      return this.fullyQualifiedName;
     }
   }
 });
@@ -319,35 +350,41 @@ function filterTypes(data, filters) {
 
   assert(sortedTypeNames.length > 0);
 
-  /* Create an entry for each type. */
+  /* Create a list of each type. */
   var types = sortedTypeNames.map(JavaType);
-
-  /* Create all cells applicable to display.  */
-  forEachDateLimitsDescending(startDate, endDate, stepSize, function (start, end) {
-    /* For each type... */
-    types.forEach(function (type) {
-      /* ...add all data cells. */
-      type.addCell(
-        new Cell(start, end, type.fullyQualifiedName)
-          .setDataFromSortedASTDiffs(applicableDiffs)
-      );
-    });
-
+  var typeMap = {};
+  /* Map full type names to their type. */
+  types.forEach(function (type) {
+    typeMap[type.name] = type;
   });
 
-  /* The cells in each type are in DESCENDING order.
-   * Therefore, take the END date of the FIRST cell to get the upper limit;
-   * and take the START date of the LAST cell to get the lower limit. */
-  var arbitraryCells = first(types).cells;
-  var maxDate = first(arbitraryCells).endDate;
-  var minDate = last(arbitraryCells).startDate;
-  assert(minDate <= maxDate);
+  /* Create all cells applicable for display.  */
+  var meta = forEachDateLimitsDescending(startDate, endDate, stepSize,
+                                         function (start, end) {
+    /* This will filter out only the applicable diffs. */
+    var lowerIndex = d3.bisectLeft(applicableDiffs, start);
+    var upperIndex = d3.bisectRight(applicableDiffs, end);
+    var i, diff, type;
+
+    /* For each diff... */
+    for (i = lowerIndex; i < upperIndex; i++) {
+      diff = applicableDiffs[i];
+      type = typeMap[diff.type];
+      if (type === undefined) {
+        continue;
+      }
+      type.addDiff(diff, start, end);
+    }
+  });
+
+  assert(meta.count > 0);
+  assert(meta.minDate <= meta.maxDate);
 
   return {
     types: types,
-    numberOfColumns: arbitraryCells.length,
-    minDate: minDate,
-    maxDate: maxDate
+    numberOfColumns: meta.count,
+    minDate: meta.minDate,
+    maxDate: meta.maxDate
   };
 }
 
@@ -373,6 +410,7 @@ function countTypeAbsoluteFrequency(astDiffs) {
 function forEachDateLimitsDescending(start, end, step, callback) {
   var currentStart;
   var currentEnd = end;
+  var count = 0;
 
   while (start < currentEnd) {
     currentStart = moment(currentEnd);
@@ -394,7 +432,15 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
     callback(currentStart.toDate(), currentEnd);
     currentEnd = currentStart.toDate();
+    count++;
   }
+
+  return {
+    /* CurrentEnd is the last start date. */
+    minDate: currentEnd,
+    maxDate: end,
+    count: count
+  };
 }
 
 
