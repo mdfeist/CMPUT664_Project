@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-from flask import Flask, request, send_from_directory, render_template
+from flask import Flask, request, redirect, send_from_directory, render_template
 
 projects = []
 
@@ -399,7 +399,8 @@ def send_css(path):
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    #return app.send_static_file('index.html')
+    return redirect('/projects')
 
 @app.route('/projects')
 def dashboard():
