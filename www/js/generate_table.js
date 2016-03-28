@@ -128,18 +128,21 @@ Object.defineProperties(Cell.prototype, {
    * sets this cell's data to the appropriate ASTDiff.
    */
   setDataFromSortedASTDiffs: {
-    value: function (astDiffs) {
-      assert(astDiffs instanceof Array);
+    value: function (astDiffs, lowerIndex, upperIndex) {
       var typeName = this.type;
+      var data = this.data;
+      assert(astDiffs instanceof Array);
+      assert(typeof lowerIndex === 'number' && lowerIndex >= 0);
+      assert(typeof upperIndex === 'number' && upperIndex <= astDiffs.length);
+      assert(data instanceof Array);
+      var i, diff;
 
-      var lowerIndex = d3.bisectLeft(astDiffs, this.startDate);
-      var upperIndex = d3.bisectRight(astDiffs, this.endDate);
-
-      this.data = astDiffs
-        .slice(lowerIndex, upperIndex)
-        .filter(function (diff) {
-          return diff.type === typeName;
-        });
+      for (i = lowerIndex; i < upperIndex; i++) {
+        diff = astDiffs[i];
+        if (diff.type == typeName) {
+          data.push(diff);
+        }
+      }
 
       return this;
     },
@@ -310,14 +313,20 @@ function filterTypes(data, filters) {
   /* Create an entry for each type. */
   var types = sortedTypeNames.map(JavaType);
 
+
+
   /* Create all cells applicable to display.  */
   forEachDateLimitsDescending(startDate, endDate, stepSize, function (start, end) {
+    /* This will filter out only the applicable diffs. */
+    var lowerIndex = d3.bisectLeft(applicableDiffs, start);
+    var upperIndex = d3.bisectRight(applicableDiffs, end);
+
     /* For each type... */
     types.forEach(function (type) {
       /* ...add all data cells. */
       type.addCell(
         new Cell(start, end, type.fullyQualifiedName)
-          .setDataFromSortedASTDiffs(applicableDiffs)
+          .setDataFromSortedASTDiffs(applicableDiffs, lowerIndex, upperIndex)
       );
     });
 
