@@ -55,6 +55,10 @@
       document.addEventListener('DOMContentLoaded', function () {
         loadProject();
       });
+
+      function toggleAuthors() {
+        $("#authors").toggleClass( "collapse" ); 
+      }
     </script>
   </head>
   <body>
@@ -67,7 +71,7 @@
               <a href="#" onclick="loadProject()">Project Flow</a>
             </li>
             <li role="presentation">
-              <a href="#">Author View</a>
+              <a href="#" onclick="toggleAuthors()">Author View</a>
             </li>
           </ul>
         </div>
@@ -102,6 +106,13 @@
       </nav>
 
       <main class="row">
+      <div id="authors" class="collapse">
+        {% for author in authors %}
+          <div class="checkbox">
+            <label><input type="checkbox" value="{{ author }}">{{ author }}</label>
+          </div>
+        {% endfor %}
+      </div>
       <div id="dna-table" class="dna-table">
       </div>
       </main>
