@@ -188,7 +188,7 @@ Object.defineProperties(Cell.prototype, {
     get: function () {
       var authors = d3.set();
 
-      this.data.forEach( function (diff) {
+      this.diffs.forEach( function (diff) {
         authors.add(diff.author);
       });
 
