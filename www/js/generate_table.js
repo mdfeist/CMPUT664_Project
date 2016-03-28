@@ -225,7 +225,11 @@ Object.defineProperties(JavaType.prototype, {
    */
   fullyQualifiedName: {
     get: function () {
-      return this.package + '.' + this.name;
+      if (this.package !== '') {
+        return this.package + '.' + this.name;
+      }
+
+      return this.name;
     }
   },
 
@@ -407,7 +411,7 @@ function drawGraph(data, width, height) {
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
-    .domain(data.types.map(function (type) { return type.name }))
+    .domain(data.types.map(function (type) { return type.fullyQualifiedName }))
     .rangeBands([0, height]);
 
   /* Create a scale for the dates i.e., the x-axis */
@@ -439,7 +443,7 @@ function drawGraph(data, width, height) {
     .enter().append('g')
       .classed('row', true)
       .attr('transform', function (type) {
-        return 'translate(0, ' + yScale(type.name) + ')';
+        return 'translate(0, ' + yScale(type.fullyQualifiedName) + ')';
       })
       .each(createCellsForType);
 
@@ -448,7 +452,7 @@ function drawGraph(data, width, height) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.name });
+      .text(function (type) { return type.fullyQualifiedName });
 
   function createCellsForType(type) {
     /* Create all the cells. */
