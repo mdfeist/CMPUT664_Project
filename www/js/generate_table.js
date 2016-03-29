@@ -486,6 +486,7 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
+  var axisHeight = 25;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -497,10 +498,15 @@ function drawGraph(data, width, height) {
     .domain([data.minDate, data.maxDate])
     .range([marginLeft, width]);
 
+  var timeAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient('bottom');
+
   //var cellWidth = cellWidthFromScale(first(first(data.types).cells), xScale);
   var maxCellHeight = yScale.rangeBand() - 2;
 
   var svg = d3.select('#dna-table').append('svg')
+      .classed('main-figure', true)
       .attr("width", width)
       .attr("height", height);
 
@@ -520,6 +526,25 @@ function drawGraph(data, width, height) {
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
       .text(function (type) { return type.name });
+
+  /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
+   * element.*/
+  var floatingAxis = d3.select('#dna-table').insert('svg', '.main-figure')
+      .classed('time-axis', true)
+      .attr('width', width)
+      .attr('height', axisHeight)
+      .call(timeAxis);
+
+  /* Make all text left-aligned, and bold all the years. */
+  floatingAxis.selectAll("text")
+      .attr("y", 6)
+      .attr("x", 6)
+      .style("text-anchor", "start")
+      .classed('year-tick', function () {
+        /* Matches if the text looks like a year. */
+        var text = this.textContent;
+        return text.match(/^\d{4,}$/);
+      });
 
   function createCellsForType(type) {
     /* Create all the cells. */
@@ -628,7 +653,7 @@ function drawGraph(data, width, height) {
           msg_block.append('p')
           .text(line);
         });
-        
+
         info.append('br')
       })
     });
@@ -676,7 +701,7 @@ function drawGraph(data, width, height) {
 
       //console.log("over");
     });
-    
+
     /* Mouse move: Update position of cell info */
     cell.on("mousemove", function (cell_data) {
       var coords = d3.mouse(document.body);
