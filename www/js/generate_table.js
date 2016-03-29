@@ -486,7 +486,6 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
-  var axisHeight = 25;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -532,7 +531,7 @@ function drawGraph(data, width, height) {
   var floatingAxis = d3.select('#dna-table').insert('svg', '.main-figure')
       .classed('time-axis', true)
       .attr('width', width)
-      .attr('height', axisHeight)
+      /* Note: Height will be set with CSS. */
       .call(timeAxis);
 
   /* Make all text left-aligned, and bold all the years. */

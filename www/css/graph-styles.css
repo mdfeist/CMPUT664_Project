@@ -20,13 +20,15 @@ body:not(.colorblind-safe)
 
 svg.main-figure {
     /* A little margin at the bottom to make room for the floating axis. */
-    margin-bottom: 25px;
+    margin-bottom: 3em;
 }
 
 /* Have this stick to the bottom. */
 svg.time-axis {
     position: fixed;
     bottom: 0;
+    height: 3em;
+
     background-color: rgba(255, 255, 255, 0.9);
 }
 
