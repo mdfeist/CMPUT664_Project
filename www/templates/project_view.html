@@ -69,11 +69,20 @@
           end_date = new Date(timestamp);
         }
 
+        var _authors = [];
+
+        $('.author-check-box').each(function() {
+          if($(this).prop('checked')) {
+            _authors.push($(this).val());
+          }
+        });
+
         return {
           start: start_date,
           end: end_date,
           stepSize: $("#step").val(),
-          limit: +$("#filter").val()
+          limit: +$("#filter").val(),
+          authors: _authors
         };
       }
 

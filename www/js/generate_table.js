@@ -359,12 +359,14 @@ function filterTypes(data, filters) {
   var endDate = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var stepSize = filters.stepSize || 'month';
+  var authors = filters.authors || [];
 
   assert(startDate instanceof Date);
   assert(endDate instanceof Date);
   assert(startDate < endDate);
   assert(typeof numberOfTypesUpperBound === 'number');
   assert(VALID_STEP_SIZES.has(stepSize));
+  assert(authors instanceof Array);
 
   /* Find the range of diffs to use. */
   var lowerIndex = d3.bisectLeft(data.astDiffs, startDate);
@@ -405,7 +407,9 @@ function filterTypes(data, filters) {
       if (type === undefined) {
         continue;
       }
-      type.addDiff(diff, start, end);
+      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
+        type.addDiff(diff, start, end);
+      }
     }
   });
 
