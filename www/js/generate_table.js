@@ -679,6 +679,12 @@ function drawGraph(data, width, height) {
       info.append('li')
         .classed("list-group-item", true)
         .text("Authors: " + cell_data.authors.length);
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("Start Date: " + cell_data.startDate);
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("End Date: " + cell_data.endDate);
 
       var coords = d3.mouse(document.body);
       var currentx = coords[0];
