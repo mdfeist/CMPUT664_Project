@@ -545,6 +545,8 @@ function drawGraph(data, width, height) {
         return text.match(/^\d{4,}$/);
       });
 
+  ensureAxisIsAtGraphBottom(svg.node(), floatingAxis.node());
+
   function createCellsForType(type) {
     /* Create all the cells. */
     var cell = d3.select(this).selectAll('.cell')
@@ -737,6 +739,34 @@ function drawGraph(data, width, height) {
       //console.log("out");
     });
   }
+}
+
+/**
+ * Places the axis on the bottom of the graph on initial render, when the
+ * screen is too big.
+ */
+function ensureAxisIsAtGraphBottom(graph, axis) {
+  assert(graph instanceof SVGElement);
+  assert(axis instanceof SVGElement);
+
+  var paddingBottom = 60;
+  var bottomOfGraph = graph.getBoundingClientRect().bottom;
+
+  /* when the screen*/
+  var shouldReposition = bottomOfGraph + paddingBottom < viewportHeight();
+
+  if (shouldReposition) {
+    /* Set some custom styles. */
+    axis.style.bottom = 'initial';
+    axis.style.top = bottomOfGraph;
+  }
+}
+
+/**
+ * http://stackoverflow.com/a/8876069
+ */
+function viewportHeight() {
+  return Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
 }
 
 /*=== Utilties ===*/
