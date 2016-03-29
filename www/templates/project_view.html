@@ -38,7 +38,8 @@
         xhttp.onreadystatechange = function () {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
             var filter = getFilters();
-            createTable(JSON.parse(xhttp.responseText), filter);
+            var results = createTable(JSON.parse(xhttp.responseText), filter);
+            patchInputs(results);
           }
         };
         xhttp.open("GET", "get_project", true);
@@ -54,24 +55,46 @@
         start_date = null;
         end_date = null;
 
-        var timestamp=Date.parse($("#min-datepicker").val())
-        if (isNaN(timestamp)==false)
-        {
+        var timestamp = Date.parse($("#min-datepicker").val())
+        if (isNaN(timestamp) == false) {
           start_date = new Date(timestamp);
         }
 
-        timestamp=Date.parse($("#max-datepicker").val())
-        if (isNaN(timestamp)==false)
-        {
+        timestamp = Date.parse($("#max-datepicker").val())
+        if (isNaN(timestamp) == false) {
           end_date = new Date(timestamp);
         }
-        
+
         return {
           start: start_date,
           end: end_date,
           stepSize: $("#step").val(),
           limit: +$("#filter").val()
         };
+      }
+
+      /* Given the fully processed and filtered results, patches the inputs on
+       * the page (specifically, the date inputs) with the correct dates. */
+      function patchInputs(results) {
+        var maxDate = toISODate(results.absoluteMaxDate);
+        var minDate = toISODate(results.absoluteMinDate);
+
+        /* Set the min and max ranges on the components. */
+        $('#min-datepicker').attr('min', minDate);
+        $('#max-datepicker').attr('min', minDate);
+        $('#min-datepicker').attr('max', maxDate);
+        $('#max-datepicker').attr('max', maxDate);
+
+        /* Patch the actual values. */
+        $('#min-datepicker').val(minDate);
+        $('#max-datepicker').val(maxDate);
+
+        function toISODate(date) {
+        assert(date instanceof Date);
+          return date
+            .toISOString()
+            .split('T')[0];
+        }
       }
 
       document.addEventListener('DOMContentLoaded', function () {
