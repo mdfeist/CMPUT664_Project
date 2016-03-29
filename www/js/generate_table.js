@@ -614,6 +614,8 @@ function drawGraph(data, width, height) {
         .text("Deletions: " + cell_data.numberOfDeletions);
       info.append('p')
         .text("Authors: " + cell_data.authors.length);
+      info.append('p')
+        .text("Commits: " + cell_data.commits.length);
 
       info.append('br')
 
@@ -679,6 +681,11 @@ function drawGraph(data, width, height) {
       info.append('li')
         .classed("list-group-item", true)
         .text("Authors: " + cell_data.authors.length);
+
+      info.append('li')
+        .classed("list-group-item", true)
+        .text("Commits: " + cell_data.commits.length);
+
       info.append('li')
         .classed("list-group-item", true)
         .text("Start Date: " + cell_data.startDate);
