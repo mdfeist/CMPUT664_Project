@@ -57,7 +57,8 @@ class Project:
 
         # Build JSON
         for commit in self._commits:
-            if len(commit.getFiles()) > 50:
+            # Ignore large commits.
+            if options.ignore_large_commits and len(commit.getFiles()) > 50:
                 continue
 
             commit_json = {}
@@ -65,6 +66,7 @@ class Project:
             commit_json["commitID"] = commit.getCommitID()
             commit_json["date"] = commit.getDate()
             commit_json["message"] = commit.getMessage()
+            commit_json["files"] = commit.getTFiles()
 
             json_data["commits"].append(commit_json)
 
@@ -441,6 +443,7 @@ def get_project(path):
             options = attrdict()
             options.get = "Project"
             options.types = query_type
+            options.ignore_large_commits = True
             return project.getJSON(options)
 
     return ""
