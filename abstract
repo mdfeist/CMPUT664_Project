@@ -1,0 +1,16 @@
+% Motive/Problem
+Analysing repositories - lack of good tools? GitHub metrics are misleading or not
+useful.
+% Why is it important
+It can be difficult to see how a large project evolves.
+We want to see who is doing what (lines changed is misleading; number of
+commits are MASSIVELY misleading).
+% -- $/lines, $/commit?
+% What we make to solve it
+We present a novel tool for visualizing Git Java projects.
+% What does it do?
+It visualizes changes in type usage over time per project per user, totals usage,
+gets statistics using the differences between abstract syntax trees (ASTs).
+Types are Methods or declarations; Add or delete.
+The commit AST diffs is a reentrant algorithm that can be incrementally
+calulcated, as new commits are made.
