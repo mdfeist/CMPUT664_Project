@@ -126,6 +126,10 @@
       function toggleFilters() {
         $("#filters").toggleClass( "collapse" );
       }
+
+      function uncheckAuthors() {
+        $('.author-check-box').prop('checked', false);
+      }
     </script>
   </head>
   <body class="colorblind-safe">
@@ -208,9 +212,10 @@
             <b>Authors</b>
           </div>
           <div class="panel-body">
+            <a href="#" onclick="uncheckAuthors()">Deselect All</a>
             {% for author in authors %}
               <div class="checkbox">
-                <label><input type="checkbox" value="{{ author }}">{{ author }}</label>
+                <label><input class="author-check-box" type="checkbox" value="{{ author }}">{{ author }}</label>
               </div>
             {% endfor %}
           </div>
