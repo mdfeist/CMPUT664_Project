@@ -23,8 +23,6 @@ svg.main-figure {
 
 /* Have this stick to the bottom. */
 svg.time-axis {
-    position: fixed;
-    bottom: 0;
     height: 3em;
 
     background-color: rgba(255, 255, 255, 0.9);
@@ -34,4 +32,20 @@ svg.time-axis {
 .time-axis text.year-tick {
     font-weight: bold;
     font-size: larger;
+}
+
+/* This needs to be position relative so that... */
+.dna-table {
+    position: relative;
+}
+
+/* ...this will be positioned relative to the dna-table. */
+.dna-table svg.time-axis.axis-on-bottom {
+    position: absolute;
+    /* top: must be set by JavaScript. */
+}
+
+.dna-table svg.time-axis.axis-floating {
+    position: fixed;
+    bottom: 0;
 }

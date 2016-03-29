@@ -743,9 +743,11 @@ function ensureAxisIsAtGraphBottom(graph, axis) {
   var shouldReposition = bottomOfGraph + paddingBottom < viewportHeight();
 
   if (shouldReposition) {
-    /* Set some custom styles. */
-    axis.style.bottom = 'initial';
-    axis.style.top = bottomOfGraph;
+    /* Set to the height. */
+    axis.style.top = graph.getBoundingClientRect().height;;
+    axis.classList.add('axis-on-bottom');
+  } else {
+    axis.classList.add('axis-floating');
   }
 }
 
