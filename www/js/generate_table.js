@@ -50,11 +50,7 @@ function createTable2(filter) {
   /* XXX: */
   var processed = window.preprocessedData;
   var filtered = window.filteredData = filterTypes(processed, filter);
-
-  /* Make this arbitrarily large. */
-  var height = 20 * filtered.types.length;
-
-  drawGraph(filtered, container.offsetWidth, height);
+  drawGraph(filtered, container.offsetWidth);
 
   return filtered;
 }
@@ -486,6 +482,8 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
+  var cellHeight = 30;
+  var height = cellHeight * data.types.length;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
