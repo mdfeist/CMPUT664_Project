@@ -566,7 +566,7 @@ function drawGraph(data, width, height) {
         return cellWidthFromScale(cell, xScale);
       })
       /* Bump it down... */
-      .attr('transform', 'translate(0, 1)')
+      .attr('transform', 'translate(0, 0)')
       .attr('height', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
         return proportion * maxCellHeight;
@@ -581,7 +581,7 @@ function drawGraph(data, width, height) {
       /* Bump it down... */
       .attr('transform', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
-        var topHalf = 1 + proportion * maxCellHeight;
+        var topHalf = proportion * maxCellHeight;
 
         return 'translate(0, ' + topHalf + ')'
       })
@@ -775,7 +775,8 @@ function cellWidthFromScale(cell, scale) {
   var bigger = scale(cell.endDate);
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
-  return bigger - smaller;
+  /* Ensure it rounds up to remove horizontal gaps. */
+  return Math.ceil(bigger - smaller);
 }
 
 function first(array) {

@@ -14,8 +14,6 @@ body:not(.colorblind-safe)
 
 .cell .cell-outline {
     fill: none;
-    stroke: #333;
-    stroke-width: 1px;
 }
 
 svg.main-figure {
