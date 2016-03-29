@@ -557,45 +557,34 @@ function drawGraph(data, width, height) {
           return 'translate(' + xScale(cell.startDate) + ', 0)';
         });
 
-    /* Make the addition bar. */
-    cell.append('rect')
-      .classed('ast-additions', true)
-      .attr('width', function (cell) {
-        return cellWidthFromScale(cell, xScale);
-      })
-      /* Bump it down... */
-      .attr('transform', 'translate(0, 0)')
-      .attr('height', function (cell) {
-        var proportion = cell.numberOfAdds / cell.numberOfObservations;
-        return proportion * maxCellHeight;
-      });
-
     /* Make the deletion bar. */
     cell.append('rect')
       .classed('ast-deletions', true)
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      /* Bump it down... */
-      .attr('transform', function (cell) {
-        var proportion = cell.numberOfAdds / cell.numberOfObservations;
-        var topHalf = proportion * maxCellHeight;
-
-        return 'translate(0, ' + topHalf + ')'
-      })
+      .attr('transform', 'translate(0, 0)')
       .attr('height', function (cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         return proportion * maxCellHeight;
       });
 
+    /* Make the addition bar. */
     cell.append('rect')
-      .classed('cell-outline', true)
+      .classed('ast-additions', true)
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('height', maxCellHeight)
-      /* Bump down a pixel. */
-      .attr('transform', 'translate(0, 1)');
+      .attr('transform', function (cell) {
+        var proportion = cell.numberOfDeletions / cell.numberOfObservations;
+        var topHalf = proportion * maxCellHeight;
+
+        return 'translate(0, ' + topHalf + ')'
+      })
+      .attr('height', function (cell) {
+        var proportion = cell.numberOfAdds / cell.numberOfObservations;
+        return proportion * maxCellHeight;
+      });
 
     /* Mouse Click: Show Cell stats */
     cell.on("click", function(cell_data) {
