@@ -17,3 +17,21 @@ body:not(.colorblind-safe)
     stroke: #333;
     stroke-width: 1px;
 }
+
+svg.main-figure {
+    /* A little margin at the bottom to make room for the floating axis. */
+    margin-bottom: 25px;
+}
+
+/* Have this stick to the bottom. */
+svg.time-axis {
+    position: fixed;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Make the tick labels for years bold. */
+.time-axis text.year-tick {
+    font-weight: bold;
+    font-size: larger;
+}
