@@ -80,11 +80,19 @@ class Project:
 
                 if options.types == "Types":
                     for t in f.getInvocations().getAdditionHist():
+                        # Skip java.lang.Object#Object()
+                        if (t == "java.lang.Object#Object()"):
+                            continue
+
                         tt = t.split("#")
                         if (tt[0] != ""):
                             types.add(tt[0])
                             json_data["dates"].append(self.getEdit(commit, "ADD", tt[0]))
                     for t in f.getInvocations().getDeletionHist():
+                        # Skip java.lang.Object#Object()
+                        if (t == "java.lang.Object#Object()"):
+                            continue
+
                         tt = t.split("#")
                         if (tt[0] != ""):
                             types.add(tt[0])
@@ -92,9 +100,17 @@ class Project:
 
                 if options.types == "Invocations":
                     for t in f.getInvocations().getAdditionHist():
+                        # Skip java.lang.Object#Object()
+                        if (t == "java.lang.Object#Object()"):
+                            continue
+
                         types.add(t)
                         json_data["dates"].append(self.getEdit(commit, "ADD", t))
                     for t in f.getInvocations().getDeletionHist():
+                        # Skip java.lang.Object#Object()
+                        if (t == "java.lang.Object#Object()"):
+                            continue
+                            
                         types.add(t)
                         json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
 
@@ -416,11 +432,15 @@ def show_project(path):
 
 @app.route('/projects/<path:path>/get_project')
 def get_project(path):
+    #query_string = request.query_string
+    query_type = request.args.get('type') 
+    #print(query_type)
+
     for project in projects:
         if (project.getDir() == path):
             options = attrdict()
             options.get = "Project"
-            options.types = "Types"
+            options.types = query_type
             return project.getJSON(options)
 
     return ""

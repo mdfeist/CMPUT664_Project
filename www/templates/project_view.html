@@ -33,7 +33,7 @@
         return (input.value !== notADateValue);
       }
 
-      function loadProject() {
+      function loadProject(type) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -42,7 +42,11 @@
             patchInputs(results);
           }
         };
-        xhttp.open("GET", "get_project", true);
+
+        var arg = "get_project";
+        arg += "?type=" + type;
+
+        xhttp.open("GET", arg, true);
         xhttp.send();
       }
 
@@ -98,11 +102,17 @@
       }
 
       document.addEventListener('DOMContentLoaded', function () {
-        loadProject();
+        var type = $("#type-select").val();
+        loadProject(type);
 
         //$(".filter_info").on("change", function(){
         //  redrawTable();
         //});
+
+        $("#type-select").on("change", function(){
+          var type = $("#type-select").val();
+          loadProject(type);
+        });
       });
 
       function toggleAuthors() {
@@ -167,6 +177,14 @@
                 <option value="500"> Top 500 </option>
                 <option value="1000"> Top 1000 </option>
                 <option value="Infinity"> All </option>
+              </select>
+            </label>
+
+            <label> Types
+              <select id="type-select" class="filter_info">
+                <option value="Declarations">Declarations</option>
+                <option value="Types" selected>Types (Declarations + Invocations)</option>
+                <option value="Invocations">Invocations</option>
               </select>
             </label>
           </div>

@@ -15,6 +15,23 @@ ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
 /* Shim the assert function in there! */
 !window.assert ? (window.assert = console.assert.bind(console)) : undefined;
 
+var CELL_INFO_WIDTH = 500
+
+/* Cell Info */
+var cellInfo = d3.select("body")
+  .append("div")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("visibility", "hidden")
+  .style("width", String(CELL_INFO_WIDTH) + "px")
+  .classed('panel panel-default', true);
+
+cellInfo.append('div')
+  .classed('panel-heading', true)
+  .style("font-weight", "bold")
+  .text('Info');
+
+
 /* Draw table given JSON */
 function createTable(data, filter) {
   window.DATA = data;
@@ -465,22 +482,6 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
-  var CELL_INFO_WIDTH = 500
-
-  /* Cell Info */
-  var cellInfo = d3.select("body")
-  .append("div")
-  .style("position", "absolute")
-  .style("z-index", "10")
-  .style("visibility", "hidden")
-  .style("width", String(CELL_INFO_WIDTH) + "px")
-  .classed('panel panel-default', true);
-
-  cellInfo.append('div')
-    .classed('panel-heading', true)
-    .style("font-weight", "bold")
-    .text('Info');
-
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
