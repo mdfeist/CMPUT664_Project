@@ -33,7 +33,7 @@
         return (input.value !== notADateValue);
       }
 
-      function loadProject() {
+      function loadProject(type) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -42,7 +42,11 @@
             patchInputs(results);
           }
         };
-        xhttp.open("GET", "get_project", true);
+
+        var arg = "get_project";
+        arg += "?type=" + type;
+
+        xhttp.open("GET", arg, true);
         xhttp.send();
       }
 
@@ -98,29 +102,45 @@
       }
 
       document.addEventListener('DOMContentLoaded', function () {
-        loadProject();
+        var type = $("#type-select").val();
+        loadProject(type);
 
         //$(".filter_info").on("change", function(){
         //  redrawTable();
         //});
+
+        $("#type-select").on("change", function(){
+          var type = $("#type-select").val();
+          loadProject(type);
+        });
       });
 
       function toggleAuthors() {
         $("#authors").toggleClass( "collapse" );
       }
 
+      function toggleStats() {
+        $("#stats").toggleClass( "collapse" );
+      }
+
       function toggleFilters() {
         $("#filters").toggleClass( "collapse" );
+      }
+
+      function uncheckAuthors() {
+        $('.author-check-box').prop('checked', false);
       }
     </script>
   </head>
   <body class="colorblind-safe">
-    <div id="demo"></div>
     <div class="container-fluid">
       <nav class="row">
         <ul class="nav nav-pills">
           <li role="presentation">
             <a href="#" onclick="toggleAuthors()">Author View</a>
+          </li>
+          <li role="presentation">
+            <a href="#" onclick="toggleStats()">Stats View</a>
           </li>
           <li role="presentation">
             <a href="#" onclick="toggleFilters()">Filters View</a>
@@ -163,23 +183,46 @@
                 <option value="Infinity"> All </option>
               </select>
             </label>
+
+            <label> Types
+              <select id="type-select" class="filter_info">
+                <option value="Declarations">Declarations</option>
+                <option value="Types" selected>Types (Declarations + Invocations)</option>
+                <option value="Invocations">Invocations</option>
+              </select>
+            </label>
           </div>
         </div>
       </nav>
 
-      <main class="row">
+      <nav class="row">
+        <div id="stats" class="panel panel-default collapse">
+          <div class="panel-heading">
+            <b>Stats</b>
+          </div>
+          <div id="stats-body" class="panel-body">
+            
+          </div>
+        </div>
+      </nav>
+
+      <nav class="row">
         <div id="authors" class="panel panel-default collapse">
           <div class="panel-heading">
             <b>Authors</b>
           </div>
           <div class="panel-body">
+            <a href="#" onclick="uncheckAuthors()">Deselect All</a>
             {% for author in authors %}
               <div class="checkbox">
-                <label><input type="checkbox" value="{{ author }}">{{ author }}</label>
+                <label><input class="author-check-box" type="checkbox" value="{{ author }}">{{ author }}</label>
               </div>
             {% endfor %}
           </div>
         </div>
+      </nav>
+
+      <main class="row">
         <div id="dna-table" class="dna-table">
         </div>
       </main>
