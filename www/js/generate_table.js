@@ -20,8 +20,9 @@ function createTable(data, filter) {
   window.DATA = data;
   window.preprocessedData = preprocessData(window.DATA);
 
-  createTable2(filter);
+  return createTable2(filter);
 }
+window.createTable = createTable;
 
 function createTable2(filter) {
   var container = document.getElementById('dna-table');
@@ -37,8 +38,9 @@ function createTable2(filter) {
   var height = 20 * filtered.types.length;
 
   drawGraph(filtered, container.offsetWidth, height);
+
+  return filtered;
 }
-window.createTable = createTable;
 
 
 /*=== Classes ===*/
@@ -317,7 +319,6 @@ function preprocessData(data) {
       return astDiffsByType
         .map(ASTDiff)
         .sort(function (a, b) {
-          assert(a instanceof ASTDiff);
           return d3.ascending(a.date, b.date);
         });
     }(data.dates.slice()))
@@ -398,7 +399,9 @@ function filterTypes(data, filters) {
     types: types,
     numberOfColumns: meta.count,
     minDate: meta.minDate,
-    maxDate: meta.maxDate
+    maxDate: meta.maxDate,
+    absoluteMinDate: first(data.astDiffs).date,
+    absoluteMaxDate: last(data.astDiffs).date,
   };
 }
 
@@ -487,7 +490,7 @@ function drawGraph(data, width, height) {
   /* Create a scale for the dates i.e., the x-axis */
   var xScale = d3.time.scale()
     .domain([data.minDate, data.maxDate])
-    .rangeRound([marginLeft, width]);
+    .range([marginLeft, width]);
 
   //var cellWidth = cellWidthFromScale(first(first(data.types).cells), xScale);
   var maxCellHeight = yScale.rangeBand() - 2;
@@ -665,7 +668,7 @@ function drawGraph(data, width, height) {
       cellInfo.style('top', String(y) + "px");
 
       cellInfo.style("visibility", "visible");
-      
+
       //console.log("over");
     });
     
