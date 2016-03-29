@@ -184,6 +184,7 @@ Object.defineProperties(Cell.prototype, {
     }
   },
 
+  /** Get set of authors */
   authors: {
     get: function () {
       var authors = d3.set();
@@ -193,6 +194,19 @@ Object.defineProperties(Cell.prototype, {
       });
 
       return authors.values();
+    }
+  },
+
+  /** Get set of commit id's */
+  commits: {
+    get: function () {
+      var commits = d3.set();
+
+      this.diffs.forEach( function (diff) {
+        commits.add(diff.commit);
+      });
+
+      return commits.values();
     }
   }
 });
@@ -551,7 +565,67 @@ function drawGraph(data, width, height) {
       /* Bump down a pixel. */
       .attr('transform', 'translate(0, 1)');
 
+    /* Mouse Click: Show Cell stats */
+    cell.on("click", function(cell_data) {
+      var stats = d3.select("#stats-body");
+      stats.selectAll('.content').remove();
 
+      var info = stats.append('div')
+        .classed('content', true);
+
+      info.append('b')
+        .text("Info:");
+      info.append('p')
+        .text("Additions: " + cell_data.numberOfAdds);
+      info.append('p')
+        .text("Deletions: " + cell_data.numberOfDeletions);
+      info.append('p')
+        .text("Authors: " + cell_data.authors.length);
+
+      info.append('br')
+
+      info.append('b')
+        .text("Authors:");
+
+      cell_data.authors.forEach(function (author) {
+        info.append('p')
+          .text(author);
+      })
+
+      info.append('br')
+
+      var commit_map = window.preprocessedData.commits;
+
+      info.append('b')
+        .text("Commits:");
+
+      cell_data.commits.forEach(function (commitID) {
+        var commit = commit_map[commitID];
+        info.append('p')
+          .text("Commit ID: " + commit.commitID);
+        var block = info.append('div')
+          .style('padding-left', '5em');
+        block.append('p')
+          .text("Author: " + commit.author);
+        block.append('p')
+          .text("Date: " + commit.date);
+        block.append('p')
+          .text("Message: ");
+
+        var msg_block = block.append('div')
+          .style('padding-left', '5em');
+
+        var lines = commit.message.split("\n");
+        lines.forEach(function (line) {
+          msg_block.append('p')
+          .text(line);
+        });
+        
+        info.append('br')
+      })
+    });
+
+    /* Mouse over: Show and update cell info */
     cell.on("mouseover", function(cell_data) {
       cellInfo.selectAll('ul').remove();
       var info = cellInfo.append('ul')
@@ -594,7 +668,8 @@ function drawGraph(data, width, height) {
       
       //console.log("over");
     });
-
+    
+    /* Mouse move: Update position of cell info */
     cell.on("mousemove", function (cell_data) {
       var coords = d3.mouse(document.body);
       var currentx = coords[0];
@@ -611,6 +686,7 @@ function drawGraph(data, width, height) {
       cellInfo.style('top', String(y) + "px");
     });
 
+    /* Mouse out: Hide cell info */
     cell.on("mouseout", function(cell) {
       cellInfo.style("visibility", "hidden");
       //console.log("out");
