@@ -478,7 +478,7 @@ function drawGraph(data, width, height) {
     .domain([data.minDate, data.maxDate])
     .range([marginLeft, width]);
 
-  var cellWidth = cellWidthFromScale(first(first(data.types).cells), xScale);
+  //var cellWidth = cellWidthFromScale(first(first(data.types).cells), xScale);
   var maxCellHeight = yScale.rangeBand() - 2;
 
   var svg = d3.select('#dna-table').append('svg')
@@ -517,7 +517,9 @@ function drawGraph(data, width, height) {
     /* Make the addition bar. */
     cell.append('rect')
       .classed('ast-additions', true)
-      .attr('width', cellWidth)
+      .attr('width', function (cell) {
+        return cellWidthFromScale(cell, xScale);
+      })
       /* Bump it down... */
       .attr('transform', 'translate(0, 1)')
       .attr('height', function (cell) {
@@ -528,7 +530,9 @@ function drawGraph(data, width, height) {
     /* Make the deletion bar. */
     cell.append('rect')
       .classed('ast-deletions', true)
-      .attr('width', cellWidth)
+      .attr('width', function (cell) {
+        return cellWidthFromScale(cell, xScale);
+      })
       /* Bump it down... */
       .attr('transform', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
@@ -543,7 +547,9 @@ function drawGraph(data, width, height) {
 
     cell.append('rect')
       .classed('cell-outline', true)
-      .attr('width', cellWidth)
+      .attr('width', function (cell) {
+        return cellWidthFromScale(cell, xScale);
+      })
       .attr('height', maxCellHeight)
       /* Bump down a pixel. */
       .attr('transform', 'translate(0, 1)');
