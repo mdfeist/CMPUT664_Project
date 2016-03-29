@@ -473,7 +473,7 @@ function drawGraph(data, width, height) {
   /* Create a scale for the dates i.e., the x-axis */
   var xScale = d3.time.scale()
     .domain([data.minDate, data.maxDate])
-    .rangeRound([marginLeft, width]);
+    .range([marginLeft, width]);
 
   var cellWidth = cellWidthFromScale(first(first(data.types).cells), xScale);
   var maxCellHeight = yScale.rangeBand() - 2;
@@ -585,7 +585,7 @@ function drawGraph(data, width, height) {
       cellInfo.style('top', String(y) + "px");
 
       cellInfo.style("visibility", "visible");
-      
+
       //console.log("over");
     });
 
