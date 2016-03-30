@@ -66,7 +66,8 @@ class Project:
             commit_json["commitID"] = commit.getCommitID()
             commit_json["date"] = commit.getDate()
             commit_json["message"] = commit.getMessage()
-            commit_json["files"] = commit.getTFiles()
+            commit_json["files"] = [f for f in commit.getTFiles() if '.java' in f]
+            commit_json["all_files"] = [f for f in commit.getTreeFiles() if '.java' in f]
 
             json_data["commits"].append(commit_json)
 
@@ -407,6 +408,7 @@ files = ["out1.out",
         "out7.out"]
 
 files = ["test.out"]
+files = ["antlr4.out"]
 
 print("Gathering Dump Data ...")
 for f in files:
