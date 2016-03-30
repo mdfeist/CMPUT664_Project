@@ -137,6 +137,7 @@ class Commit:
         self._commit = ""
         self._date = ""
         self._message = ""
+        self._file_touched_names = []
         self._file_names = []
         self._files = []
 
@@ -165,9 +166,15 @@ class Commit:
         return self._message
 
     def addTFile(self, f):
-        self._file_names.append(f)
+        self._file_touched_names.append(f)
 
     def getTFiles(self):
+        return self._file_touched_names
+
+    def addTreeFile(self, f):
+        self._file_names.append(f)
+
+    def getTreeFiles(self):
         return self._file_names
 
     def addFile(self, f):
@@ -183,7 +190,7 @@ class Commit:
         output += tab + "Date: " + self._date + "\n"
 
         output += tab + "Number of Files: " + str(len(self._files)) + "\n"
-        for f in self._file_names:
+        for f in self._file_touched_names:
             output += tab + "\t" + f + "\n"
 
         output += tab + "Message: \n" + tab + "\t" + \
@@ -294,6 +301,7 @@ def getStats(filename):
     message_start = False
     message = ""
     file_touched_start = False
+    file_start = False
     with open(filename) as f:
         for line in f:
             if ("#PROJECT_START" in line):
@@ -335,6 +343,12 @@ def getStats(filename):
                 current_commit.addTFile(line.replace('\n','').strip())
             if ("#FILES_TOUCHED_START" in line):
                 file_touched_start = True
+            if ("#FILES_END" in line):
+                file_start = False
+            if (file_start):
+                current_commit.addTreeFile(line.replace('\n','').strip())
+            if ("#FILES_START" in line):
+                file_start = True
             if ("#FILE1" in line):
                 name = line.split("|")[1].replace('\n','').strip()
                 current_file.setLocal(name)

@@ -61,6 +61,9 @@ do
 	echo "#FILES_TOUCHED_START"
 	git show --pretty="format:" --name-only $commit | sed -n '1!p'
 	echo "#FILES_TOUCHED_END"
+	echo "#FILES_START"
+	git ls-tree -r --name-only $commit
+	echo "#FILES_END"
 
 	# Git Diff
 	git difftool -y --tool=gumtree_cmp $commit^1 $commit 2>/dev/null
