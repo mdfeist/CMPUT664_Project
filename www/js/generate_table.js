@@ -239,14 +239,19 @@ function JavaType(name) {
   /* TODO: primitive types? */
   /* TODO: generics? */
   var sides = name.split('#');
-  var components = sides[0].split('.');
+  var generics_components = sides[0].split('<');
+  var components = generics_components[0].split('.');
 
   this.className = components.pop();
   this.package = components.join('.');
   this.methodName = sides[1] || '';
 
+  if (generics_components.length > 1) {
+    this.className += "<" + generics_components[1];
+  }
+
   this.cells = [];
-}
+
 
 Object.defineProperties(JavaType.prototype, {
   /**
