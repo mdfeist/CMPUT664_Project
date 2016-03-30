@@ -64,14 +64,8 @@ function createTable2(filter) {
  * Instantiated with an original data object.
  */
 function ASTDiff(original) {
-  /* Instantiate a new ASTDiff object if called without `new`. */
-  if (!(this instanceof ASTDiff)) {
-    return new ASTDiff(original);
-  }
-
   var date = new Date(original.date);
   /* The date must be reasonable... */
-  assert(date > new Date('1970-01-01') && date < new Date());
   assert(typeof original.type === 'string');
   assert(ASTDiff.EDIT_KIND.has(original.edit));
   /* We can't trust all data to look like an email address... */
@@ -334,34 +328,40 @@ function preprocessData(data) {
   assert(data.commits instanceof Array);
   assert(data.dates instanceof Array);
 
+  /* A set of types. */
+  var types = d3.set(data.types)
+
   return {
-    /* A set of types. */
-    types: d3.set(data.types),
-
-    /* Mapping GitSha -> Commit MetaData. */
-    commits: (function () {
-      var commitMap = {};
-      data.commits.forEach(function (commit) {
-        assert(typeof commit.commitID  === 'string');
-        var sha = commit.commitID;
-        assert(looksLikeAGitSha(sha));
-
-        commitMap[sha] = commit;
-      });
-      return commitMap;
-    }()),
-
+    types: types,
+    /* Mapping GitSha -> Commit Metadata. */
+    commits: createCommitMap(data.commits),
     /* A copy of AST Diff data, in asscending order of date. */
-    astDiffs: (function (astDiffsByType) {
-      return astDiffsByType
-        .map(ASTDiff)
-        .sort(function (a, b) {
-          return d3.ascending(a.date, b.date);
-        });
-    }(data.dates.slice()))
+    astDiffs: createASTDiffsInAscendingOrder(data.dates)
   };
 }
 
+/* Maps Git SHA to the raw commit data. */
+function createCommitMap (commits) {
+  var commitMap = {};
+
+  commits.forEach(function (commit) {
+    var sha = commit.commitID;
+    assert(looksLikeAGitSha(sha));
+    commitMap[sha] = commit;
+  });
+
+  return commitMap;
+}
+
+/* Returns AST Diff data, in asscending order of date. */
+function createASTDiffsInAscendingOrder(astDiffsByType) {
+  return astDiffsByType
+    .map(function (diff) { return new ASTDiff(diff); })
+    .sort(function (a, b) {
+      /* See explanation in Cell#isAcceptableDiff(). */
+      return d3.ascending(a.date.valueOf(), b.date.valueOf());
+    });
+}
 
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
