@@ -231,6 +231,10 @@ Object.defineProperties(Cell.prototype, {
  * Class: JavaType
  *
  * Represents a type in Java.
+ * Note: There probably should be a JavaEntity,
+ * with methods having a JavaType parent, and JavaType arguments;
+ * and for there to be a DataEntry class that contains cells. But that sounds
+ * like too much effort.
  */
 function JavaType(name) {
   /* Instantiate a new Cell object if called without `new`. */
@@ -240,9 +244,13 @@ function JavaType(name) {
 
   /* TODO: primitive types? */
   /* TODO: generics? */
-  var components = name.split('.');
-  this.shortName = components.pop();
+  var sides = name.split('#');
+  var components = sides[0].split('.');
+
+  this.className = components.pop();
   this.package = components.join('.');
+  this.methodName = sides[1] || '';
+
   this.cells = [];
 }
 
@@ -257,6 +265,19 @@ Object.defineProperties(JavaType.prototype, {
       }
 
       return this.shortName;
+    }
+  },
+
+  /**
+   * The short name is simply the class name, plus its arguments, if they
+   * exist.
+   */
+  shortName: {
+    get: function () {
+      if (this.methodName) {
+        return this.className + '#' + this.methodName;
+      }
+      return this.className;
     }
   },
 
@@ -292,6 +313,9 @@ Object.defineProperties(JavaType.prototype, {
     }
   },
 
+  /**
+   * toString() will simply return the fully-qualified name.
+   */
   toString: {
     value: function () {
       return this.fullyQualifiedName;
@@ -522,7 +546,7 @@ function drawGraph(data, width, height) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.name });
+      .text(function (type) { return type.shortName });
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
