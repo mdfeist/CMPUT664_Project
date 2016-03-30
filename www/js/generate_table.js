@@ -765,7 +765,7 @@ function cellWidthFromScale(cell, scale) {
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
   /* Ensure it rounds up to remove horizontal gaps. */
-  return Math.ceil(bigger - smaller);
+  return Math.ceil(bigger - smaller) + 1;
 }
 
 function first(array) {
