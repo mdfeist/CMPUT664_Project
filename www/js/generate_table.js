@@ -762,7 +762,7 @@ function ensureAxisIsAtGraphBottom(graph, axis) {
 
   if (shouldReposition) {
     /* Set to the height. */
-    axis.style.top = graph.getBoundingClientRect().height;;
+    //axis.style.top = graph.getBoundingClientRect().height;;
     axis.classList.add('axis-on-bottom');
   } else {
     axis.classList.add('axis-floating');
@@ -783,7 +783,7 @@ function cellWidthFromScale(cell, scale) {
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
   /* Ensure it rounds up to remove horizontal gaps. */
-  return Math.ceil(bigger - smaller);
+  return Math.ceil(bigger - smaller) + 1;
 }
 
 function first(array) {

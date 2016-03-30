@@ -42,6 +42,7 @@ svg.time-axis {
 /* ...this will be positioned relative to the dna-table. */
 .dna-table svg.time-axis.axis-on-bottom {
     position: absolute;
+    bottom: 0;
     /* top: must be set by JavaScript. */
 }
 
