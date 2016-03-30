@@ -39,6 +39,7 @@ function createTable(data, filter) {
 
   return createTable2(filter);
 }
+
 window.createTable = createTable;
 
 function createTable2(filter) {
@@ -251,6 +252,7 @@ function JavaType(name) {
   }
 
   this.cells = [];
+};
 
 
 Object.defineProperties(JavaType.prototype, {
@@ -778,7 +780,7 @@ function ensureAxisIsAtGraphBottom(graph, axis) {
  * http://stackoverflow.com/a/8876069
  */
 function viewportHeight() {
-  return Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+  return Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 }
 
 /*=== Utilties ===*/
