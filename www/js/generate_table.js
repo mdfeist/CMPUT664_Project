@@ -50,11 +50,7 @@ function createTable2(filter) {
   /* XXX: */
   var processed = window.preprocessedData;
   var filtered = window.filteredData = filterTypes(processed, filter);
-
-  /* Make this arbitrarily large. */
-  var height = 20 * filtered.types.length;
-
-  drawGraph(filtered, container.offsetWidth, height);
+  drawGraph(filtered, container.offsetWidth);
 
   return filtered;
 }
@@ -68,14 +64,8 @@ function createTable2(filter) {
  * Instantiated with an original data object.
  */
 function ASTDiff(original) {
-  /* Instantiate a new ASTDiff object if called without `new`. */
-  if (!(this instanceof ASTDiff)) {
-    return new ASTDiff(original);
-  }
-
   var date = new Date(original.date);
   /* The date must be reasonable... */
-  assert(date > new Date('1970-01-01') && date < new Date());
   assert(typeof original.type === 'string');
   assert(ASTDiff.EDIT_KIND.has(original.edit));
   /* We can't trust all data to look like an email address... */
@@ -235,6 +225,10 @@ Object.defineProperties(Cell.prototype, {
  * Class: JavaType
  *
  * Represents a type in Java.
+ * Note: There probably should be a JavaEntity,
+ * with methods having a JavaType parent, and JavaType arguments;
+ * and for there to be a DataEntry class that contains cells. But that sounds
+ * like too much effort.
  */
 function JavaType(name) {
   /* Instantiate a new Cell object if called without `new`. */
@@ -244,11 +238,20 @@ function JavaType(name) {
 
   /* TODO: primitive types? */
   /* TODO: generics? */
-  var components = name.split('.');
-  this.shortName = components.pop();
+  var sides = name.split('#');
+  var generics_components = sides[0].split('<');
+  var components = generics_components[0].split('.');
+
+  this.className = components.pop();
   this.package = components.join('.');
+  this.methodName = sides[1] || '';
+
+  if (generics_components.length > 1) {
+    this.className += "<" + generics_components[1];
+  }
+
   this.cells = [];
-}
+
 
 Object.defineProperties(JavaType.prototype, {
   /**
@@ -261,6 +264,19 @@ Object.defineProperties(JavaType.prototype, {
       }
 
       return this.shortName;
+    }
+  },
+
+  /**
+   * The short name is simply the class name, plus its arguments, if they
+   * exist.
+   */
+  shortName: {
+    get: function () {
+      if (this.methodName) {
+        return this.className + '#' + this.methodName;
+      }
+      return this.className;
     }
   },
 
@@ -296,6 +312,9 @@ Object.defineProperties(JavaType.prototype, {
     }
   },
 
+  /**
+   * toString() will simply return the fully-qualified name.
+   */
   toString: {
     value: function () {
       return this.fullyQualifiedName;
@@ -314,34 +333,40 @@ function preprocessData(data) {
   assert(data.commits instanceof Array);
   assert(data.dates instanceof Array);
 
+  /* A set of types. */
+  var types = d3.set(data.types)
+
   return {
-    /* A set of types. */
-    types: d3.set(data.types),
-
-    /* Mapping GitSha -> Commit MetaData. */
-    commits: (function () {
-      var commitMap = {};
-      data.commits.forEach(function (commit) {
-        assert(typeof commit.commitID  === 'string');
-        var sha = commit.commitID;
-        assert(looksLikeAGitSha(sha));
-
-        commitMap[sha] = commit;
-      });
-      return commitMap;
-    }()),
-
+    types: types,
+    /* Mapping GitSha -> Commit Metadata. */
+    commits: createCommitMap(data.commits),
     /* A copy of AST Diff data, in asscending order of date. */
-    astDiffs: (function (astDiffsByType) {
-      return astDiffsByType
-        .map(ASTDiff)
-        .sort(function (a, b) {
-          return d3.ascending(a.date, b.date);
-        });
-    }(data.dates.slice()))
+    astDiffs: createASTDiffsInAscendingOrder(data.dates)
   };
 }
 
+/* Maps Git SHA to the raw commit data. */
+function createCommitMap (commits) {
+  var commitMap = {};
+
+  commits.forEach(function (commit) {
+    var sha = commit.commitID;
+    assert(looksLikeAGitSha(sha));
+    commitMap[sha] = commit;
+  });
+
+  return commitMap;
+}
+
+/* Returns AST Diff data, in asscending order of date. */
+function createASTDiffsInAscendingOrder(astDiffsByType) {
+  return astDiffsByType
+    .map(function (diff) { return new ASTDiff(diff); })
+    .sort(function (a, b) {
+      /* See explanation in Cell#isAcceptableDiff(). */
+      return d3.ascending(a.date.valueOf(), b.date.valueOf());
+    });
+}
 
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
@@ -486,6 +511,8 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
+  var cellHeight = 30;
+  var height = cellHeight * data.types.length;
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -524,7 +551,7 @@ function drawGraph(data, width, height) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.name });
+      .text(function (type) { return type.shortName });
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
@@ -545,6 +572,8 @@ function drawGraph(data, width, height) {
         return text.match(/^\d{4,}$/);
       });
 
+  ensureAxisIsAtGraphBottom(svg.node(), floatingAxis.node());
+
   function createCellsForType(type) {
     /* Create all the cells. */
     var cell = d3.select(this).selectAll('.cell')
@@ -557,45 +586,34 @@ function drawGraph(data, width, height) {
           return 'translate(' + xScale(cell.startDate) + ', 0)';
         });
 
-    /* Make the addition bar. */
-    cell.append('rect')
-      .classed('ast-additions', true)
-      .attr('width', function (cell) {
-        return cellWidthFromScale(cell, xScale);
-      })
-      /* Bump it down... */
-      .attr('transform', 'translate(0, 1)')
-      .attr('height', function (cell) {
-        var proportion = cell.numberOfAdds / cell.numberOfObservations;
-        return proportion * maxCellHeight;
-      });
-
     /* Make the deletion bar. */
     cell.append('rect')
       .classed('ast-deletions', true)
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      /* Bump it down... */
-      .attr('transform', function (cell) {
-        var proportion = cell.numberOfAdds / cell.numberOfObservations;
-        var topHalf = 1 + proportion * maxCellHeight;
-
-        return 'translate(0, ' + topHalf + ')'
-      })
+      .attr('transform', 'translate(0, 0)')
       .attr('height', function (cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         return proportion * maxCellHeight;
       });
 
+    /* Make the addition bar. */
     cell.append('rect')
-      .classed('cell-outline', true)
+      .classed('ast-additions', true)
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('height', maxCellHeight)
-      /* Bump down a pixel. */
-      .attr('transform', 'translate(0, 1)');
+      .attr('transform', function (cell) {
+        var proportion = cell.numberOfDeletions / cell.numberOfObservations;
+        var topHalf = proportion * maxCellHeight;
+
+        return 'translate(0, ' + topHalf + ')'
+      })
+      .attr('height', function (cell) {
+        var proportion = cell.numberOfAdds / cell.numberOfObservations;
+        return proportion * maxCellHeight;
+      });
 
     /* Mouse Click: Show Cell stats */
     cell.on("click", function(cell_data) {
@@ -695,9 +713,6 @@ function drawGraph(data, width, height) {
       var coords = d3.mouse(document.body);
       var currentx = coords[0];
       var currenty = coords[1];
-      //console.log(currenty)
-
-      //var div_height = cell.node().getBoundingClientRect().height;
 
       var x = currentx - CELL_INFO_WIDTH/2;
 
@@ -710,12 +725,10 @@ function drawGraph(data, width, height) {
       cellInfo.style('top', String(y) + "px");
 
       cellInfo.style("visibility", "visible");
-
-      //console.log("over");
     });
 
     /* Mouse move: Update position of cell info */
-    cell.on("mousemove", function (cell_data) {
+    cell.on("mousemove", function (_cell_data) {
       var coords = d3.mouse(document.body);
       var currentx = coords[0];
       var currenty = coords[1];
@@ -732,11 +745,40 @@ function drawGraph(data, width, height) {
     });
 
     /* Mouse out: Hide cell info */
-    cell.on("mouseout", function(cell) {
+    cell.on("mouseout", function(_cell) {
       cellInfo.style("visibility", "hidden");
-      //console.log("out");
     });
   }
+}
+
+/**
+ * Places the axis on the bottom of the graph on initial render, when the
+ * screen is too big.
+ */
+function ensureAxisIsAtGraphBottom(graph, axis) {
+  assert(graph instanceof SVGElement);
+  assert(axis instanceof SVGElement);
+
+  var paddingBottom = 60;
+  var bottomOfGraph = graph.getBoundingClientRect().bottom;
+
+  /* when the screen*/
+  var shouldReposition = bottomOfGraph + paddingBottom < viewportHeight();
+
+  if (shouldReposition) {
+    /* Set to the height. */
+    //axis.style.top = graph.getBoundingClientRect().height;;
+    axis.classList.add('axis-on-bottom');
+  } else {
+    axis.classList.add('axis-floating');
+  }
+}
+
+/**
+ * http://stackoverflow.com/a/8876069
+ */
+function viewportHeight() {
+  return Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
 }
 
 /*=== Utilties ===*/
@@ -745,7 +787,8 @@ function cellWidthFromScale(cell, scale) {
   var bigger = scale(cell.endDate);
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
-  return bigger - smaller;
+  /* Ensure it rounds up to remove horizontal gaps. */
+  return Math.ceil(bigger - smaller) + 1;
 }
 
 function first(array) {
