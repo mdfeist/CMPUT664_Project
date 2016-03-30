@@ -684,9 +684,6 @@ function drawGraph(data, width, height) {
       var coords = d3.mouse(document.body);
       var currentx = coords[0];
       var currenty = coords[1];
-      //console.log(currenty)
-
-      //var div_height = cell.node().getBoundingClientRect().height;
 
       var x = currentx - CELL_INFO_WIDTH/2;
 
@@ -699,12 +696,10 @@ function drawGraph(data, width, height) {
       cellInfo.style('top', String(y) + "px");
 
       cellInfo.style("visibility", "visible");
-
-      //console.log("over");
     });
 
     /* Mouse move: Update position of cell info */
-    cell.on("mousemove", function (cell_data) {
+    cell.on("mousemove", function (_cell_data) {
       var coords = d3.mouse(document.body);
       var currentx = coords[0];
       var currenty = coords[1];
@@ -721,9 +716,8 @@ function drawGraph(data, width, height) {
     });
 
     /* Mouse out: Hide cell info */
-    cell.on("mouseout", function(cell) {
+    cell.on("mouseout", function(_cell) {
       cellInfo.style("visibility", "hidden");
-      //console.log("out");
     });
   }
 }
