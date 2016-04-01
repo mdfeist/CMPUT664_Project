@@ -43,6 +43,7 @@ function createTable(data, filter) {
 window.createTable = createTable;
 
 function createTable2(filter) {
+  /* Plop this in dna-table div */
   var container = document.getElementById('dna-table');
 
   /* Clear previous table */
@@ -243,6 +244,9 @@ function JavaType(name) {
   var generics_components = sides[0].split('<');
   var components = generics_components[0].split('.');
 
+  /* Max adds per type. */
+  this._largest = null;
+
   this.className = components.pop();
   this.package = components.join('.');
   this.methodName = sides[1] || '';
@@ -311,6 +315,25 @@ Object.defineProperties(JavaType.prototype, {
         this.addCell(new Cell(startDate, endDate, this.name));
       }
       last(this.cells).addDiff(diff);
+    }
+  },
+
+  /**
+   * Returns the number of commits in the largest cell.
+   */
+  numberOfObservationsInLargestCell: {
+    get: function () {
+      if (this._largest) {
+        return this._largest;
+      }
+
+      /* Calculate it! */
+      var maxCell = d3.max(this.cells, function (cell) {
+        return cell.numberOfObservations;
+      });
+
+      this._largest = maxCell;
+      return this._largest;
     }
   },
 
@@ -513,7 +536,7 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 function drawGraph(data, width, height) {
   var marginLeft = 150;
-  var cellHeight = 30;
+  var cellHeight = 64;
   var height = cellHeight * data.types.length;
 
   /* Create a scale for the types i.e., the y-axis */
@@ -544,8 +567,18 @@ function drawGraph(data, width, height) {
       .classed('row', true)
       .attr('transform', function (type) {
         return 'translate(0, ' + yScale(type.fullyQualifiedName) + ')';
-      })
-      .each(createCellsForType);
+      });
+
+  /* The background. */
+  row.append('rect')
+      .attr('width', width)
+      .attr('height', maxCellHeight)
+      .style('fill', function (d, i) {
+        /* Make alternating colour bands. */
+        return i&1 ? '#f4f4f4' : '#fafafa';
+      });
+
+  row.each(createCellsForType);
 
   row.append('text')
       .classed('type-title', true)
@@ -585,7 +618,8 @@ function drawGraph(data, width, height) {
         .filter(function (cell) { return cell.hasData; })
         .classed('cell', true)
         .attr('transform', function (cell) {
-          return 'translate(' + xScale(cell.startDate) + ', 0)';
+          var yOffset = maxCellHeight * (1  - cell.numberOfObservations / type.numberOfObservationsInLargestCell);
+          return 'translate(' + xScale(cell.startDate) + ', ' + yOffset + ')';
         });
 
     /* Make the deletion bar. */
@@ -594,10 +628,10 @@ function drawGraph(data, width, height) {
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('transform', 'translate(0, 0)')
       .attr('height', function (cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
-        return proportion * maxCellHeight;
+        var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
+        return proportion * maxCellHeight * height;
       });
 
     /* Make the addition bar. */
@@ -608,13 +642,15 @@ function drawGraph(data, width, height) {
       })
       .attr('transform', function (cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
-        var topHalf = proportion * maxCellHeight;
+        var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
+        var topHalf = proportion * maxCellHeight * height;
 
         return 'translate(0, ' + topHalf + ')'
       })
       .attr('height', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
-        return proportion * maxCellHeight;
+        var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
+        return proportion * maxCellHeight * height;
       });
 
     /* Mouse Click: Show Cell stats */
