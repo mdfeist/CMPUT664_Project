@@ -49,10 +49,11 @@ function createTable2(filter) {
   /* Clear previous table */
   container.innerHTML = "";
 
-  /* XXX: */
   var processed = window.preprocessedData;
   var filtered = window.filteredData = filterTypes(processed, filter);
   drawGraph(filtered, container.offsetWidth);
+
+  /* TODO: drawStats() */
 
   return filtered;
 }
@@ -565,9 +566,7 @@ function drawGraph(data, width, height) {
       .data(data.types)
       .enter().append('g')
       .classed('row', true)
-      .attr('transform', function (type) {
-        return 'translate(0, ' + yScale(type.fullyQualifiedName) + ')';
-      });
+      .attr('transform', (type) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
 
   /* The background. */
   row.append('rect')
@@ -667,6 +666,7 @@ function drawGraph(data, width, height) {
         .text("Additions: " + cell_data.numberOfAdds);
       info.append('p')
         .text("Deletions: " + cell_data.numberOfDeletions);
+      /* TODO: Graphs here! */
       info.append('p')
         .text("Authors: " + cell_data.authors.length);
       info.append('p')
