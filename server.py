@@ -459,7 +459,7 @@ def get_project(path):
             options = attrdict()
             options.get = "Project"
             options.types = query_type
-            options.ignore_large_commits = True
+            options.ignore_large_commits = False
             return project.getJSON(options)
 
     return ""
