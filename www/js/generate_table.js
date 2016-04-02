@@ -54,7 +54,7 @@ function createTable2(filter) {
   var processed = window.preprocessedData;
   var filtered = window.filteredData = filterTypes(processed, filter);
   drawGraph(filtered, dnaTable.offsetWidth);
-  drawStats(filtered, statTable.offsetWidth);
+  //drawStats(filtered, statTable.offsetWidth);
 
   return filtered;
 }
@@ -458,9 +458,11 @@ function filterTypes(data, filters) {
     for (i = lowerIndex; i < upperIndex; i++) {
       diff = applicableDiffs[i];
       type = typeMap[diff.type];
+
       if (type === undefined) {
         continue;
       }
+
       if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
         type.addDiff(diff, start, end);
       }
@@ -471,8 +473,9 @@ function filterTypes(data, filters) {
   assert(meta.minDate <= meta.maxDate);
 
   return {
-    types: types,
-    numberOfColumns: meta.count,
+    types,
+    columns,
+    numberOfColumns: columns.length,
     minDate: meta.minDate,
     maxDate: meta.maxDate,
     absoluteMinDate: first(data.astDiffs).date,
@@ -573,7 +576,8 @@ function drawGraph(data, width) {
 
   /* The background. */
   row.append('rect')
-      .attr('width', width)
+      .attr('x', marginLeft)
+      .attr('width', width - marginLeft)
       .attr('height', maxCellHeight)
       .style('fill', function (d, i) {
         /* Make alternating colour bands. */
@@ -828,8 +832,6 @@ function drawStats(data, width) {
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
       .text(function (type) { return type.shortName });
-
-
 }
 
 /**
