@@ -124,6 +124,11 @@
         });
       });
 
+      function toggleView() {
+        $("#dna-table").toggleClass( "collapse" );
+        $("#stats-table").toggleClass( "collapse" );
+      }
+
       function toggleAuthors() {
         $("#authors").toggleClass( "collapse" );
       }
@@ -145,6 +150,9 @@
     <div class="container-fluid">
       <nav class="row">
         <ul class="nav nav-pills">
+          <li role="presentation">
+            <a href="#" onclick="toggleView()">Toggle View</a>
+          </li>
           <li role="presentation">
             <a href="#" onclick="toggleAuthors()">Author View</a>
           </li>
@@ -233,6 +241,8 @@
 
       <main class="row">
         <div id="dna-table" class="dna-table">
+        </div>
+        <div id="stats-table" class="stats-table collapse">
         </div>
       </main>
     </div>

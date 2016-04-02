@@ -44,16 +44,17 @@ window.createTable = createTable;
 
 function createTable2(filter) {
   /* Plop this in dna-table div */
-  var container = document.getElementById('dna-table');
+  var dnaTable = document.getElementById('dna-table');
+  var statTable = document.getElementById('stats-table');
 
   /* Clear previous table */
-  container.innerHTML = "";
+  dnaTable.innerHTML = "";
+  statTable.innerHTML = "";
 
   var processed = window.preprocessedData;
   var filtered = window.filteredData = filterTypes(processed, filter);
-  drawGraph(filtered, container.offsetWidth);
-
-  /* TODO: drawStats() */
+  drawGraph(filtered, dnaTable.offsetWidth);
+  drawStats(filtered, statTable.offsetWidth);
 
   return filtered;
 }
@@ -71,8 +72,6 @@ function ASTDiff(original) {
   /* The date must be reasonable... */
   assert(typeof original.type === 'string');
   assert(ASTDiff.EDIT_KIND.has(original.edit));
-  /* We can't trust all data to look like an email address... */
-  //assert(looksLikeAnEmail(original.author));
 
   this.date = date;
   this.type = original.type;
@@ -443,9 +442,13 @@ function filterTypes(data, filters) {
     typeMap[type.name] = type;
   });
 
+  var columns = [];
+
   /* Create all cells applicable for display.  */
   var meta = forEachDateLimitsDescending(startDate, endDate, stepSize,
                                          function (start, end) {
+    columns.push({start, end});
+
     /* This will filter out only the applicable diffs. */
     var lowerIndex = d3.bisectLeft(applicableDiffs, start);
     var upperIndex = d3.bisectRight(applicableDiffs, end);
@@ -535,7 +538,7 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 
 /*=== Graph ===*/
 
-function drawGraph(data, width, height) {
+function drawGraph(data, width) {
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
@@ -787,6 +790,46 @@ function drawGraph(data, width, height) {
       cellInfo.style("visibility", "hidden");
     });
   }
+}
+
+/**
+ * Draws type coverage stats and things.
+ */
+function drawStats(data, width) {
+  var marginLeft = 150;
+  var rowHeight = 64;
+
+  /* Create a scale for the dates i.e., the x-axis */
+    /*
+  var xScale = d3.time.scale()
+    .domain([data.minDate, data.maxDate])
+    .range([marginLeft, width]);
+
+  var timeAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient('bottom');
+    */
+
+  var svg = d3.select('#stats-table').append('svg')
+      .classed('main-figure', true)
+      .attr("width", width)
+      .attr("height", rowHeight)
+
+  /* TODO: Make columns */
+  var typeBar = svg.selectAll('.type-bar')
+        .data(d3.range(data.columns))
+      .enter().append('g')
+        .classed('type-bar', true);
+
+  typeBar.append('text')
+      .classed('type-title', true)
+      .attr('y', yScale.rangeBand() / 2)
+      .attr('dy', '.22em')
+      .attr('x', `${marginLeft - 10}px`)
+      .attr('text-anchor', 'end')
+      .text(function (type) { return type.shortName });
+
+
 }
 
 /**
