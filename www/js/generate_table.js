@@ -478,12 +478,9 @@ Object.defineProperties(TimeSlice.prototype, {
         return this._fileCoverageCache[authorName];
       }
 
-      var commitsByThisAuthor =
-        this._diffs.filter((diff) => diff.author === authorName);
-
       /* d3.mean() returns undefined if there are no commits. */
-      var result = d3.mean(commitsByThisAuthor, (diff) => {
-        return diff.filesModified.length / diff.allFiles.length;
+      var result = d3.mean(this._diffsByAuthor(authorName), (diff) => {
+        return diff.types.length / diff.allFiles.length;
       });
 
       return this._fileCoverageCache[authorName] = result || 0.0;
@@ -494,8 +491,30 @@ Object.defineProperties(TimeSlice.prototype, {
    * Determines how many types out of all types available an author used.
    */
   averageTypeCoverageForAuthor: {
-    value: function (_authorName) {
-      throw new Error('Not implemented');
+    value: function (types, authorName) {
+      /* Return cached value. */
+      if (authorName in this._typeCoverageCache) {
+        return this._typeCoverageCache[authorName];
+      }
+
+      assert(types instanceof Array, 'Types should be an array of types.');
+      assert(typeof authorName === 'string');
+
+      var typesTouched = d3.set();
+      this._diffsByAuthor(authorName).forEach((diff) => {
+        typesTouched.add(diff.type)
+      });
+
+      return this._typeCoverageCache[authorName] = typesTouched.size() / types.length;
+    },
+  },
+
+  /**
+   * Returns JUST the diffs, made by the given author name.
+   */
+  _diffsByAuthor: {
+    value: function (authorName) {
+      return this._diffs.filter((diff) => diff.author === authorName);
     }
   }
 });
@@ -580,9 +599,7 @@ function filterTypes(data, filters) {
    * filtered ASTDiffs */
   var typesPresent = countTypeAbsoluteFrequency(applicableDiffs);
   var sortedTypeNames = Object.keys(typesPresent)
-    .sort(function (a, b) {
-      return d3.descending(typesPresent[a], typesPresent[b]);
-    })
+    .sort((a, b) => d3.descending(typesPresent[a], typesPresent[b]))
     .slice(0, numberOfTypesUpperBound);
 
   assert(sortedTypeNames.length > 0);
@@ -605,7 +622,10 @@ function filterTypes(data, filters) {
   assert(meta.minDate <= meta.maxDate);
 
   return {
+    /* Filtered types. */
     types,
+    /* All types, without arbitrary filtering or sorting. */
+    allTypes: Object.keys(typesPresent),
     timeslices,
     numberOfColumns: timeslices.length,
     minDate: meta.minDate,
@@ -629,7 +649,7 @@ function filterTypes(data, filters) {
     for (i = lowerIndex; i < upperIndex; i++) {
       diff = applicableDiffs[i];
       type = typeMap[diff.type];
-      
+
       /* The type must exist! */
       if (type === undefined) {
         continue;
@@ -704,7 +724,6 @@ function forEachTimeSliceDescending(start, end, step, callback) {
 /*=== Graph ===*/
 
 function drawGraph(data, width) {
-  debugger;
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
