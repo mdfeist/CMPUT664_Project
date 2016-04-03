@@ -428,7 +428,7 @@ function TimeSlice(start, end) {
   this.startDate = start;
   this.endDate = end;
 
-  this.diffs = [];
+  this._diffs = [];
   this._fileCoverageCache = {};
   this._typeCoverageCache = {};
 }
@@ -441,7 +441,9 @@ Object.defineProperties(TimeSlice.prototype, {
    *  - files
    */
   addDiff: {
-    value: function () {
+    value: function (diff) {
+      assert(diff instanceof ASTDiff);
+      this._diffs.push(diff);
     }
   },
 
@@ -479,9 +481,9 @@ Object.defineProperties(TimeSlice.prototype, {
       var commitsByThisAuthor =
         this._diffs.filter((diff) => diff.author === authorName);
 
-      /* d3.mean returns undefined if there are no commits. */
+      /* d3.mean() returns undefined if there are no commits. */
       var result = d3.mean(commitsByThisAuthor, (diff) => {
-        return diff.filesModifed.length / diff.allFiles.length;
+        return diff.filesModified.length / diff.allFiles.length;
       });
 
       return this._fileCoverageCache[authorName] = result || 0.0;
@@ -492,13 +494,9 @@ Object.defineProperties(TimeSlice.prototype, {
    * Determines how many types out of all types available an author used.
    */
   averageTypeCoverageForAuthor: {
-    value: function (authorName, useAllCommits) {
-      if (useAllCommits === undefined) {
-        useAllCommits = false;
-      }
-
+    value: function (_authorName) {
       throw new Error('Not implemented');
-    },
+    }
   }
 });
 
@@ -597,45 +595,54 @@ function filterTypes(data, filters) {
     typeMap[type.name] = type;
   });
 
-  var columns = [];
+  /* Data gets appended in addDataForTimeSlice(). */
+  var timeslices = [];
 
   /* Create all cells applicable for display.  */
-  var meta = forEachDateLimitsDescending(startDate, endDate, stepSize,
-                                         function (start, end) {
-    columns.push({start, end});
-
-    /* This will filter out only the applicable diffs. */
-    var lowerIndex = d3.bisectLeft(applicableDiffs, start);
-    var upperIndex = d3.bisectRight(applicableDiffs, end);
-    var i, diff, type;
-
-    /* For each diff... */
-    for (i = lowerIndex; i < upperIndex; i++) {
-      diff = applicableDiffs[i];
-      type = typeMap[diff.type];
-
-      if (type === undefined) {
-        continue;
-      }
-
-      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
-        type.addDiff(diff, start, end);
-      }
-    }
-  });
-
+  var meta = forEachTimeSliceDescending(startDate, endDate, stepSize,
+                                         addDataForTimeSlice);
   assert(meta.count > 0);
   assert(meta.minDate <= meta.maxDate);
 
   return {
     types,
-    columns,
-    numberOfColumns: columns.length,
+    timeslices,
+    numberOfColumns: timeslices.length,
     minDate: meta.minDate,
     maxDate: meta.maxDate,
     absoluteMinDate: first(data.astDiffs).date,
     absoluteMaxDate: last(data.astDiffs).date,
   };
+
+
+  /* The callback to forEachTimeSliceDescending().  Appends data for each
+   * type, and data for each timeslice. */
+  function addDataForTimeSlice(startDate, endDate) {
+    var timeslice = new TimeSlice(startDate, endDate);
+
+    /* This will filter out only the applicable diffs. */
+    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
+    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
+    var i, diff, type;
+
+    /* For each applicable diff in the time range... */
+    for (i = lowerIndex; i < upperIndex; i++) {
+      diff = applicableDiffs[i];
+      type = typeMap[diff.type];
+      
+      /* The type must exist! */
+      if (type === undefined) {
+        continue;
+      }
+
+      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
+        type.addDiff(diff, startDate, endDate);
+        timeslice.addDiff(diff);
+      }
+    }
+
+    timeslices.push(timeslice);
+  }
 }
 
 
@@ -657,7 +664,7 @@ function countTypeAbsoluteFrequency(astDiffs) {
  * Given start and end dates, calls the given callback with the start and end
  * date.
  */
-function forEachDateLimitsDescending(start, end, step, callback) {
+function forEachTimeSliceDescending(start, end, step, callback) {
   var currentStart;
   var currentEnd = end;
   var count = 0;
@@ -697,6 +704,7 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 /*=== Graph ===*/
 
 function drawGraph(data, width) {
+  debugger;
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
@@ -979,7 +987,7 @@ function drawStats(/*data, width*/) {
   /* TODO: Make columns */
   /*
   var typeBar = svg.selectAll('.type-bar')
-        .data(d3.range(data.columns))
+        .data(d3.range(data.timeSlices))
       .enter().append('g')
         .classed('type-bar', true);
 
