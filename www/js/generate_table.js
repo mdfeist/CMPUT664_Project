@@ -480,7 +480,7 @@ Object.defineProperties(TimeSlice.prototype, {
 
       /* d3.mean() returns undefined if there are no commits. */
       var result = d3.mean(this._diffsByAuthor(authorName), (diff) => {
-        return diff.types.length / diff.allFiles.length;
+        return diff.filesModified.length / diff.allFiles.length;
       });
 
       return this._fileCoverageCache[authorName] = result || 0.0;
@@ -614,6 +614,7 @@ function filterTypes(data, filters) {
 
   /* Data gets appended in addDataForTimeSlice(). */
   var timeslices = [];
+  var authorsSeen = d3.set();
 
   /* Create all cells applicable for display.  */
   var meta = forEachTimeSliceDescending(startDate, endDate, stepSize,
@@ -627,6 +628,8 @@ function filterTypes(data, filters) {
     /* All types, without arbitrary filtering or sorting. */
     allTypes: Object.keys(typesPresent),
     timeslices,
+    /* The authors selected and seen. */
+    authors: authorsSeen.values(),
     numberOfColumns: timeslices.length,
     minDate: meta.minDate,
     maxDate: meta.maxDate,
@@ -658,6 +661,7 @@ function filterTypes(data, filters) {
       if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
         type.addDiff(diff, startDate, endDate);
         timeslice.addDiff(diff);
+        authorsSeen.add(diff.author);
       }
     }
 
@@ -1019,6 +1023,48 @@ function drawStats(/*data, width*/) {
       .text(function (type) { return type.shortName });
       */
 }
+
+
+/**
+ * Creates a link
+ */
+window.makeCSVLink = function makeCSVLink(data) {
+  var lines = [];
+  addRow('Metric', 'Author', 'Date', 'Coverage');
+
+  data.timeslices.forEach(function (timeslice) {
+    data.authors.forEach(function (authorName) {
+      addRow(
+        'line',
+        authorName,
+        timeslice.startDate,
+        timeslice.averageFileCoverageForAuthor(authorName)
+      );
+      addRow(
+        'type',
+        authorName,
+        timeslice.startDate,
+        timeslice.averageTypeCoverageForAuthor(data.types, authorName)
+      );
+    });
+  });
+
+  function addRow() {
+    var i;
+    for (i = 0; i < arguments.length; i++) {
+      if (/[,"]/.exec(arguments[i]))
+        throw new Error('Invalid char in:' + arguments[i]);
+    }
+    lines.push(Array.prototype.join.call(arguments, ','));
+    lines.push('\n');
+  }
+
+  var blob = new Blob(lines, {type: 'text/csv'});
+
+  return URL.createObjectURL(blob);
+
+}
+
 
 /**
  * Places the axis on the bottom of the graph on initial render, when the

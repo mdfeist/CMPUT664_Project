@@ -40,6 +40,9 @@
             var filter = getFilters();
             var results = createTable(JSON.parse(xhttp.responseText), filter);
             patchInputs(results);
+
+            var link = makeCSVLink(window.filteredData);
+            $('#csv-link').attr('href', link);
           }
         };
 
@@ -165,8 +168,12 @@
           <li role="presentation">
             <a href="#" onclick="redrawTable()">Update Table</a>
           </li>
+          <li role="presentation">
+            <a id="csv-link" href="">Download CSV</a>
+          </li>
         </ul>
       </nav>
+
       <nav class="row">
         <div id="filters" class="panel panel-default collapse">
           <div class="panel-heading">
