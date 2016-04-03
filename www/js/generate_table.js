@@ -52,11 +52,11 @@ function createTable2(filter) {
   statTable.innerHTML = "";
 
   var processed = window.preprocessedData;
-  var filtered = window.filteredData = filterTypes(processed, filter);
-  drawGraph(filtered, dnaTable.offsetWidth);
-  //drawStats(filtered, statTable.offsetWidth);
+  var data = window.filteredData = filterTypes(processed, filter);
+  drawGraph(data, dnaTable.offsetWidth);
+  drawStats(data, statTable.offsetWidth);
 
-  return filtered;
+  return data;
 }
 
 
@@ -67,18 +67,26 @@ function createTable2(filter) {
  *
  * Instantiated with an original data object.
  */
-function ASTDiff(original) {
+function ASTDiff(original, commit) {
   var date = new Date(original.date);
   /* The date must be reasonable... */
   assert(typeof original.type === 'string');
+  assert(commit.commitID === original.commitID);
   assert(ASTDiff.EDIT_KIND.has(original.edit));
 
   this.date = date;
   this.type = original.type;
-  this.author = original.author;
   this.edit = original.edit;
-  this.commit = original.commitID;
+  this._commit = commit;
 }
+
+/**
+ * Create an ASTDiff using the information in the commit map.
+ * A commit map maps the Git SHA to the commit contents themselves.
+ */
+ASTDiff.withCommitMap = function (commits, diff) {
+  return new ASTDiff(diff, commits[diff.commitID])
+};
 
 /**
  * ASTDiff methods and computed properties.
@@ -97,6 +105,63 @@ Object.defineProperties(ASTDiff.prototype, {
   },
 
   /**
+   * Get the raw commit info.
+   */
+  commit: {
+    get: function () {
+      return this._commit;
+    }
+  },
+
+  /**
+   * The Git commit ID.
+   */
+  sha: {
+    get: function () {
+      return this._commit.commitID;
+    },
+    enumerable: true
+  },
+
+  /**
+   * The commit's author.
+   */
+  author: {
+    get: function () {
+      return this._commit.author;
+    },
+    enumerable: true
+  },
+
+  /**
+   * Files modified in this commit.
+   */
+  filesModified: {
+    get: function () {
+      return this._commit.files;
+    }
+  },
+
+  /**
+   * All files present at this point in time.
+   */
+  allFiles: {
+    get: function () {
+      return this._commit.all_files;
+    }
+  },
+
+  /**
+   * Log message of the commit associated with this ASTDiff.
+   */
+  commitMessage: {
+    get: function () {
+      return this._commit.message;
+    },
+    enumerable: true
+  },
+
+  /**
    * Delegate valueOf() to the internal date object. This makes relational
    * comparisons with ASTDiff objects equivillent to comparing their dates.
    * (i.e.,
@@ -108,8 +173,9 @@ Object.defineProperties(ASTDiff.prototype, {
     value: function () {
       return this.date.valueOf();
     },
-  }
+  },
 });
+
 
 /**
  * Class: Cell
@@ -231,6 +297,8 @@ Object.defineProperties(Cell.prototype, {
  * with methods having a JavaType parent, and JavaType arguments;
  * and for there to be a DataEntry class that contains cells. But that sounds
  * like too much effort.
+ *
+ * Create an array of these and you get a y-axis!
  */
 function JavaType(name) {
   /* Instantiate a new Cell object if called without `new`. */
@@ -257,7 +325,6 @@ function JavaType(name) {
 
   this.cells = [];
 };
-
 
 Object.defineProperties(JavaType.prototype, {
   /**
@@ -348,6 +415,94 @@ Object.defineProperties(JavaType.prototype, {
 });
 
 
+/**
+ * Class: TimeSlice
+ * A slice of time, with a start date and an end date.
+ * Contains file coverage and
+ *
+ * Create an array of these and you get an x-axis!
+ */
+function TimeSlice(start, end) {
+  assert(start instanceof Date);
+  assert(end instanceof Date);
+  this.startDate = start;
+  this.endDate = end;
+
+  this.diffs = [];
+  this._fileCoverageCache = {};
+  this._typeCoverageCache = {};
+}
+
+Object.defineProperties(TimeSlice.prototype, {
+  /**
+   * Add a diff. This carries:
+   *  - an author
+   *  - a commit
+   *  - files
+   */
+  addDiff: {
+    value: function () {
+    }
+  },
+
+  /**
+   * Determines **average** file coverage per commits.
+   * That is, how many files have been touched per commit for all the files
+   * covered in the project.
+   */
+  averageFileCoverage: {
+    get: function () {
+      throw new Error('Not implemented');
+    },
+  },
+
+  /**
+   * Determines how many files out of all files available an author used.
+   */
+  averageTypeCoverage: {
+    value: function () {
+      throw new Error('Not implemented');
+    },
+  },
+
+  /**
+   * Determines how many files out of all files available in a commit that an
+   * author used.
+   */
+  averageFileCoverageForAuthor: {
+    value: function (authorName) {
+      /* Return cached value. */
+      if (authorName in this._fileCoverageCache) {
+        return this._fileCoverageCache[authorName];
+      }
+
+      var commitsByThisAuthor =
+        this._diffs.filter((diff) => diff.author === authorName);
+
+      /* d3.mean returns undefined if there are no commits. */
+      var result = d3.mean(commitsByThisAuthor, (diff) => {
+        return diff.filesModifed.length / diff.allFiles.length;
+      });
+
+      return this._fileCoverageCache[authorName] = result || 0.0;
+    },
+  },
+
+  /**
+   * Determines how many types out of all types available an author used.
+   */
+  averageTypeCoverageForAuthor: {
+    value: function (authorName, useAllCommits) {
+      if (useAllCommits === undefined) {
+        useAllCommits = false;
+      }
+
+      throw new Error('Not implemented');
+    },
+  }
+});
+
+
 /*=== Core functions ====*/
 
 /**
@@ -360,13 +515,14 @@ function preprocessData(data) {
 
   /* A set of types. */
   var types = d3.set(data.types)
+  /* Mapping GitSha -> Commit Metadata. */
+  var commits = createCommitMap(data.commits);
 
   return {
-    types: types,
-    /* Mapping GitSha -> Commit Metadata. */
-    commits: createCommitMap(data.commits),
+    types,
+    commits,
     /* A copy of AST Diff data, in asscending order of date. */
-    astDiffs: createASTDiffsInAscendingOrder(data.dates)
+    astDiffs: createASTDiffsInAscendingOrder(data.dates, commits)
   };
 }
 
@@ -384,13 +540,12 @@ function createCommitMap (commits) {
 }
 
 /* Returns AST Diff data, in asscending order of date. */
-function createASTDiffsInAscendingOrder(astDiffsByType) {
+function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
   return astDiffsByType
-    .map(function (diff) { return new ASTDiff(diff); })
-    .sort(function (a, b) {
-      /* See explanation in Cell#isAcceptableDiff(). */
-      return d3.ascending(a.date.valueOf(), b.date.valueOf());
-    });
+    .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
+    /* Note: unary + coerces to smallint using Date#valueOf() */
+    /* See explanation in Cell#isAcceptableDiff(). */
+    .sort((a, b) => d3.ascending(+a.date, +b.date));
 }
 
 /**
@@ -799,9 +954,11 @@ function drawGraph(data, width) {
 /**
  * Draws type coverage stats and things.
  */
-function drawStats(data, width) {
+function drawStats(/*data, width*/) {
+  /*
   var marginLeft = 150;
   var rowHeight = 64;
+  */
 
   /* Create a scale for the dates i.e., the x-axis */
     /*
@@ -812,14 +969,15 @@ function drawStats(data, width) {
   var timeAxis = d3.svg.axis()
     .scale(xScale)
     .orient('bottom');
-    */
 
   var svg = d3.select('#stats-table').append('svg')
       .classed('main-figure', true)
       .attr("width", width)
       .attr("height", rowHeight)
+    */
 
   /* TODO: Make columns */
+  /*
   var typeBar = svg.selectAll('.type-bar')
         .data(d3.range(data.columns))
       .enter().append('g')
@@ -832,6 +990,7 @@ function drawStats(data, width) {
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
       .text(function (type) { return type.shortName });
+      */
 }
 
 /**
