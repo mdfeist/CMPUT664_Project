@@ -1105,13 +1105,15 @@ function drawStats(/*data, width*/) {
 
 
 /**
- * Creates a link
+ * Returns the download link for a CSV file (with header)
+ * for per-author type and file coverage statistics.
  */
 window.makeCSVLink = function makeCSVLink(data) {
   var lines = [];
   var filesTotal = data.numberOfFiles;
   var typesTotal = data.numberOfTypes;
 
+  /* Add the header. */
   addRow('Metric', 'Author', 'Date', 'Coverage');
 
   for (authorName of Object.keys(data.authorStats)) {
