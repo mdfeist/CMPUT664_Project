@@ -531,7 +531,7 @@ function preprocessData(data) {
   assert(data.dates instanceof Array);
 
   /* A set of types. */
-  var types = d3.set(data.types)
+  var types = new Set(data.types)
   /* Mapping GitSha -> Commit Metadata. */
   var commits = createCommitMap(data.commits);
 
@@ -614,13 +614,50 @@ function filterTypes(data, filters) {
 
   /* Data gets appended in addDataForTimeSlice(). */
   var timeslices = [];
-  var authorsSeen = d3.set();
+
+  var authorMap = {};
+  var authorSets = {};
+  var typesOverall = new Set();
+  var filesOverall = new Set();
 
   /* Create all cells applicable for display.  */
   var meta = forEachTimeSliceDescending(startDate, endDate, stepSize,
-                                         addDataForTimeSlice);
+                                        addDataForTimeSlice);
   assert(meta.count > 0);
   assert(meta.minDate <= meta.maxDate);
+
+  forEachCommit(applicableDiffs, (commit, files, types) => {
+    var author = commit.author;
+    var date = new Date(commit.date);
+    if (!(author in authorMap)) {
+      authorMap[author] = [];
+      authorSets[author] = {
+        files: new Set(),
+        types: new Set()
+      };
+    }
+
+    /* Add all observed files and types to their respective sets. */
+    union(filesOverall, files);
+    union(authorSets[author].files, files);
+    union(typesOverall, types);
+    union(authorSets[author].types, types);
+
+    /* Record stats! */
+    authorMap[author].push({
+      type: {
+        observed: types.size,
+        cumulative: authorSets[author].types.size,
+        total: typesOverall.size
+      },
+      file: {
+        observed: files.size,
+        cumulative: authorSets[author].files.size,
+        total: filesOverall.size
+      },
+      date
+    });
+  });
 
   return {
     /* Filtered types. */
@@ -629,14 +666,16 @@ function filterTypes(data, filters) {
     allTypes: Object.keys(typesPresent),
     timeslices,
     /* The authors selected and seen. */
-    authors: authorsSeen.values(),
+    authors: Object.keys(authorMap),
+    authorStats: authorMap,
     numberOfColumns: timeslices.length,
+    numberOfTypes: typesOverall.size,
+    numberOfFiles: filesOverall.size,
     minDate: meta.minDate,
     maxDate: meta.maxDate,
     absoluteMinDate: first(data.astDiffs).date,
     absoluteMaxDate: last(data.astDiffs).date,
   };
-
 
   /* The callback to forEachTimeSliceDescending().  Appends data for each
    * type, and data for each timeslice. */
@@ -661,12 +700,12 @@ function filterTypes(data, filters) {
       if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
         type.addDiff(diff, startDate, endDate);
         timeslice.addDiff(diff);
-        authorsSeen.add(diff.author);
       }
     }
 
     timeslices.push(timeslice);
   }
+
 }
 
 
@@ -722,6 +761,46 @@ function forEachTimeSliceDescending(start, end, step, callback) {
     maxDate: end,
     count: count
   };
+}
+
+
+/**
+ * TODO:
+ *  - Calculate type and file coverage PER COMMIT.
+ *  - Per each author, get their type/file coverage.
+ *  - Put it in a CSV
+ */
+
+
+/**
+ * Given diffs, calls the callback for each commit.
+ * The callback is called with the raw commit, a set of files touched, and a
+ * set of types type
+ */
+function forEachCommit(diffs, fn) {
+  var currentCommit, filesOverall, typesOverall;
+
+  for (diff of diffs) {
+    /* When encoutering a new commit... */
+    if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
+      /* Do the callback. */
+      if (currentCommit !== undefined) {
+        fn(currentCommit, filesOverall, typesOverall);
+      }
+
+      /* Reset the current commit. */
+      currentCommit = diff.commit;
+      typesOverall = new Set();
+      filesOverall = new Set();
+    }
+
+    /* Update the types. */
+    typesOverall.add(diff.type);
+
+    for (filename of diff.filesModified) {
+      filesOverall.add(filename);
+    }
+  }
 }
 
 
@@ -1030,24 +1109,27 @@ function drawStats(/*data, width*/) {
  */
 window.makeCSVLink = function makeCSVLink(data) {
   var lines = [];
+  var filesTotal = data.numberOfFiles;
+  var typesTotal = data.numberOfTypes;
+
   addRow('Metric', 'Author', 'Date', 'Coverage');
 
-  data.timeslices.forEach(function (timeslice) {
-    data.authors.forEach(function (authorName) {
+  for (authorName of Object.keys(data.authorStats)) {
+    for (stats of data.authorStats[authorName]) {
       addRow(
-        'line',
+        'file',
         authorName,
-        timeslice.startDate,
-        timeslice.averageFileCoverageForAuthor(authorName)
+        +stats.date, // Coerce to Unix timestamp in ms
+        stats.file.cumulative / filesTotal
       );
       addRow(
         'type',
         authorName,
-        timeslice.startDate,
-        timeslice.averageTypeCoverageForAuthor(data.types, authorName)
+        +stats.date, // Coerce to Unix timestamp in ms
+        stats.type.cumulative / typesTotal
       );
-    });
-  });
+    }
+  };
 
   function addRow() {
     var i;
@@ -1135,6 +1217,16 @@ function looksLikeAGitSha(thing) {
   }
 
   return thing.match(/^[0-9a-f]{5,}$/i);
+}
+
+/**
+ * Union of two sets.
+ */
+function union(set, iterable) {
+  for (item of iterable) {
+    set.add(item);
+  }
+  return set;
 }
 
 /*globals d3, moment*/
