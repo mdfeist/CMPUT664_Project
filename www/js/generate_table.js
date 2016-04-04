@@ -280,7 +280,7 @@ Object.defineProperties(Cell.prototype, {
       var commits = d3.set();
 
       this.diffs.forEach( function (diff) {
-        commits.add(diff.commit);
+        commits.add(diff.sha);
       });
 
       return commits.values();
