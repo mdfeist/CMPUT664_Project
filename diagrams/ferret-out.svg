@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   class="main-figure"
+   height="450"
+   width="315"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="ferret-out.svg">
+  <metadata
+     id="metadata40">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs38" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="718"
+     inkscape:window-height="562"
+     id="namedview36"
+     showgrid="false"
+     units="in"
+     inkscape:zoom="1.4460334"
+     inkscape:cx="198.0789"
+     inkscape:cy="60.765263"
+     inkscape:window-x="343"
+     inkscape:window-y="82"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <style
+     type="text/css"
+     id="style4">
+/**
+ * Colour scheme from:
+ * http://colorbrewer2.org/?type=diverging&amp;scheme=RdBu&amp;n=3
+ */
+.cell &gt; .ast-additions { fill: #67a9cf; }
+.cell &gt; .ast-deletions { fill: #ef8a62; }
+
+body:not(.colorblind-safe)
+.cell &gt; .ast-additions { fill: #a6f3a6; }
+body:not(.colorblind-safe)
+.cell &gt; .ast-deletions { fill: #f8cbcb; }
+
+.row .type-title { font-weight: bold; }
+
+.cell .cell-outline {
+    fill: none;
+}
+
+svg.main-figure {
+    /* A little margin at the bottom to make room for the floating axis. */
+    margin-bottom: 3em;
+}
+
+/* Have this stick to the bottom. */
+svg.time-axis {
+    height: 3em;
+
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Make the tick labels for years bold. */
+.time-axis text.year-tick {
+    font-weight: bold;
+    font-size: larger;
+}
+
+/* This needs to be position relative so that... */
+.dna-table {
+    position: relative;
+}
+
+/* ...this will be positioned relative to the dna-table. */
+.dna-table svg.time-axis.axis-on-bottom {
+    position: absolute;
+    bottom: 0;
+    /* top: must be set by JavaScript. */
+}
+
+.dna-table svg.time-axis.axis-floating {
+    position: fixed;
+    bottom: 0;
+}
+
+ 
+</style>
+  <g
+     id="g3017"
+     transform="matrix(0.75247891,0,0,0.75247891,-27.988684,84.610665)">
+    <g
+       transform="translate(0,322)"
+       id="g6"
+       class="row">
+      <rect
+         y="0"
+         id="rect8"
+         x="150"
+         width="250"
+         style="fill:#fafafa"
+         height="62" />
+      <g
+         id="g10"
+         transform="translate(275,0)"
+         class="cell">
+        <rect
+           style="fill:#ef8a62"
+           y="0"
+           x="0"
+           id="rect12"
+           width="126"
+           height="62"
+           class="ast-deletions" />
+        <rect
+           style="fill:#67a9cf"
+           y="0"
+           x="0"
+           id="rect14"
+           width="126"
+           transform="translate(0,62)"
+           height="0"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g16"
+         transform="translate(150,0)"
+         class="cell">
+        <rect
+           style="fill:#ef8a62"
+           y="0"
+           x="0"
+           id="rect18"
+           width="126"
+           height="0"
+           class="ast-deletions" />
+        <rect
+           style="fill:#67a9cf"
+           y="0"
+           x="0"
+           id="rect20"
+           width="126"
+           height="62"
+           class="ast-additions" />
+      </g>
+      <text
+         style="font-weight:bold;text-anchor:end;-inkscape-font-specification:Arial Unicode MS Bold;font-family:Arial Unicode MS;font-style:normal;font-stretch:normal;font-variant:normal;font-size:12.00000012px;text-align:end;writing-mode:lr;line-height:125%"
+         id="text22"
+         y="32"
+         x="140"
+         dy="1.5862176e-37"
+         class="type-title"
+         sodipodi:linespacing="125%">String</text>
+    </g>
+    <g
+       id="g24"
+       transform="translate(0,386)"
+       class="row">
+      <rect
+         y="0"
+         id="rect26"
+         x="150"
+         width="250"
+         style="fill:#f4f4f4"
+         height="62" />
+      <g
+         id="g28"
+         transform="translate(275,0)"
+         class="cell">
+        <rect
+           style="fill:#ef8a62"
+           y="0"
+           x="0"
+           id="rect30"
+           width="126"
+           height="0"
+           class="ast-deletions" />
+        <rect
+           style="fill:#67a9cf"
+           y="0"
+           x="0"
+           id="rect32"
+           width="126"
+           height="62"
+           class="ast-additions" />
+      </g>
+      <text
+         style="font-weight:bold;text-anchor:end;-inkscape-font-specification:Arial Unicode MS Bold;font-family:Arial Unicode MS;font-style:normal;font-stretch:normal;font-variant:normal;font-size:12.00000012px;text-align:end;writing-mode:lr;line-height:125%"
+         id="text34"
+         y="32"
+         x="140"
+         dy="1.5862176e-37"
+         class="type-title"
+         sodipodi:linespacing="125%">URI</text>
+    </g>
+  </g>
+</svg>
