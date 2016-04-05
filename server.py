@@ -305,7 +305,7 @@ def getStats(filename):
     message = ""
     file_touched_start = False
     file_start = False
-    with open(filename) as f:
+    with open(filename, encoding='UTF-8') as f:
         for line in f:
             if ("#PROJECT_START" in line):
                 current_project = Project()
@@ -465,7 +465,8 @@ def get_project(path):
     return ""
 
 if __name__ == "__main__":
-    app.run()
+    port = int(os.getenv('PORT', '5000'))
+    app.run(host='0.0.0.0', port=port)
 
 #dump_file = open('dump.out', 'w')
 #
