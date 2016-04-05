@@ -56,7 +56,7 @@ do
 	echo "#DATE | $date"
 	echo "#COMMIT_ID | $commit"
 	echo "#COMMIT_MESSAGE_START"
-	git log --format=%B -n 1 $commit
+	git --no-pager log --format=%B -n 1 $commit
 	echo "#COMMIT_MESSAGE_END"
 	echo "#FILES_TOUCHED_START"
 	git show --pretty="format:" --name-only $commit | sed -n '1!p'
