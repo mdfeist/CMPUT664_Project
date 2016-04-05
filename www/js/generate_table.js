@@ -1225,7 +1225,7 @@ function looksLikeAGitSha(thing) {
  * Union of two sets.
  */
 function union(set, iterable) {
-  for (let item of iterable) {
+  for (var item of iterable) {
     set.add(item);
   }
   return set;
