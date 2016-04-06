@@ -44,17 +44,19 @@ window.createTable = createTable;
 
 function createTable2(filter) {
   /* Plop this in dna-table div */
-  var container = document.getElementById('dna-table');
+  var dnaTable = document.getElementById('dna-table');
+  var statTable = document.getElementById('stats-table');
 
   /* Clear previous table */
-  container.innerHTML = "";
+  dnaTable.innerHTML = "";
+  statTable.innerHTML = "";
 
-  /* XXX: */
   var processed = window.preprocessedData;
-  var filtered = window.filteredData = filterTypes(processed, filter);
-  drawGraph(filtered, container.offsetWidth);
+  var data = window.filteredData = filterTypes(processed, filter);
+  drawGraph(data, dnaTable.offsetWidth);
+  drawStats(data, statTable.offsetWidth);
 
-  return filtered;
+  return data;
 }
 
 
@@ -65,20 +67,26 @@ function createTable2(filter) {
  *
  * Instantiated with an original data object.
  */
-function ASTDiff(original) {
+function ASTDiff(original, commit) {
   var date = new Date(original.date);
   /* The date must be reasonable... */
   assert(typeof original.type === 'string');
+  assert(commit.commitID === original.commitID);
   assert(ASTDiff.EDIT_KIND.has(original.edit));
-  /* We can't trust all data to look like an email address... */
-  //assert(looksLikeAnEmail(original.author));
 
   this.date = date;
   this.type = original.type;
-  this.author = original.author;
   this.edit = original.edit;
-  this.commit = original.commitID;
+  this._commit = commit;
 }
+
+/**
+ * Create an ASTDiff using the information in the commit map.
+ * A commit map maps the Git SHA to the commit contents themselves.
+ */
+ASTDiff.withCommitMap = function (commits, diff) {
+  return new ASTDiff(diff, commits[diff.commitID])
+};
 
 /**
  * ASTDiff methods and computed properties.
@@ -97,6 +105,63 @@ Object.defineProperties(ASTDiff.prototype, {
   },
 
   /**
+   * Get the raw commit info.
+   */
+  commit: {
+    get: function () {
+      return this._commit;
+    }
+  },
+
+  /**
+   * The Git commit ID.
+   */
+  sha: {
+    get: function () {
+      return this._commit.commitID;
+    },
+    enumerable: true
+  },
+
+  /**
+   * The commit's author.
+   */
+  author: {
+    get: function () {
+      return this._commit.author;
+    },
+    enumerable: true
+  },
+
+  /**
+   * Files modified in this commit.
+   */
+  filesModified: {
+    get: function () {
+      return this._commit.files;
+    }
+  },
+
+  /**
+   * All files present at this point in time.
+   */
+  allFiles: {
+    get: function () {
+      return this._commit.all_files;
+    }
+  },
+
+  /**
+   * Log message of the commit associated with this ASTDiff.
+   */
+  commitMessage: {
+    get: function () {
+      return this._commit.message;
+    },
+    enumerable: true
+  },
+
+  /**
    * Delegate valueOf() to the internal date object. This makes relational
    * comparisons with ASTDiff objects equivillent to comparing their dates.
    * (i.e.,
@@ -108,8 +173,9 @@ Object.defineProperties(ASTDiff.prototype, {
     value: function () {
       return this.date.valueOf();
     },
-  }
+  },
 });
+
 
 /**
  * Class: Cell
@@ -214,7 +280,7 @@ Object.defineProperties(Cell.prototype, {
       var commits = d3.set();
 
       this.diffs.forEach( function (diff) {
-        commits.add(diff.commit);
+        commits.add(diff.sha);
       });
 
       return commits.values();
@@ -231,6 +297,8 @@ Object.defineProperties(Cell.prototype, {
  * with methods having a JavaType parent, and JavaType arguments;
  * and for there to be a DataEntry class that contains cells. But that sounds
  * like too much effort.
+ *
+ * Create an array of these and you get a y-axis!
  */
 function JavaType(name) {
   /* Instantiate a new Cell object if called without `new`. */
@@ -257,7 +325,6 @@ function JavaType(name) {
 
   this.cells = [];
 };
-
 
 Object.defineProperties(JavaType.prototype, {
   /**
@@ -348,6 +415,111 @@ Object.defineProperties(JavaType.prototype, {
 });
 
 
+/**
+ * Class: TimeSlice
+ * A slice of time, with a start date and an end date.
+ * Contains file coverage and
+ *
+ * Create an array of these and you get an x-axis!
+ */
+function TimeSlice(start, end) {
+  assert(start instanceof Date);
+  assert(end instanceof Date);
+  this.startDate = start;
+  this.endDate = end;
+
+  this._diffs = [];
+  this._fileCoverageCache = {};
+  this._typeCoverageCache = {};
+}
+
+Object.defineProperties(TimeSlice.prototype, {
+  /**
+   * Add a diff. This carries:
+   *  - an author
+   *  - a commit
+   *  - files
+   */
+  addDiff: {
+    value: function (diff) {
+      assert(diff instanceof ASTDiff);
+      this._diffs.push(diff);
+    }
+  },
+
+  /**
+   * Determines **average** file coverage per commits.
+   * That is, how many files have been touched per commit for all the files
+   * covered in the project.
+   */
+  averageFileCoverage: {
+    get: function () {
+      throw new Error('Not implemented');
+    },
+  },
+
+  /**
+   * Determines how many files out of all files available an author used.
+   */
+  averageTypeCoverage: {
+    value: function () {
+      throw new Error('Not implemented');
+    },
+  },
+
+  /**
+   * Determines how many files out of all files available in a commit that an
+   * author used.
+   */
+  averageFileCoverageForAuthor: {
+    value: function (authorName) {
+      /* Return cached value. */
+      if (authorName in this._fileCoverageCache) {
+        return this._fileCoverageCache[authorName];
+      }
+
+      /* d3.mean() returns undefined if there are no commits. */
+      var result = d3.mean(this._diffsByAuthor(authorName), (diff) => {
+        return diff.filesModified.length / diff.allFiles.length;
+      });
+
+      return this._fileCoverageCache[authorName] = result || 0.0;
+    },
+  },
+
+  /**
+   * Determines how many types out of all types available an author used.
+   */
+  averageTypeCoverageForAuthor: {
+    value: function (types, authorName) {
+      /* Return cached value. */
+      if (authorName in this._typeCoverageCache) {
+        return this._typeCoverageCache[authorName];
+      }
+
+      assert(types instanceof Array, 'Types should be an array of types.');
+      assert(typeof authorName === 'string');
+
+      var typesTouched = d3.set();
+      this._diffsByAuthor(authorName).forEach((diff) => {
+        typesTouched.add(diff.type)
+      });
+
+      return this._typeCoverageCache[authorName] = typesTouched.size() / types.length;
+    },
+  },
+
+  /**
+   * Returns JUST the diffs, made by the given author name.
+   */
+  _diffsByAuthor: {
+    value: function (authorName) {
+      return this._diffs.filter((diff) => diff.author === authorName);
+    }
+  }
+});
+
+
 /*=== Core functions ====*/
 
 /**
@@ -359,14 +531,15 @@ function preprocessData(data) {
   assert(data.dates instanceof Array);
 
   /* A set of types. */
-  var types = d3.set(data.types)
+  var types = new Set(data.types)
+  /* Mapping GitSha -> Commit Metadata. */
+  var commits = createCommitMap(data.commits);
 
   return {
-    types: types,
-    /* Mapping GitSha -> Commit Metadata. */
-    commits: createCommitMap(data.commits),
+    types,
+    commits,
     /* A copy of AST Diff data, in asscending order of date. */
-    astDiffs: createASTDiffsInAscendingOrder(data.dates)
+    astDiffs: createASTDiffsInAscendingOrder(data.dates, commits)
   };
 }
 
@@ -384,13 +557,12 @@ function createCommitMap (commits) {
 }
 
 /* Returns AST Diff data, in asscending order of date. */
-function createASTDiffsInAscendingOrder(astDiffsByType) {
+function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
   return astDiffsByType
-    .map(function (diff) { return new ASTDiff(diff); })
-    .sort(function (a, b) {
-      /* See explanation in Cell#isAcceptableDiff(). */
-      return d3.ascending(a.date.valueOf(), b.date.valueOf());
-    });
+    .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
+    /* Note: unary + coerces to smallint using Date#valueOf() */
+    /* See explanation in Cell#isAcceptableDiff(). */
+    .sort((a, b) => d3.ascending(+a.date, +b.date));
 }
 
 /**
@@ -427,9 +599,7 @@ function filterTypes(data, filters) {
    * filtered ASTDiffs */
   var typesPresent = countTypeAbsoluteFrequency(applicableDiffs);
   var sortedTypeNames = Object.keys(typesPresent)
-    .sort(function (a, b) {
-      return d3.descending(typesPresent[a], typesPresent[b]);
-    })
+    .sort((a, b) => d3.descending(typesPresent[a], typesPresent[b]))
     .slice(0, numberOfTypesUpperBound);
 
   assert(sortedTypeNames.length > 0);
@@ -442,38 +612,100 @@ function filterTypes(data, filters) {
     typeMap[type.name] = type;
   });
 
+  /* Data gets appended in addDataForTimeSlice(). */
+  var timeslices = [];
+
+  var authorMap = {};
+  var authorSets = {};
+  var typesOverall = new Set();
+  var filesOverall = new Set();
+
   /* Create all cells applicable for display.  */
-  var meta = forEachDateLimitsDescending(startDate, endDate, stepSize,
-                                         function (start, end) {
-    /* This will filter out only the applicable diffs. */
-    var lowerIndex = d3.bisectLeft(applicableDiffs, start);
-    var upperIndex = d3.bisectRight(applicableDiffs, end);
-    var i, diff, type;
-
-    /* For each diff... */
-    for (i = lowerIndex; i < upperIndex; i++) {
-      diff = applicableDiffs[i];
-      type = typeMap[diff.type];
-      if (type === undefined) {
-        continue;
-      }
-      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
-        type.addDiff(diff, start, end);
-      }
-    }
-  });
-
+  var meta = forEachTimeSliceDescending(startDate, endDate, stepSize,
+                                        addDataForTimeSlice);
   assert(meta.count > 0);
   assert(meta.minDate <= meta.maxDate);
 
+  forEachCommit(applicableDiffs, (commit, files, types) => {
+    var author = commit.author;
+    var date = new Date(commit.date);
+    if (!(author in authorMap)) {
+      authorMap[author] = [];
+      authorSets[author] = {
+        files: new Set(),
+        types: new Set()
+      };
+    }
+
+    /* Add all observed files and types to their respective sets. */
+    union(filesOverall, files);
+    union(authorSets[author].files, files);
+    union(typesOverall, types);
+    union(authorSets[author].types, types);
+
+    /* Record stats! */
+    authorMap[author].push({
+      type: {
+        observed: types.size,
+        cumulative: authorSets[author].types.size,
+        total: typesOverall.size
+      },
+      file: {
+        observed: files.size,
+        cumulative: authorSets[author].files.size,
+        total: filesOverall.size
+      },
+      date
+    });
+  });
+
   return {
-    types: types,
-    numberOfColumns: meta.count,
+    /* Filtered types. */
+    types,
+    /* All types, without arbitrary filtering or sorting. */
+    allTypes: Object.keys(typesPresent),
+    timeslices,
+    /* The authors selected and seen. */
+    authors: Object.keys(authorMap),
+    authorStats: authorMap,
+    numberOfColumns: timeslices.length,
+    numberOfTypes: typesOverall.size,
+    numberOfFiles: filesOverall.size,
     minDate: meta.minDate,
     maxDate: meta.maxDate,
     absoluteMinDate: first(data.astDiffs).date,
     absoluteMaxDate: last(data.astDiffs).date,
   };
+
+  /* The callback to forEachTimeSliceDescending().  Appends data for each
+   * type, and data for each timeslice. */
+  function addDataForTimeSlice(startDate, endDate) {
+    var timeslice = new TimeSlice(startDate, endDate);
+
+    /* This will filter out only the applicable diffs. */
+    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
+    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
+    var i, diff, type;
+
+    /* For each applicable diff in the time range... */
+    for (i = lowerIndex; i < upperIndex; i++) {
+      diff = applicableDiffs[i];
+      type = typeMap[diff.type];
+
+      /* The type must exist! */
+      if (type === undefined) {
+        continue;
+      }
+
+      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
+        type.addDiff(diff, startDate, endDate);
+        timeslice.addDiff(diff);
+      }
+    }
+
+    timeslices.push(timeslice);
+  }
+
 }
 
 
@@ -495,7 +727,7 @@ function countTypeAbsoluteFrequency(astDiffs) {
  * Given start and end dates, calls the given callback with the start and end
  * date.
  */
-function forEachDateLimitsDescending(start, end, step, callback) {
+function forEachTimeSliceDescending(start, end, step, callback) {
   var currentStart;
   var currentEnd = end;
   var count = 0;
@@ -532,9 +764,49 @@ function forEachDateLimitsDescending(start, end, step, callback) {
 }
 
 
+/**
+ * TODO:
+ *  - Calculate type and file coverage PER COMMIT.
+ *  - Per each author, get their type/file coverage.
+ *  - Put it in a CSV
+ */
+
+
+/**
+ * Given diffs, calls the callback for each commit.
+ * The callback is called with the raw commit, a set of files touched, and a
+ * set of types type
+ */
+function forEachCommit(diffs, fn) {
+  var currentCommit, filesOverall, typesOverall;
+
+  for (diff of diffs) {
+    /* When encoutering a new commit... */
+    if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
+      /* Do the callback. */
+      if (currentCommit !== undefined) {
+        fn(currentCommit, filesOverall, typesOverall);
+      }
+
+      /* Reset the current commit. */
+      currentCommit = diff.commit;
+      typesOverall = new Set();
+      filesOverall = new Set();
+    }
+
+    /* Update the types. */
+    typesOverall.add(diff.type);
+
+    for (filename of diff.filesModified) {
+      filesOverall.add(filename);
+    }
+  }
+}
+
+
 /*=== Graph ===*/
 
-function drawGraph(data, width, height) {
+function drawGraph(data, width) {
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
@@ -565,13 +837,12 @@ function drawGraph(data, width, height) {
       .data(data.types)
       .enter().append('g')
       .classed('row', true)
-      .attr('transform', function (type) {
-        return 'translate(0, ' + yScale(type.fullyQualifiedName) + ')';
-      });
+      .attr('transform', (type) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
 
   /* The background. */
   row.append('rect')
-      .attr('width', width)
+      .attr('x', marginLeft)
+      .attr('width', width - marginLeft)
       .attr('height', maxCellHeight)
       .style('fill', function (d, i) {
         /* Make alternating colour bands. */
@@ -667,6 +938,7 @@ function drawGraph(data, width, height) {
         .text("Additions: " + cell_data.numberOfAdds);
       info.append('p')
         .text("Deletions: " + cell_data.numberOfDeletions);
+      /* TODO: Graphs here! */
       info.append('p')
         .text("Authors: " + cell_data.authors.length);
       info.append('p')
@@ -790,6 +1062,95 @@ function drawGraph(data, width, height) {
 }
 
 /**
+ * Draws type coverage stats and things.
+ */
+function drawStats(/*data, width*/) {
+  /*
+  var marginLeft = 150;
+  var rowHeight = 64;
+  */
+
+  /* Create a scale for the dates i.e., the x-axis */
+    /*
+  var xScale = d3.time.scale()
+    .domain([data.minDate, data.maxDate])
+    .range([marginLeft, width]);
+
+  var timeAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient('bottom');
+
+  var svg = d3.select('#stats-table').append('svg')
+      .classed('main-figure', true)
+      .attr("width", width)
+      .attr("height", rowHeight)
+    */
+
+  /* TODO: Make columns */
+  /*
+  var typeBar = svg.selectAll('.type-bar')
+        .data(d3.range(data.timeSlices))
+      .enter().append('g')
+        .classed('type-bar', true);
+
+  typeBar.append('text')
+      .classed('type-title', true)
+      .attr('y', yScale.rangeBand() / 2)
+      .attr('dy', '.22em')
+      .attr('x', `${marginLeft - 10}px`)
+      .attr('text-anchor', 'end')
+      .text(function (type) { return type.shortName });
+      */
+}
+
+
+/**
+ * Returns the download link for a CSV file (with header)
+ * for per-author type and file coverage statistics.
+ */
+window.makeCSVLink = function makeCSVLink(data) {
+  var lines = [];
+  var filesTotal = data.numberOfFiles;
+  var typesTotal = data.numberOfTypes;
+
+  /* Add the header. */
+  addRow('Metric', 'Author', 'Date', 'Coverage');
+
+  for (authorName of Object.keys(data.authorStats)) {
+    for (stats of data.authorStats[authorName]) {
+      addRow(
+        'file',
+        authorName,
+        +stats.date, // Coerce to Unix timestamp in ms
+        stats.file.cumulative / filesTotal
+      );
+      addRow(
+        'type',
+        authorName,
+        +stats.date, // Coerce to Unix timestamp in ms
+        stats.type.cumulative / typesTotal
+      );
+    }
+  };
+
+  function addRow() {
+    var i;
+    for (i = 0; i < arguments.length; i++) {
+      if (/[,"]/.exec(arguments[i]))
+        throw new Error('Invalid char in:' + arguments[i]);
+    }
+    lines.push(Array.prototype.join.call(arguments, ','));
+    lines.push('\n');
+  }
+
+  var blob = new Blob(lines, {type: 'text/csv'});
+
+  return URL.createObjectURL(blob);
+
+}
+
+
+/**
  * Places the axis on the bottom of the graph on initial render, when the
  * screen is too big.
  */
@@ -858,6 +1219,16 @@ function looksLikeAGitSha(thing) {
   }
 
   return thing.match(/^[0-9a-f]{5,}$/i);
+}
+
+/**
+ * Union of two sets.
+ */
+function union(set, iterable) {
+  for (var item of iterable) {
+    set.add(item);
+  }
+  return set;
 }
 
 /*globals d3, moment*/

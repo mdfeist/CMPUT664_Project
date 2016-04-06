@@ -9,10 +9,20 @@
     <link type="text/css" href="/css/bootstrap-theme.min.css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="/css/jquery-ui.min.css" rel="stylesheet" media="all">
     <link rel="stylesheet" href="/css/graph-styles.css" rel="stylesheet" media="all">
+<style>
+a[href=''] {
+  opacity: 0.6;
+  filter: grayscale(50%);
+  -webkit-filter: grayscale(50%);
+  -moz-filter: grayscale(50%);
+}
+</style>
+
     <script src="/js/jquery-1.12.2.min.js"></script>
     <script src="/js/d3.v3.min.js"></script>
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery-ui.min.js"></script>
+
 
     <script>
       /* Add date picker widgets on platforms that don't have them. */
@@ -40,6 +50,9 @@
             var filter = getFilters();
             var results = createTable(JSON.parse(xhttp.responseText), filter);
             patchInputs(results);
+
+            var link = makeCSVLink(window.filteredData);
+            $('#csv-link').attr('href', link);
           }
         };
 
@@ -124,6 +137,11 @@
         });
       });
 
+      function toggleView() {
+        $("#dna-table").toggleClass( "collapse" );
+        $("#stats-table").toggleClass( "collapse" );
+      }
+
       function toggleAuthors() {
         $("#authors").toggleClass( "collapse" );
       }
@@ -146,6 +164,9 @@
       <nav class="row">
         <ul class="nav nav-pills">
           <li role="presentation">
+            <a href="#" onclick="toggleView()">Toggle View</a>
+          </li>
+          <li role="presentation">
             <a href="#" onclick="toggleAuthors()">Author View</a>
           </li>
           <li role="presentation">
@@ -157,8 +178,12 @@
           <li role="presentation">
             <a href="#" onclick="redrawTable()">Update Table</a>
           </li>
+          <li role="presentation">
+            <a id="csv-link" href="">Download CSV</a>
+          </li>
         </ul>
       </nav>
+
       <nav class="row">
         <div id="filters" class="panel panel-default collapse">
           <div class="panel-heading">
@@ -233,6 +258,8 @@
 
       <main class="row">
         <div id="dna-table" class="dna-table">
+        </div>
+        <div id="stats-table" class="stats-table collapse">
         </div>
       </main>
     </div>
