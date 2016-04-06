@@ -409,12 +409,8 @@ files = ["out1.out",
 
 files = ["test.out"]
 files = ["antlr4.out"]
+#files = ["antlr4.out", "301.out", "Paper_Repos.out"]
 
-print("Gathering Dump Data ...")
-for f in files:
-    getStats(f)
-print("Number of Projects: " + str(len(projects)))
-print("Gathering Stats ...")
 
 # set the project root directory as the static folder, you can set others.
 path = os.path.dirname(os.path.realpath(__file__))
@@ -464,9 +460,19 @@ def get_project(path):
 
     return ""
 
+@app.before_first_request
+def _run_on_start():
+    print("Gathering Dump Data ...")
+    for f in files:
+        getStats(f)
+    print("Number of Projects: " + str(len(projects)))
+    print("Gathering Stats ...")
+
+	
 if __name__ == "__main__":
     port = int(os.getenv('PORT', '5000'))
     app.run(host='0.0.0.0', port=port)
+
 
 #dump_file = open('dump.out', 'w')
 #
