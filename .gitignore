@@ -4,3 +4,5 @@ gumtree-spoon-ast-diff/.*
 repositories*
 *.out
 runDiff.sh
+tmp/
+repos/
