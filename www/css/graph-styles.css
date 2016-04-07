@@ -61,7 +61,21 @@ path.line-chart {
     stroke-width: 3px;
 }
 
+path.domain {
+    stroke: black;
+}
+
 .types-over-time path.domain {
     fill: none;
     stroke: black;
 }
+
+path.file-coverage,
+path.type-coverage {
+    fill: none;
+    stroke: red;
+    stroke-width: 3px;
+}
+
+path.file-coverage { stroke: blue; }
+path.type-coverage { stroke: red; }

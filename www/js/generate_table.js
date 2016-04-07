@@ -783,7 +783,7 @@ function drawGraph(data, width) {
 
   var row = svg.selectAll('.row')
       .data(data.types)
-      .enter().append('g')
+    .enter().append('g')
       .classed('row', true)
       .attr('transform', (type) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
 
@@ -1013,9 +1013,9 @@ function drawGraph(data, width) {
  * Draws type coverage stats and things.
  */
 function drawStats(data, width) {
-  var marginLeft = 150;
+  var marginLeft = 64;
   var overviewHeight = 480;
-  //var rowHeight = 64;
+  var rowHeight = 64;
   var marginBottom = 32;
 
   var chartHeight = overviewHeight - marginBottom;
@@ -1028,7 +1028,12 @@ function drawStats(data, width) {
   /* Make a scale for proportions that goes from bottom to top. */
   var yScale = d3.scale.linear()
     .domain([0, 1])
-    .range([chartHeight, 0])
+    .range([chartHeight, 0]);
+
+  /* This one is used per author stats. */
+  var yScaleSmall = d3.scale.linear()
+    .domain([0, 1])
+    .range([rowHeight, 0])
 
   var timeAxis = d3.svg.axis()
     .scale(xScale)
@@ -1066,8 +1071,65 @@ function drawStats(data, width) {
     .classed('y-axis', true)
     .attr('transform', `translate(${marginLeft}, 0)`)
     .call(verticalAxis);
-}
 
+  /* It gets ugly here... */
+  var lineFunctionSmallFiles = d3.svg.line()
+    .x(author => xScale(author.date))
+    .y(author => {
+      var proportion = author.file.cumulative / numberOfTypesTotal;
+      return yScaleSmall(proportion);
+    })
+    .interpolate('linear');
+
+  var lineFunctionSmallTypes = d3.svg.line()
+    .x(author => xScale(author.date))
+    .y(author => {
+      var proportion = author.type.cumulative / numberOfTypesTotal;
+      return yScaleSmall(proportion);
+    })
+    .interpolate('linear');
+
+  /*
+   * Per author stats.
+   */
+
+  var authorCoverage = d3.select('#coverage-by-author').selectAll('.author-coverage')
+      .data(data.authors)
+    .enter().append('svg')
+      .attr('height', rowHeight + 32)
+      .attr('width', width)
+      .classed('author-coverage', true);
+
+  authorCoverage.append('path')
+    .classed('file-coverage', true)
+    .attr('d', (authorName) => lineFunctionSmallFiles(data.authorStats[authorName]));
+
+  authorCoverage.append('path')
+    .classed('type-coverage', true)
+    .attr('d', (authorName) => lineFunctionSmallTypes(data.authorStats[authorName]));
+
+  /* Axes. */
+  authorCoverage.append('g')
+    .attr('transform', `translate(0, ${rowHeight})`)
+    .call(timeAxis);
+
+  authorCoverage.append('text')
+    .attr('transform', `translate(${marginLeft}, 16)`)
+    .text(authorName => authorName);
+
+  /* TODO: Make independent axis for each author... */
+  /*
+  
+  var verticalAxisSmall = d3.svg.axis()
+    .scale(yScaleSmall)
+    .tickFormat(d3.format("5%"))
+    .orient('left');
+
+  authorCoverage.append('g')
+    .attr('transform', `translate(${marginLeft}, 0)`)
+    .call(verticalAxisSmall);
+  */
+}
 
 /**
  * Returns the download link for a CSV file (with header)
@@ -1111,7 +1173,6 @@ window.makeCSVLink = function makeCSVLink(data) {
   var blob = new Blob(lines, {type: 'text/csv'});
 
   return URL.createObjectURL(blob);
-
 }
 
 
