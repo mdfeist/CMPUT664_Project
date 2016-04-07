@@ -1022,6 +1022,8 @@ function drawStats(data, width) {
   //var rowHeight = 64;
   var marginBottom = 32;
 
+  var chartHeight = overviewHeight - marginBottom;
+
   /* Create a scale for the dates i.e., the x-axis */
   var xScale = d3.time.scale()
     .domain([data.minDate, data.maxDate])
@@ -1030,13 +1032,11 @@ function drawStats(data, width) {
   /* Make a scale for proportions that goes from bottom to top. */
   var yScale = d3.scale.linear()
     .domain([0, 1])
-    .range([overviewHeight - marginBottom, 0])
+    .range([chartHeight, 0])
 
-    /*
   var timeAxis = d3.svg.axis()
     .scale(xScale)
     .orient('bottom');
-    */
 
   /* Cumulative types over time. */
   var overviewSvg = d3.select('#types-over-time').append('svg')
@@ -1054,6 +1054,10 @@ function drawStats(data, width) {
   overviewSvg.append('path')
     .classed('line-chart', true)
     .attr('d', lineFunction(data.timeslices));
+  /* Add the axis. */
+  overviewSvg.append('g')
+    .attr('transform', `translate(0, ${chartHeight})`)
+    .call(timeAxis);
 }
 
 

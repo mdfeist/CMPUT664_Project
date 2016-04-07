@@ -50,3 +50,10 @@ svg.time-axis {
     position: fixed;
     bottom: 0;
 }
+
+/* The line chart! */
+path.line-chart {
+    fill: none;
+    stroke: #67a9cf;
+    stroke-width: 3px;
+}
