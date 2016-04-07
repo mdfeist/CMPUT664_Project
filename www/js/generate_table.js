@@ -45,16 +45,18 @@ window.createTable = createTable;
 function createTable2(filter) {
   /* Plop this in dna-table div */
   var dnaTable = document.getElementById('dna-table');
-  var statTable = document.getElementById('stats-table');
 
   /* Clear previous table */
   dnaTable.innerHTML = "";
-  statTable.innerHTML = "";
 
   var processed = window.preprocessedData;
   var data = window.filteredData = filterTypes(processed, filter);
   drawGraph(data, dnaTable.offsetWidth);
-  drawStats(data, statTable.offsetWidth);
+  try {
+    drawStats(data, dnaTable.offsetWidth);
+  } catch (e) {
+    console.log(e);
+  }
 
   return data;
 }
@@ -428,9 +430,9 @@ function TimeSlice(start, end) {
   this.startDate = start;
   this.endDate = end;
 
+  this._typeCount = null;
+
   this._diffs = [];
-  this._fileCoverageCache = {};
-  this._typeCoverageCache = {};
 }
 
 Object.defineProperties(TimeSlice.prototype, {
@@ -447,77 +449,62 @@ Object.defineProperties(TimeSlice.prototype, {
     }
   },
 
-  /**
-   * Determines **average** file coverage per commits.
-   * That is, how many files have been touched per commit for all the files
-   * covered in the project.
-   */
-  averageFileCoverage: {
+  cumulativeTypeCount: {
     get: function () {
-      throw new Error('Not implemented');
-    },
-  },
-
-  /**
-   * Determines how many files out of all files available an author used.
-   */
-  averageTypeCoverage: {
-    value: function () {
-      throw new Error('Not implemented');
-    },
-  },
-
-  /**
-   * Determines how many files out of all files available in a commit that an
-   * author used.
-   */
-  averageFileCoverageForAuthor: {
-    value: function (authorName) {
-      /* Return cached value. */
-      if (authorName in this._fileCoverageCache) {
-        return this._fileCoverageCache[authorName];
+      if (this._typeCount === null) {
+        throw new Error('Did not explicitly set cumulativeTypeCount!');
       }
-
-      /* d3.mean() returns undefined if there are no commits. */
-      var result = d3.mean(this._diffsByAuthor(authorName), (diff) => {
-        return diff.filesModified.length / diff.allFiles.length;
-      });
-
-      return this._fileCoverageCache[authorName] = result || 0.0;
+      return this._typeCount;
     },
-  },
 
-  /**
-   * Determines how many types out of all types available an author used.
-   */
-  averageTypeCoverageForAuthor: {
-    value: function (types, authorName) {
-      /* Return cached value. */
-      if (authorName in this._typeCoverageCache) {
-        return this._typeCoverageCache[authorName];
+    set: function (value) {
+      if (this._typeCount !== null) {
+        throw new Error('cumulativeTypeCount can only be set once!');
       }
-
-      assert(types instanceof Array, 'Types should be an array of types.');
-      assert(typeof authorName === 'string');
-
-      var typesTouched = d3.set();
-      this._diffsByAuthor(authorName).forEach((diff) => {
-        typesTouched.add(diff.type)
-      });
-
-      return this._typeCoverageCache[authorName] = typesTouched.size() / types.length;
-    },
-  },
-
-  /**
-   * Returns JUST the diffs, made by the given author name.
-   */
-  _diffsByAuthor: {
-    value: function (authorName) {
-      return this._diffs.filter((diff) => diff.author === authorName);
+      if (typeof value !== 'number') {
+        throw new Error('cumulativeTypeCount must be a number!');
+      }
+      return this._typeCount = value;
     }
   }
 });
+
+/**
+ * Given start and end dates, calls the given callback with the start and end
+ * date.
+ */
+TimeSlice.createRange = function (start, end, step) {
+  var currentStart;
+  var currentEnd = end;
+  var array = [];
+
+  while (start < currentEnd) {
+    currentStart = moment(currentEnd);
+
+    switch (step) {
+        case 'hour':
+            currentStart.subtract(1, 'hour');
+            break;
+        case 'day':
+            currentStart.subtract(1, 'day');
+            break;
+        case 'week':
+            /* TODO: Make this smarter? */
+            currentStart.subtract(1, 'weeks');
+            break;
+        case 'month':
+            currentStart.subtract(1, 'month');
+    }
+
+    currentStart = currentStart.toDate();
+    array.push(new TimeSlice(currentStart, currentEnd));
+    currentEnd = currentStart;
+  }
+
+  /* Such that the timeslices are in ascending chronological order. */
+  return array.reverse();
+}
+
 
 
 /*=== Core functions ====*/
@@ -612,20 +599,54 @@ function filterTypes(data, filters) {
     typeMap[type.name] = type;
   });
 
-  /* Data gets appended in addDataForTimeSlice(). */
-  var timeslices = [];
-
   var authorMap = {};
   var authorSets = {};
   var typesOverall = new Set();
   var filesOverall = new Set();
 
   /* Create all cells applicable for display.  */
-  var meta = forEachTimeSliceDescending(startDate, endDate, stepSize,
-                                        addDataForTimeSlice);
-  assert(meta.count > 0);
-  assert(meta.minDate <= meta.maxDate);
+  var timeslices = TimeSlice.createRange(startDate, endDate, stepSize);
 
+  timeslices.forEach(function (timeslice) {
+    var startDate = timeslice.startDate;
+    var endDate = timeslice.endDate;
+
+    /* This will filter out only the applicable diffs. */
+    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
+    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
+    var i, diff, type;
+
+    /* For each applicable diff in the time range... */
+    for (i = lowerIndex; i < upperIndex; i++) {
+      diff = applicableDiffs[i];
+      /* Count the type, regardless if it's filtered. */
+      typesOverall.add(diff.type);
+
+      type = typeMap[diff.type];
+
+      /* The type must exist! */
+      if (type === undefined) {
+        continue;
+      }
+
+      /* Add the diff, accounting for author filters. */
+      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
+        type.addDiff(diff, startDate, endDate);
+        timeslice.addDiff(diff);
+      }
+
+    }
+
+    /* Finally, commit the count to the timeslice. */
+    timeslice.cumulativeTypeCount = typesOverall.size;
+  });
+
+  var minDate = first(timeslices).startDate;
+  var maxDate = last(timeslices).endDate;
+  assert(minDate <= maxDate);
+
+  /* Will need to recalculate this for this measurement: */
+  typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
     var author = commit.author;
     var date = new Date(commit.date);
@@ -665,47 +686,18 @@ function filterTypes(data, filters) {
     /* All types, without arbitrary filtering or sorting. */
     allTypes: Object.keys(typesPresent),
     timeslices,
+    minDate,
+    maxDate,
+    numberOfColumns: timeslices.length,
     /* The authors selected and seen. */
     authors: Object.keys(authorMap),
     authorStats: authorMap,
-    numberOfColumns: timeslices.length,
     numberOfTypes: typesOverall.size,
     numberOfFiles: filesOverall.size,
-    minDate: meta.minDate,
-    maxDate: meta.maxDate,
+    /* The following two are used for the date display picker thing. */
     absoluteMinDate: first(data.astDiffs).date,
     absoluteMaxDate: last(data.astDiffs).date,
   };
-
-  /* The callback to forEachTimeSliceDescending().  Appends data for each
-   * type, and data for each timeslice. */
-  function addDataForTimeSlice(startDate, endDate) {
-    var timeslice = new TimeSlice(startDate, endDate);
-
-    /* This will filter out only the applicable diffs. */
-    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
-    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
-    var i, diff, type;
-
-    /* For each applicable diff in the time range... */
-    for (i = lowerIndex; i < upperIndex; i++) {
-      diff = applicableDiffs[i];
-      type = typeMap[diff.type];
-
-      /* The type must exist! */
-      if (type === undefined) {
-        continue;
-      }
-
-      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
-        type.addDiff(diff, startDate, endDate);
-        timeslice.addDiff(diff);
-      }
-    }
-
-    timeslices.push(timeslice);
-  }
-
 }
 
 
@@ -722,46 +714,6 @@ function countTypeAbsoluteFrequency(astDiffs) {
   return typesFrequency;
 }
 
-
-/**
- * Given start and end dates, calls the given callback with the start and end
- * date.
- */
-function forEachTimeSliceDescending(start, end, step, callback) {
-  var currentStart;
-  var currentEnd = end;
-  var count = 0;
-
-  while (start < currentEnd) {
-    currentStart = moment(currentEnd);
-
-    switch (step) {
-        case 'hour':
-            currentStart.subtract(1, 'hour');
-            break;
-        case 'day':
-            currentStart.subtract(1, 'day');
-            break;
-        case 'week':
-            /* TODO: Make this smarter? */
-            currentStart.subtract(1, 'weeks');
-            break;
-        case 'month':
-            currentStart.subtract(1, 'month');
-    }
-
-    callback(currentStart.toDate(), currentEnd);
-    currentEnd = currentStart.toDate();
-    count++;
-  }
-
-  return {
-    /* CurrentEnd is the last start date. */
-    minDate: currentEnd,
-    maxDate: end,
-    count: count
-  };
-}
 
 
 /**
@@ -1064,43 +1016,44 @@ function drawGraph(data, width) {
 /**
  * Draws type coverage stats and things.
  */
-function drawStats(/*data, width*/) {
-  /*
+function drawStats(data, width) {
   var marginLeft = 150;
-  var rowHeight = 64;
-  */
+  var overviewHeight = 480;
+  //var rowHeight = 64;
+  var marginBottom = 32;
 
   /* Create a scale for the dates i.e., the x-axis */
-    /*
   var xScale = d3.time.scale()
     .domain([data.minDate, data.maxDate])
     .range([marginLeft, width]);
 
+  /* Make a scale for proportions that goes from bottom to top. */
+  var yScale = d3.scale.linear()
+    .domain([0, 1])
+    .range([overviewHeight - marginBottom, 0])
+
+    /*
   var timeAxis = d3.svg.axis()
     .scale(xScale)
     .orient('bottom');
-
-  var svg = d3.select('#stats-table').append('svg')
-      .classed('main-figure', true)
-      .attr("width", width)
-      .attr("height", rowHeight)
     */
 
-  /* TODO: Make columns */
-  /*
-  var typeBar = svg.selectAll('.type-bar')
-        .data(d3.range(data.timeSlices))
-      .enter().append('g')
-        .classed('type-bar', true);
+  /* Cumulative types over time. */
+  var overviewSvg = d3.select('#types-over-time').append('svg')
+      .classed('types-over-time', true)
+      .attr("width", width)
+      .attr("height", overviewHeight);
 
-  typeBar.append('text')
-      .classed('type-title', true)
-      .attr('y', yScale.rangeBand() / 2)
-      .attr('dy', '.22em')
-      .attr('x', `${marginLeft - 10}px`)
-      .attr('text-anchor', 'end')
-      .text(function (type) { return type.shortName });
-      */
+  var numberOfTypesTotal = data.numberOfTypes;
+  var lineFunction = d3.svg.line()
+    .x(timeslice => xScale(timeslice.startDate))
+    .y(timeslice => yScale(timeslice.cumulativeTypeCount / numberOfTypesTotal))
+    .interpolate('linear');
+
+  /* Make the line chart. */
+  overviewSvg.append('path')
+    .classed('line-chart', true)
+    .attr('d', lineFunction(data.timeslices));
 }
 
 

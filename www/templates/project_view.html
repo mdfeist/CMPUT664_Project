@@ -116,7 +116,7 @@ a[href=''] {
         $('#max-datepicker').val(maxDate);
 
         function toISODate(date) {
-        assert(date instanceof Date);
+          assert(date instanceof Date);
           return date
             .toISOString()
             .split('T')[0];
@@ -127,10 +127,6 @@ a[href=''] {
         var type = $("#type-select").val();
         loadProject(type);
 
-        //$(".filter_info").on("change", function(){
-        //  redrawTable();
-        //});
-
         $("#type-select").on("change", function(){
           var type = $("#type-select").val();
           loadProject(type);
@@ -138,8 +134,8 @@ a[href=''] {
       });
 
       function toggleView() {
-        $("#dna-table").toggleClass( "collapse" );
-        $("#stats-table").toggleClass( "collapse" );
+        $("#dna-table").toggleClass("collapse");
+        $("#stats-table").toggleClass("collapse");
       }
 
       function toggleAuthors() {
@@ -235,7 +231,7 @@ a[href=''] {
             <b>Stats</b>
           </div>
           <div id="stats-body" class="panel-body">
-            
+
           </div>
         </div>
       </nav>
@@ -257,9 +253,17 @@ a[href=''] {
       </nav>
 
       <main class="row">
-        <div id="dna-table" class="dna-table">
-        </div>
+        <div id="dna-table" class="dna-table"></div>
         <div id="stats-table" class="stats-table collapse">
+          <section>
+            <h1> Types over time </h1>
+            <div id="types-over-time"></div>
+          </section>
+
+          <section>
+            <h1> Coverage by author </h1>
+            <div id="coverage-by-author"></div>
+          </section>
         </div>
       </main>
     </div>
