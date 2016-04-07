@@ -60,3 +60,8 @@ path.line-chart {
     stroke: #67a9cf;
     stroke-width: 3px;
 }
+
+.types-over-time path.domain {
+    fill: none;
+    stroke: black;
+}

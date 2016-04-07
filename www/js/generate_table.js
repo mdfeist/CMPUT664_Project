@@ -52,11 +52,7 @@ function createTable2(filter) {
   var processed = window.preprocessedData;
   var data = window.filteredData = filterTypes(processed, filter);
   drawGraph(data, dnaTable.offsetWidth);
-  try {
-    drawStats(data, dnaTable.offsetWidth);
-  } catch (e) {
-    console.log(e);
-  }
+  drawStats(data, dnaTable.offsetWidth);
 
   return data;
 }
@@ -1036,10 +1032,12 @@ function drawStats(data, width) {
 
   var timeAxis = d3.svg.axis()
     .scale(xScale)
+    .outerTickSize(0) // Get rid of weird outer ticks.
     .orient('bottom');
 
   var verticalAxis = d3.svg.axis()
     .scale(yScale)
+    .tickFormat(d3.format("5%"))
     .orient('left');
 
   /* Cumulative types over time. */
@@ -1061,9 +1059,11 @@ function drawStats(data, width) {
 
   /* Add the axes. */
   overviewSvg.append('g')
+    .classed('time-axis', true)
     .attr('transform', `translate(0, ${chartHeight})`)
     .call(timeAxis);
   overviewSvg.append('g')
+    .classed('y-axis', true)
     .attr('transform', `translate(${marginLeft}, 0)`)
     .call(verticalAxis);
 }
