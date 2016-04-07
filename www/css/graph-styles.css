@@ -52,6 +52,9 @@ svg.time-axis {
 }
 
 /* The line chart! */
+svg.types-over-time {
+    overflow: visible;
+}
 path.line-chart {
     fill: none;
     stroke: #67a9cf;

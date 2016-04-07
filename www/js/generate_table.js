@@ -1038,6 +1038,10 @@ function drawStats(data, width) {
     .scale(xScale)
     .orient('bottom');
 
+  var verticalAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient('left');
+
   /* Cumulative types over time. */
   var overviewSvg = d3.select('#types-over-time').append('svg')
       .classed('types-over-time', true)
@@ -1054,10 +1058,14 @@ function drawStats(data, width) {
   overviewSvg.append('path')
     .classed('line-chart', true)
     .attr('d', lineFunction(data.timeslices));
-  /* Add the axis. */
+
+  /* Add the axes. */
   overviewSvg.append('g')
     .attr('transform', `translate(0, ${chartHeight})`)
     .call(timeAxis);
+  overviewSvg.append('g')
+    .attr('transform', `translate(${marginLeft}, 0)`)
+    .call(verticalAxis);
 }
 
 
