@@ -16,7 +16,7 @@ The Python server, the web frontend, the modifications made to
 Spoon-GumTree, and all associated scripts are under the following
 license:
 
-       Copyright 2016 Micheal D. Feist, Eddie Antonio Santos, Ian Watts,
+       Copyright 2016 Michael D. Feist, Eddie Antonio Santos, Ian Watts,
        Abram Hindle.
 
        Licensed under the Apache License, Version 2.0 (the "License");
