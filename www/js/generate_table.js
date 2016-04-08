@@ -1225,11 +1225,17 @@ function cellWidthFromScale(cell, scale) {
 
 function first(array) {
   assert(array instanceof Array);
+  if (array.length < 1) {
+    throw new Error('Cannot get the first item of an empty array; is the project empty?');
+  }
   return array[0];
 }
 
 function last(array) {
   assert(array instanceof Array);
+  if (array.length < 1) {
+    throw new Error('Cannot get the first item of an empty array; is the project empty?');
+  }
   return array[array.length - 1];
 }
 
