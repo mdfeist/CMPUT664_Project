@@ -90,12 +90,15 @@ a[href=''] {
           }
         });
 
+        var typeFilter = $('#type-filter').val();
+
         return {
           start: start_date,
           end: end_date,
           stepSize: $("#step").val(),
           limit: +$("#filter").val(),
-          authors: _authors
+          authors: _authors,
+          typeFilter: typeFilter
         };
       }
 
@@ -186,6 +189,10 @@ a[href=''] {
             <b>Filters</b>
           </div>
           <div class="panel-body">
+            <label> Filter types
+              <input class="text filter_info" placeholder="No type filter" value="" type="text" id="type-filter" name="filter">
+            </label>
+
             <label> Starting from
               <input class="text filter_info" value="" type="date" id="min-datepicker" name="min">
             </label>

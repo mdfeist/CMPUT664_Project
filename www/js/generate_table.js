@@ -565,6 +565,7 @@ function filterTypes(data, filters) {
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var stepSize = filters.stepSize || 'month';
   var authors = filters.authors || [];
+  var typeFilter = filters.typeFilter ? filters.typeFilter : null;
 
   assert(startDate instanceof Date);
   assert(endDate instanceof Date);
@@ -581,7 +582,13 @@ function filterTypes(data, filters) {
   /* Filter types, first by the types that are ACTUALLY present in the
    * filtered ASTDiffs */
   var typesPresent = countTypeAbsoluteFrequency(applicableDiffs);
-  var sortedTypeNames = Object.keys(typesPresent)
+  /* XXX: refactor... */
+  var typeNames = typeFilter === null ? Object.keys(typesPresent) :
+    Object.keys(typesPresent).filter(typeName => {
+      return typeName.toLowerCase().includes(typeFilter.toLowerCase())
+    });
+
+  var sortedTypeNames = typeNames
     .sort((a, b) => d3.descending(typesPresent[a], typesPresent[b]))
     .slice(0, numberOfTypesUpperBound);
 
@@ -1119,7 +1126,7 @@ function drawStats(data, width) {
 
   /* TODO: Make independent axis for each author... */
   /*
-  
+
   var verticalAxisSmall = d3.svg.axis()
     .scale(yScaleSmall)
     .tickFormat(d3.format("5%"))
