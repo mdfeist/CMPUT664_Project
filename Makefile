@@ -6,10 +6,6 @@ all: antlr4.out $(GUMTREE)
 	@echo 'virutalenv recommended: https://virtualenv.pypa.io/en/latest/'
 	@printf '\033[m'
 
-# This only works on Eddie's computer...
-bib:
-	paperpal export --better-biblatex 'ICSME 2016' autogen.bib
-
 get-deps:
 	pip install -r requirements.txt
 
@@ -21,4 +17,4 @@ antlr4.out: antlr4.tar.gz
 	tar xzf $<
 	touch $@ # Reset the modification time, to not extract again.
 
-.PHONY: all bib build get-deps
+.PHONY: all build get-deps
