@@ -1,6 +1,11 @@
-import sys
-import os
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import glob
 import json
+import os
+import sys
+
 from flask import Flask, request, redirect, send_from_directory, render_template
 
 projects = []
@@ -29,7 +34,7 @@ class Project:
 
     def getAuthors(self):
         authors = set()
-        
+
         for commit in self._commits:
             author = commit.getAuthor()
             authors.add(author)
@@ -113,7 +118,7 @@ class Project:
                         # Skip java.lang.Object#Object()
                         if (t == "java.lang.Object#Object()"):
                             continue
-                            
+
                         types.add(t)
                         json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
 
@@ -130,7 +135,7 @@ class Project:
             output += commit.toStr("\t")
 
         return output
-    
+
     def __repr__(self):
         return self.__str__()
 
@@ -201,14 +206,14 @@ class Commit:
 
         output += tab + "Stats: \n"
         for f in self._files:
-            output += f.toStr(tab + "\t") + "\n" 
+            output += f.toStr(tab + "\t") + "\n"
         output += tab + "######################################################\n"
 
         return output
 
     def __str__(self):
         return self.toStr("")
-    
+
     def __repr__(self):
         return self.__str__()
 
@@ -248,7 +253,7 @@ class File:
 
     def __str__(self):
         return self.toStr("")
-    
+
     def __repr__(self):
         return self.__str__()
 
@@ -292,7 +297,7 @@ class Histogram:
 
     def __str__(self):
         return self.toStr("")
-    
+
     def __repr__(self):
         return self.__str__()
 
@@ -399,21 +404,11 @@ def mergeProjectCSV(csv):
     return os.linesep.join([s for s in csv.splitlines() if s])
 
 
-files = ["out1.out", 
-        "out2.out",
-        "out3.out",
-        "out4.out",
-        "out5.out",
-        "out6.out",
-        "out7.out"]
-
-files = ["test.out"]
-files = ["antlr4.out"]
-#files = ["antlr4.out", "301.out", "Paper_Repos.out"]
-
 
 # set the project root directory as the static folder, you can set others.
 path = os.path.dirname(os.path.realpath(__file__))
+# Files = list of ast-output/*.out
+files = glob.glob(os.path.join(path, 'ast-output', '*.out'))
 static_folder = path + '/www'
 template_folder = path + '/www/templates'
 app = Flask(__name__, static_folder=static_folder, static_url_path='/www', template_folder=template_folder)
@@ -447,7 +442,7 @@ def show_project(path):
 @app.route('/projects/<path:path>/get_project')
 def get_project(path):
     #query_string = request.query_string
-    query_type = request.args.get('type') 
+    query_type = request.args.get('type')
     #print(query_type)
 
     for project in projects:
@@ -468,7 +463,7 @@ def _run_on_start():
     print("Number of Projects: " + str(len(projects)))
     print("Gathering Stats ...")
 
-	
+
 if __name__ == "__main__":
     port = int(os.getenv('PORT', '5000'))
     app.run(host='0.0.0.0', port=port)
@@ -479,5 +474,5 @@ if __name__ == "__main__":
 #for project in projects:
 #    #print(project.getStats()[2])
 #    stats = project.getJSON()
-#    
+#
 #    dump_file.write(stats)
