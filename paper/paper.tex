@@ -7,6 +7,7 @@
 % If IEEEtran.cls has not been installed into the LaTeX system files,
 % manually specify the path to it like:
 % \documentclass[conference]{../sty/IEEEtran}
+\usepackage{changepage}
 
 
 
@@ -349,122 +350,69 @@ Potential uses for such a tool for managers and developers is discussed.
 
 
 \section{Introduction}
-% no \IEEEPARstart
-This demo file is intended to serve as a ``starter file''
-for IEEE conference papers produced under \LaTeX\ using
-IEEEtran.cls version 1.8b and later.
-% You must have at least 2 lines in the paragraph with the drop letter
-% (should never be an issue)
-I wish you the best of success.
 
-\hfill mds
+The history and evolution of software repositories are often tracked by version control systems. The information is generally kept in the form of commits, which show the differences between each subsequent version of the software.  These services become vital for large projects since individual changes would be impossible to track manually. Large projects have thousands of individual changes made by many different developers. With more changes to look through, it becomes more difficult to see how a project is evolving over time since there is so much information to look through. Most hosting services for git repositories provide some basic tools for analysing projects over time, but too much information is lost due to the lack of fine grained details. The information regarding contributions from developers are also misleading since the number of commits and lines of code do not necessarily reflect meaningful changes to a repository.
 
-\hfill August 26, 2015
+In Java, a type can be a primitive type or an object reference. Primitive types are those that are built into the language such as an int or char. Object references point to instances of classes in memory which are defined in the project or through an included library. The types in a project represent the functionality available for a developer to work with. A large or complex project may have many different types, whereas a small project might only use a few. Different parts of a program are going to use different types and libraries. When writing or contributing to a project, the author’s choice of which part of the program to edit will in turn affect what types they end up working with.
 
-\subsection{Subsection Heading Here}
-Subsection text here.
+Having advanced tools for analysing repositories would benefit many different parts of the software development process. Software management requires a high level understanding of the state of a repository and the changes being made which affect the functionality of the software. Tracking developer contributions in a less misleading way is also important for management since important contributions may be small and focused. Line difference only provide meaningful info when they are analysed by someone with familiarity with the source code being changed. Providing tools which bring more meaning to line differences would allow people less familiar with the code to understand changes being made. When large changes are made that cover many lines of code, it would also be useful to see how the change affects the software rather than a several thousand line diff.  Seeing how a project has changed over time is also vital for management since evaluating the state of completion of software can be very difficult.
 
+Type information is useful for seeing what libraries and functions are being used.  When a part of code becomes deprecated, continuing to use it may lead to design or  security flaws. Viewing the type information of a change can show when deprecated classes are added or removed from a project as well as how many remain. 
 
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here.
+\section{Related Work}
 
+Robert Dyer \textit{et al.} \cite{Dyer:2014:MBA:2568225.2568295} mined AST nodes to study the use of new Java language features over time. (More in challenge paper)
 
-% An example of a floating figure using the graphicx package.
-% Note that \label must occur AFTER (or within) \caption.
-% For figures, \caption should occur after the \includegraphics.
-% Note that IEEEtran v1.7 and later has special internal code that
-% is designed to preserve the operation of \label within \caption
-% even when the captionsoff option is in effect. However, because
-% of issues like this, it may be the safest practice to put all your
-% \label just after \caption rather than within \caption{}.
-%
-% Reminder: the "draftcls" or "draftclsnofoot", not "draft", class
-% option should be used if it is desired that the figures are to be
-% displayed while in draft mode.
-%
-%\begin{figure}[!t]
-%\centering
-%\includegraphics[width=2.5in]{myfigure}
-% where an .eps filename suffix will be assumed under latex,
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure}
+Grechanik \textit{et al.} \cite{Grechanik:2010:EIL:1852786.1852801} examined the structure of Java programs mined from 2080 programs. This paper examined the breakdown of syntactic structures in open source repositories, however it does not consider per author statistics. 
 
-% Note that the IEEE typically puts floats only at the top, even when this
-% results in a large percentage of a column being occupied by floats.
+Meyerovich and Rabkin \cite{Meyerovich:2013:EAP:2509136.2509515} surveyed developers and examined repositories to learn about language adoption and usage. Developers feel that certain language features are more important than others.
 
+Parnin \textit{et al.} \cite{Parnin:2011:JGA:1985441.1985446} mined repositories to see how Java generics have been used in open source projects and found that generic usages were often introduced by a single developer in a project. Generics usage was also fairly narrow, with the primary use being collecting and traversing lists of objects.
 
-% An example of a double column floating figure using two subfigures.
-% (The subfig.sty package must be loaded for this to work.)
-% The subfigure \label commands are set within each subfloat command,
-% and the \label for the overall figure must come after \caption.
-% \hfil is used as a separator to get equal spacing.
-% Watch out that the combined width of all the subfigures on a
-% line do not exceed the text width or a line break will occur.
-%
-%\begin{figure*}[!t]
-%\centering
-%\subfloat[Case I]{\includegraphics[width=2.5in]{box}%
-%\label{fig_first_case}}
-%\hfil
-%\subfloat[Case II]{\includegraphics[width=2.5in]{box}%
-%\label{fig_second_case}}
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure*}
-%
-% Note that often IEEE papers with subfigures do not employ subfigure
-% captions (using the optional argument to \subfloat[]), but instead will
-% reference/describe all of them (a), (b), etc., within the main caption.
-% Be aware that for subfig.sty to generate the (a), (b), etc., subfigure
-% labels, the optional argument to \subfloat must be present. If a
-% subcaption is not desired, just leave its contents blank,
-% e.g., \subfloat[].
+Patrick Wagstrom \textit{et al.} \cite{Patrick:Wagstrom:2012} explored the roles that developers take in a networked, social development environments like GitHub. These role were defined as their level of contribution as well as the types of issues they dealt with. Developers will take on multiple roles in a project and will sometimes fulfill the same role across different projects
 
+L\"{a}mmel \textit{et al.} \cite{Lammel:2011:LAA:1982185.1982471} used ASTs to examine the usage of APIs in Java projects. They find what APIs are popular as well as if they are used in a framework like manner.
 
-% An example of a floating table. Note that, for IEEE style tables, the
-% \caption command should come BEFORE the table and, given that table
-% captions serve much like titles, are usually capitalized except for words
-% such as a, an, and, as, at, but, by, for, in, nor, of, on, or, the, to
-% and up, which are usually not capitalized unless they are the first or
-% last word of the caption. Table text will default to \footnotesize as
-% the IEEE normally uses this smaller font for tables.
-% The \label must come after \caption as always.
-%
-%\begin{table}[!t]
-%% increase table row spacing, adjust to taste
-%\renewcommand{\arraystretch}{1.3}
-% if using array.sty, it might be a good idea to tweak the value of
-% \extrarowheight as needed to properly center the text within the cells
-%\caption{An Example of a Table}
-%\label{table_example}
-%\centering
-%% Some packages, such as MDW tools, offer better commands for making tables
-%% than the plain LaTeX2e tabular which is used here.
-%\begin{tabular}{|c||c|}
-%\hline
-%One & Two\\
-%\hline
-%Three & Four\\
-%\hline
-%\end{tabular}
-%\end{table}
+\section{Methodology}
 
+An Abstract Syntax Tree (AST) is a tree structure which represents a piece of code by breaking its syntactic constructs into a tree structure. Each node in the tree represents a syntactically valid chunk of code which can be contained in a parent node or broken up into child nodes. This captures the structure of the code in an abstract manner. When a change is made to a file, the difference will also appear in the AST. This means that the AST of revisions in code repositories can be compared to see what structures a developer is touching. 
 
-% Note that the IEEE does not put floats in the very first column
-% - or typically anywhere on the first page for that matter. Also,
-% in-text middle ("here") positioning is typically not used, but it
-% is allowed and encouraged for Computer Society conferences (but
-% not Computer Society journals). Most IEEE journals/conferences use
-% top floats exclusively.
-% Note that, LaTeX2e, unlike IEEE journals/conferences, places
-% footnotes above bottom floats. This can be corrected via the
-% \fnbelowfloat command of the stfloats package.
+The ASTs were generated using Spoon \cite{pawlak:hal-01169705}. Spoon is a tool for transforming and analysing Java source code. It breaks code up into a meta-model including AST. The model consists of three parts: structural elements, code elements and references to program elements. The Spoon model is convenient because it provides the structure for performing an AST diff while retaining the code elements for analysis afterwards. Spoon also preserves all type and library information, which is what we were interested in.
 
+GumTree \cite{falleri:hal-01054552} is an algorithm which is used to compute the difference between two ASTs generated by Spoon. For new files and deleted files we did not use GumTree; we simply ran Spoon on the files and treated everything as an addition or deletion respectively.
 
+Once we have the generated ASTs we were able to run through the trees and count the declarations and invocations for a given type. For invocations we also recorded the method call. These stats were then marked as additions or deletions. 
+\\
+\begin{adjustwidth}{2.5em}{0pt}
+\#DECLARE $\vert$ INSERT $\vert$ java.net.URI $\vert$ 2 \\
+\#DECLARE $\vert$ DELETE $\vert$ java.lang.String $\vert$ 2 \\
+\end{adjustwidth}
 
+In order to gather all the changes for a given repository over time we generated AST for each commit and compared the difference. We did this by running ‘git log’ over the git repository and listing all the commit ids in increasing time. Each commit and its parent were then compared. If the commit had no parent then every file in the commit was treated as an addition. Since we compared each commit to its parent we were able to account for branching that happened in the master branch of the repository. Also we ignored commits that were merges as all changes in the merge should already be accounted for in previous commits.
+
+\section{Case Study}
+
+In the following sections, we present {N} case studies demonstrating the extra insight that TypeV makes available. 
+
+\subsection{antlr4}
+
+We chose Antlr4 as it is a substantial Java project, with a commit history spanning several years. We can also see distinct changes throughout its history.
+
+For example, in December of 2011 we can see that ParserATNSimulator has a large amount of additions and deletions in roughly equal proportion (Figure~\ref{fig:parser1}. This suggests that ParserATNSimulator is not being removed from the project but instead there is some refactoring being done. If we take a closer look at the commit messages we can see that they mention refactoring and reorganization of code (Figure~\ref{fig:parser2}). Zooming in on that date,  shows that during that month they were finishing work on a new version of ParserATNSimulator. 
+
+If we tried to do the same analyses with the GitHub tools it would be significantly more difficult to achieve the same conclusion. First if we only look at line changes this change to ParserATNSimulator is overwhelmed by other changes and hardly shows up on the GitHub tools. Then if we did notice an increase in activity we would not know what types were being worked on. Finally we could not quickly look at the commit messages for that specific time and type.
+
+At certain times we can can see major increases across all types. This shows us when major changes to the code were being done versus code maintenance. Usually this happens when a large amount of code is being pulled in from another location.
+
+\subsection{Apache Bookkeeper}
+
+For deprecation analysis, we chose Apache Bookkeeper. As an Apache Foundation project it is a well-curated example of an open source software project. It also demonstrates an instance of deprecated methods. 
+
+Apache Bookkeeper deprecated the method AbstractConfiguration.getLedgerManagerType() in release 4.2.0~\footnote{\url{https://bookkeeper.apache.org/docs/r4.2.0/apidocs/deprecated-list.html}} and replaced it with AbstractConfiguration.getLedgerManagerFactoryClass(). If we look at getLedgerManagerType() we can see at the time of the start of the deprecation all instances were removed and getLedgerManagerFactoryClass() was added. After the deprecation, we see no more changes to getLedgerManagerType() and only some additions of getLedgerManagerFactoryClass().
+
+\section{Evaluation}
+
+\section{Discussion}
 
 \section{Conclusion}
 The conclusion goes here.
