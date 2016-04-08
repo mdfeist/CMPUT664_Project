@@ -7,6 +7,7 @@
 % If IEEEtran.cls has not been installed into the LaTeX system files,
 % manually specify the path to it like:
 % \documentclass[conference]{../sty/IEEEtran}
+
 \usepackage{changepage}
 
 
@@ -66,22 +67,23 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
+  \usepackage[pdftex]{graphicx}
+  \usepackage{epstopdf}
   % declare the path(s) where your graphic files are
-  % \graphicspath{{../pdf/}{../jpeg/}}
+ \graphicspath{{diagrams/}}
   % and their extensions so you won't have to specify these with
   % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+  \DeclareGraphicsExtensions{.pdf,.jpeg,.png,.eps}
 \else
   % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
   % will default to the driver specified in the system graphics.cfg if no
   % driver is specified.
-  % \usepackage[dvips]{graphicx}
+  \usepackage[dvips]{graphicx}
   % declare the path(s) where your graphic files are
-  % \graphicspath{{../eps/}}
+  \graphicspath{{diagrams/}}
   % and their extensions so you won't have to specify these with
   % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.eps}
+  \DeclareGraphicsExtensions{.eps}
 \fi
 % graphicx was written by David Carlisle and Sebastian Rahtz. It is
 % required if you want graphics, photos, etc. graphicx.sty is already
@@ -388,7 +390,19 @@ Once we have the generated ASTs we were able to run through the trees and count 
 \#DECLARE $\vert$ DELETE $\vert$ java.lang.String $\vert$ 2 \\
 \end{adjustwidth}
 
+\begin{figure}[!h]
+\centering
+\includegraphics[height=2.5in]{commits_view}
+\caption{The commits increase in time from bottom up. Therefore, B and C are compared against A and E is compared with D. Since D is a merge commit it is ignored as its changes are recorded in C and B.}
+\end{figure}
+
 In order to gather all the changes for a given repository over time we generated AST for each commit and compared the difference. We did this by running ‘git log’ over the git repository and listing all the commit ids in increasing time. Each commit and its parent were then compared. If the commit had no parent then every file in the commit was treated as an addition. Since we compared each commit to its parent we were able to account for branching that happened in the master branch of the repository. Also we ignored commits that were merges as all changes in the merge should already be accounted for in previous commits.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\columnwidth]{context}
+\caption{}
+\end{figure}
 
 \section{Case Study}
 
