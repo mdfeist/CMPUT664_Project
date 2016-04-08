@@ -8,7 +8,7 @@ all: antlr4.out $(GUMTREE)
 
 # This only works on Eddie's computer...
 bib:
-	paperpal export --better-biblatex 'ICSME 2016' $@
+	paperpal export --better-biblatex 'ICSME 2016' autogen.bib
 
 get-deps:
 	pip install -r requirements.txt
