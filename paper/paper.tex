@@ -422,9 +422,16 @@ In the following sections, we present {N} case studies demonstrating the extra i
 
 \subsection{antlr4}
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\columnwidth]{ParserATNSimulator}
+\caption{}
+\label{fig:parser1}
+\end{figure}
+
 We chose Antlr4 because it is a substantial Java project with a commit history spanning several years. We can also see distinct changes throughout its history.
 
-For example, in December of 2011 we can see that the ParserATNSimulator class has a large amount of additions and deletions in roughly equal proportion (Figure~\ref{fig:parser1}. This suggests that ParserATNSimulator is not being removed from the project but instead there is some refactoring being done. If we take a closer look at the commit messages we can see that they mention refactoring and reorganization of code (Figure~\ref{fig:parser2}). Zooming in on that date,  shows that during that month they were finishing work on a new version of ParserATNSimulator. 
+For example, in December of 2011 we can see that the ParserATNSimulator class has a large amount of additions and deletions in roughly equal proportion (Figure~\ref{fig:parser1}). This suggests that ParserATNSimulator is not being removed from the project but instead there is some refactoring being done. If we take a closer look at the commit messages we can see that they mention refactoring and reorganization of code (Figure~\ref{fig:parser2}). Zooming in on that date,  shows that during that month they were finishing work on a new version of ParserATNSimulator. 
 
 If we tried to do the same analyses with the GitHub tools it would be significantly more difficult to achieve the same conclusion. First if we only look at line changes this change to ParserATNSimulator is overwhelmed by other changes and hardly shows up on the GitHub tools. Then if we did notice an increase in activity we would not know what types were being worked on. Finally we could not quickly look at the commit messages for that specific time and type.
 
