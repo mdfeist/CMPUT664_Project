@@ -1,13 +1,15 @@
 #!/usr/bin/env Rscript
 
+library(ggplot2)
+
 # Antlr
 antlr <- read.csv('antlr.csv')
 # Turn the Unix Timestamps (in MS) to R dates.
 antlr$Date <- as.Date(as.POSIXct(antlr$Date / 1000, 'UTC', origin="1970-01-01"))
 
 with(antlr, {
-    file.cov <- antlr[Metric == 'file',]
-    type.cov <- antlr[Metric == 'type',]
+    file.cov <- antlr[antlr$Metric == 'file',]
+    type.cov <- antlr[antlr$Metric == 'type',]
 
     # Get significance tests
     print("[antlr] Wilcoxon")
@@ -21,6 +23,13 @@ with(antlr, {
 
     d.type <- density(type.cov$Coverage)
     d.file <- density(file.cov$Coverage)
+
+    ggplot(antlr, aes(antlr$Coverage, colour = antlr$Metric, fill =
+                      antlr$Metric)) +
+     geom_density(alpha = 0.4, size = 1) +
+     labs(x = "Coverage for Antlr4", y = "Density",
+          colour = "Metric", fill = "Metric")
+
 })
 
 rm(antlr)
@@ -45,8 +54,14 @@ with(tika, {
     print("[tika] Spearman (rank) correlation")
     print(cor(type.cov$Coverage, file.cov$Coverage, method = "spearman"))
 
-    d.type <- density(type.cov$Coverage)
-    d.file <- density(file.cov$Coverage)
+    #d.type <- density(type.cov$Coverage)
+    #d.file <- density(file.cov$Coverage)
+
+    ggplot(tika, aes(tika$Coverage, colour = tika$Metric, fill =
+                      tika$Metric)) +
+     geom_density(alpha = 0.4, size = 1) +
+     labs(x = "Coverage for Apache Tika", y = "Density",
+          colour = "Metric", fill = "Metric")
 })
 rm(tika)
 
