@@ -338,7 +338,11 @@ Using this tool we examine specific cases in well known repositories where our t
 % creates the second title. It will be ignored for other modes.
 \IEEEpeerreviewmaketitle
 
-
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{antlr-3-code-freq-edit}
+\caption{}
+\end{figure*} 
 
 \section{Introduction}
 
@@ -450,6 +454,18 @@ tika & 0.653 & 0.955 & 0.998\\
 \hline
 \end{tabular}
 \end{table}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\columnwidth]{antlr-density}
+\caption{}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\columnwidth]{tika-density}
+\caption{}
+\end{figure}
 
 To determine if type coverage as returned by TypeV gives different information than file coverage alone, we computed the following. For four projects (Antlr, Apache Bookkeeper, Apache Curator, Apache Tika), we counted the file coverage (cumulative amount of files touched per author), as well as type coverage (cumulative amount of types touched per author) on a commit-by-commit basis. That is, each datum is represents a commit with two dimensions: file coverage and type coverage. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the data 
 
