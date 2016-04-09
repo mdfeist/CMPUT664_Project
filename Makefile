@@ -1,6 +1,8 @@
+AST_OUTDIR = ast-output
 GUMTREE = gumtree-spoon-ast-diff/target/gumtree-spoon-ast-diff-0.0.3-SNAPSHOT-jar-with-dependencies.jar
+OUTPUTS = $(AST_OUTDIR)/antlr4.out
 
-all: antlr4.out $(GUMTREE)
+all: $(OUTPUTS) $(GUMTREE)
 	@printf '\033[1;35m'
 	@echo 'Type `make get-deps` to install Flask system-wide.'
 	@echo 'virutalenv recommended: https://virtualenv.pypa.io/en/latest/'
@@ -13,8 +15,8 @@ get-deps:
 $(GUMTREE):
 	cd gumtree-spoon-ast-diff && mvn install -DskipTests
 
-antlr4.out: antlr4.tar.gz
-	tar xzf $<
+%.out: %.tar.gz
+	tar -xzC $(AST_OUTDIR) -f $<
 	touch $@ # Reset the modification time, to not extract again.
 
 .PHONY: all build get-deps
