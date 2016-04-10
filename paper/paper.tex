@@ -322,7 +322,7 @@ Edmonton, Canada\\
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-What is a developer's contribution to a repository? By using only counting commits and number of lines changed, existing tools that analyze source code repositories fall short on showing the effective contributions made by each developer. When many commits are viewed as a group, the details are lost. Commit information can be misleading since lines of code give no indication of what was actually being worked on without careful examination of the changed code. Providing a semantic view of this information could provide deeper insights into how software projects evolve since changes to design and features are not clearly visible from line changes alone. We present TypeV: a method for visualizing Java source code repositories. Instead of counting line changes in a commit we extract detailed type information over time by using the differences between abstract syntax trees (ASTs). We are then able to track the additions and deletions of declarations and invocations for each type. Furthermore, we can track each author’s type usage over time. Using this tool we examine specific cases in well-known repositories where our tool reveals interesting and useful information. We then compare type coverage information from the AST compared to file coverage to determine if unique information is provided by type information.
+What is a developer's contribution to a repository? By only counting commits and number of lines changed, existing tools that analyze source code repositories fall short on showing the effective contributions made by each developer. When many commits are viewed as a group, the details are lost. Commit information can be misleading since lines of code give no indication of what was actually being worked on without careful examination of the changed code. Providing a semantic view of this information could provide deeper insights into how software projects evolve since changes to design and features are not clearly visible from line changes alone. We present TypeV: a method for visualizing Java source code repositories. Instead of counting line changes in a commit we extract detailed type information over time by using the differences between abstract syntax trees (ASTs). We are then able to track the additions and deletions of declarations and invocations for each type. Furthermore, we can track each author’s type usage over time. Using this tool we examine specific cases in well-known repositories where our tool reveals interesting and useful information. We then compare type coverage information from the AST compared to file coverage to determine if unique information is provided by type information. 
 \end{abstract}
 
 % no keywords
@@ -343,7 +343,7 @@ What is a developer's contribution to a repository? By using only counting commi
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{antlr-3-code-freq-edit}
-\caption{}
+\caption{GitHub graph showing code frequency. Note that the graph was truncated to better show the details. Thus the changes that occur in mid 2015 are much larger than appear. The additions reach over 400k and the deletions go over 300k.}
 \label{fig:GH_code_freq}
 \end{figure*} 
 
@@ -353,6 +353,8 @@ Source code is often represented as text in a source code file. This text is the
 
 The history and evolution of a software project is often tracked by version control systems, such as Git, in a programming language agnostic way. Updates to source code, documentation, and tests are recorded in the form of commits, which show the differences in lines between each subsequent revision of the software. Version control systems become vital for large projects since individual changes would be impossible to track manually. Large projects have thousands of individual changes made by many different developers. With more changes to peruse, it becomes more difficult to see how a project is evolving over time since there is so much information to look through. Most hosting services for Git repositories provide some basic tools for analysing projects over time~\cite{github-graphs,bitbucket-graphs}; but, as we will show, these tools often lack the kind of detail to gather insightful analysis. While commits may store individual changes to lines of code, they represent the change in \emph{structure} of the software.  By visualizing lines changed, or files changed, the current state-of-the-art for software project visualization rarely capture the \emph{meaning} behind each commit; lines of code alone does not describe how a repository changed at a particular point in time. Thus, information regarding contributions from developers is often misleading since the number of commits and lines of code changed does not necessarily reflect meaningful changes to a repository~\cite{robles2014}.
 
+Consider tools easily available to an open source software developer: GitHub graphs~\cite{github-graphs}. Since GitHub tracks contributions based solely on number of commits, and numbers of lines changes, data may be lacking, or even misleading. In the case of the Antlr4 project (Figure~\ref{fig:GH_code_freq}), the graph creates more questions than it answers. What happened at those big spikes of line changes in the graph? One of the spikes is so large, we had to truncate the graph to be able to show it. How did these large changes affect the code base? Who committed these large changes? Was it a team of contributors or a one particularly prolific programmer? Plotting the number of lines changed may be misleading, because a huge spike in additions may be caused a number of reasons, such as the inclusion of automatically-generated documentation, the inclusion of an external library, or perhaps even a huge refactoring effort.
+
 In this paper, we propose a method that analyses the changes in type usage and method invocations over time, as well as tool to visualize this analysis, which we call TypeV. We claim that type usage offers more insight than line-based, file-based, and commit-based methods of visualization and analysis. Of the services we have surveyed, none of the tools visualize project evolution using granular type analysis per author via commit-by-commit abstract syntax tree differencing. For simplicity, we decided to only analyze Java projects, as it allowed us to quickly develop and test our software. Since our approach described in this paper can be generally applied to any statically-typed language, we plan to extend it to other languages.
 
 In Java, a type can be a primitive, provided by the language itself, or object references. Primitive types are those that are built into the language such as an \texttt{int} or \texttt{char}. Object references point to instances of classes. Classes are defined in the project itself or through an included library. The types in a project represent the functionality available for a developer to work with. Java’s syntax encourages the creation of classes, thus we expect substantial Java projects to define many domain-specific types. Different parts of a program use different types and external dependencies. When writing or contributing to a project, the author’s choice of which part of the program to edit will in turn affect what types they end up working with --- that is, it will affect the author’s \emph{type coverage}.
@@ -361,9 +363,8 @@ Type information is useful for seeing what libraries and functions are being use
 
 Having tools for analysing repositories based on type usage and method invocation would benefit many different parts of the software development process. Software management requires a high level understanding of the state of a repository and the changes being made which affect the functionality of the software. Tracking developer contributions in a less misleading way is also important for management since important contributions may be small and focused, but nevertheless, significant. Line difference (or simply, \emph{diff}) only provide meaningful information when they are analysed by someone with familiarity with the source code being changed. Providing tools which bring more meaning to line differences would allow people less familiar with the code to understand changes being made. When large changes are made that cover many aspects of a project, it would also be useful to see how the change affects the software rather than a several thousand line diff.  Seeing how a project has changed over time is also vital for management since evaluating the state of completion of software can be very difficult.
 
-In the following sections of the paper we will introduce a tool, TypeV, that we developed that visualizes changes to types used in a project over time. TypeV is able to extract type information from a repository by computing commit-by-commit abstract syntax tree differencing, which we describe in section~\ref{sec:methodology}. We seek to answer the following questions: \\
-
-\textbf{RQ1:} How can we extract type and method usage over time from repositories? \\ \\
+In the following sections of the paper we will introduce a tool, TypeV, that we developed that visualizes changes to types used in a project over time. TypeV is able to extract type information from a repository by computing commit-by-commit abstract syntax tree differencing, which we describe in section~\ref{sec:methodology}. We seek to answer the following questions: \\ \\
+\textbf{RQ1:} How can we extract type and method usage over time from repositories \\ \\
 \textbf{RQ2:} Does the type information give any interesting or useful insight into the project? \\ \\
 \textbf{RQ3:} How does type coverage compare to file coverage?
 
@@ -433,10 +434,10 @@ Once we have the generated ASTs, we were able to traverse through the trees to c
 
 An example of what our analysis tool might produce is as follows:
 
-\begin{adjustwidth}{2.5em}{0pt}
-\#DECLARE $\vert$ INSERT $\vert$ java.net.URI $\vert$ 2 \\
-\#DECLARE $\vert$ DELETE $\vert$ java.lang.String $\vert$ 2 \\
-\end{adjustwidth}
+\begin{verbatim}
+#DECLARE | INSERT | java.net.URI | 2
+#DECLARE | DELETE | java.lang.String | 2
+\end{verbatim}
 
 \begin{figure}[!h]
 \centering
@@ -473,7 +474,7 @@ When a user mouses over a specific bar in the graph they are given simple statis
 
 One issue with analyzing individual authors is that authors can commit from a variety of different computers which can have different emails and usernames attached to the git configuration. This means in the git log one author might appear as several different authors. There is no perfect way to deal with this problem; however, we allow the user of our software to select and view multiple users at a time. Thus allowing the user to view changes from an individual or group of developers.
 
-To allow for a more detailed analyzes of a specific component of the repository we added some basic filtering tools. The first is that a user can filter by type name. The second allows the user to view changes that fall in a specific start and end date. The third allows them to specify the time period of each bar and this includes hour, day, week, and month. Finally, they can choose to see only declarations, types used in declarations and invocations, or invocations.
+To allow for a more detailed analysis of a specific component of the repository we added some basic filtering tools. The first is that a user can filter by type name. The second allows the user to view changes that fall within a specific start and end date. The third allows them to specify the time span represented by each bar: either hour, day, week, or month. Finally, they can choose to see only types declarations, types used in declarations and invocations, or only invocations.
 
 \section{Case Study}
 
