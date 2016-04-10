@@ -425,7 +425,7 @@ Once we have the generated ASTs, we were able to traverse through the trees to c
   \end{adjustwidth}
 \end{description} 
 
-Our analysis tool would produce the following output:
+An example of what our analysis tool might produce is as follows:
 
 \begin{adjustwidth}{2.5em}{0pt}
 \#DECLARE $\vert$ INSERT $\vert$ java.net.URI $\vert$ 2 \\
@@ -436,10 +436,12 @@ Our analysis tool would produce the following output:
 \centering
 \includegraphics[height=2.5in]{commits_view}
 \caption{The commits increase in time from bottom up. Therefore, B and C are compared against A and E is compared with D. Since D is a merge commit it is ignored as its changes are recorded in C and B.}
-\label{fig:commits_view}
+\label{fig:commits}
 \end{figure}
 
-In order to gather all the changes for a given repository over time we generated ASTs for each commit and compared the difference. We did this by running ‘git log’ over the git repository and listing all the commit ids in increasing time. Each commit and its parent were then compared. If the commit had no parent then every file in the commit was treated as an addition. Since we compared each commit to its parent we were able to account for branching that happened in the master branch of the repository. Also we ignored commits that were merges as all changes in the merge should already be accounted for in previous commits.
+This states that two declarations of type java.net.URI were added, and two declarations of type java.lang.String were deleted. Note the fully qualified type names: the source text may not literally have the characters java.net.URI, but Spoon was able to infer from the import statements in the Java source text that references to ''URI'' resolve to the fully-qualified type name \texttt{java.net.URI}. Thus, TypeV is able to keep track of the actual class being used and is not confused when two classes in separate packages have the same name.
+
+In order to gather all the changes for a given repository over time we generated ASTs for each commit and compared the difference. We did this by running \texttt{git log} over the Git repository and listing all the commit IDs in chronological order (Figure~\ref{fig:commits}) Each commit and its parent were then compared, using AST differencing as described above. There are a few edges cases, however: If a commit has no parent, then every declaration or invocation in the commit was treated as an addition. Since we compared each commit to its parent, as reported by Git, we were able to account for any branching that happened outside the primary branch of the repository (usually named \texttt{master}). If a commit has more than one parent, this indicates a merge commit in Git. Merge commits contain the changes made in each parent commit combined. Therefore, we ignored merge commits since all changes in the merge should already have been accounted for in previous commits.
 
 \begin{figure}[!h]
 \centering
@@ -477,7 +479,6 @@ In the following sections, we present {N} case studies demonstrating the extra i
 We chose Antlr4 because it is a substantial Java project with a commit history spanning several years. We can also see distinct changes throughout its history.
 
 For example, in December of 2011 we can see that the ParserATNSimulator class has a large amount of additions and deletions in roughly equal proportion (Figure~\ref{fig:parser1}). This suggests that ParserATNSimulator is not being removed from the project but instead there is some refactoring being done. If we take a closer look at the commit messages we can see that they mention refactoring and reorganization of code. Zooming in on that date,  shows that during that month they were finishing work on a new version of ParserATNSimulator.
-
 
 If we tried to do the same analyses with the GitHub tools it would be significantly more difficult to achieve the same conclusion (Figure~\ref{fig:parser2}). First if we only look at line changes this change to ParserATNSimulator is overwhelmed by other changes and hardly shows up on the GitHub tools. Then if we did notice an increase in activity we would not know what types were being worked on. Finally we could not quickly look at the commit messages for that specific time and type.
 
