@@ -8,6 +8,9 @@
 % manually specify the path to it like:
 % \documentclass[conference]{../sty/IEEEtran}
 
+\usepackage{enumitem}
+\setlist[description]{leftmargin=1cm,labelindent=\parindent}
+
 \usepackage{changepage}
 \usepackage{url}
 \usepackage{breakurl}
@@ -319,11 +322,7 @@ Edmonton, Canada\\
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-What is a developer's contribution to a repository? By using only commit counts and number of lines changed, existing tools that analyze code repositories fall short on showing the tangible contributions made by each developer. Individual commits provide the changed files, code diffs and a message. However, when many commits are viewed as a group, the details are lost. Currently there is a lack of tools for tracking the changes in a repository beyond simply looking at the number of commits of lines changed. The commit information can be misleading since lines of code gives no indication of what was actually being worked on without careful examination of the changed code. Providing a more comprehensive view of this information could provide deeper insights into how software projects evolve since changes to design and features are not clearly visible. 
-
-We present a novel method for visualizing Java projects. Instead of simply counting line changes in a commit we extract detailed type information over time by using the differences between Abstract Syntax Trees (ASTs). We are then able to track the additions and deletions of declarations and invocations for each type. 
-
-Using this tool we examine specific cases in well known repositories where our tool reveals interesting and useful information. We then compare type coverage information from the AST compared to file coverage to determine if unique information is provided by type information. 
+What is a developer's contribution to a repository? By using only counting commits and number of lines changed, existing tools that analyze source code repositories fall short on showing the effective contributions made by each developer. When many commits are viewed as a group, the details are lost. Commit information can be misleading since lines of code give no indication of what was actually being worked on without careful examination of the changed code. Providing a semantic view of this information could provide deeper insights into how software projects evolve since changes to design and features are not clearly visible from line changes alone. We present TypeV: a method for visualizing Java source code repositories. Instead of counting line changes in a commit we extract detailed type information over time by using the differences between abstract syntax trees (ASTs). We are then able to track the additions and deletions of declarations and invocations for each type. Furthermore, we can track each author’s type usage over time. Using this tool we examine specific cases in well-known repositories where our tool reveals interesting and useful information. We then compare type coverage information from the AST compared to file coverage to determine if unique information is provided by type information. 
 \end{abstract}
 
 % no keywords
@@ -349,19 +348,27 @@ Using this tool we examine specific cases in well known repositories where our t
 
 \section{Introduction}
 
-Source code is often represented as text in a source code file. This text is then lexed and parsed by a compiler or interpreter with the intent of eventually executing the instructions within the source code file. While programmers may type in characters, their intention is at a much higher level and more abstract. Their intent is written in tokens that represent statements, identifiers and types that are used to solve their problem. Programmers solve their problem in a way that is readable to other developers and executable by a computer. The programmer rarely operates at the character level, or even the line level, so why should our analyses of source code operate at granularities unfamiliar to developers?
+Source code is often represented as text in a source code file. This text is then parsed by a compiler or interpreter with the intent of eventually executing the instructions within the source code file. While programmers may type in individual characters, their intention is at a much higher level. Their intent is written in tokens that represent statements, identifiers and types that are used to solve their problems. Programmers solve problems in a way that is readable to other developers and executable by a computer. The programmer rarely operates at the character level, or even the line level, so why should our analyses of source code operate at granularities unfamiliar to developers?
 
-The history and evolution of a software project is often tracked by version control systems such as Git in a programming language agnostic way. Updates to source code, documentation, and tests is recorded in the form of commits, which show the differences in lines between each subsequent revision of the software. Version control systems become vital for large projects since individual changes would be impossible to track manually. Large projects have thousands of individual changes made by many different developers. With more changes to peruse, it becomes more difficult to see how a project is evolving over time since there is so much information to look through. Most hosting services for Git repositories provide some basic tools for analysing projects over time~\cite{github-graphs,bitbucket-graphs}; but, as we will show, these tools often lack the kind of detail to gather insightful analysis. While commits may store individual changes to lines of code, they represent the change in \emph{structure} of the software.  By visualizing lines changed, or files changed, the current state-of-the-art for software project visualization does not capture the \emph{meaning} behind each commit; lines of code alone does not describe how a repository changed at a particular point in time. Thus, information regarding contributions from developers is often misleading since the number of commits and lines of code changed does not necessarily reflect meaningful changes to a repository~\cite{robles2014}.
+The history and evolution of a software project is often tracked by version control systems, such as Git, in a programming language agnostic way. Updates to source code, documentation, and tests are recorded in the form of commits, which show the differences in lines between each subsequent revision of the software. Version control systems become vital for large projects since individual changes would be impossible to track manually. Large projects have thousands of individual changes made by many different developers. With more changes to peruse, it becomes more difficult to see how a project is evolving over time since there is so much information to look through. Most hosting services for Git repositories provide some basic tools for analysing projects over time~\cite{github-graphs,bitbucket-graphs}; but, as we will show, these tools often lack the kind of detail to gather insightful analysis. While commits may store individual changes to lines of code, they represent the change in \emph{structure} of the software.  By visualizing lines changed, or files changed, the current state-of-the-art for software project visualization rarely capture the \emph{meaning} behind each commit; lines of code alone does not describe how a repository changed at a particular point in time. Thus, information regarding contributions from developers is often misleading since the number of commits and lines of code changed does not necessarily reflect meaningful changes to a repository~\cite{robles2014}.
 
-In this paper, we propose a method that analyses the changes in type usage and method invocations over time, which we claim offers more insight than line-based, file-based, and commit-based methods. Our method is novel because none of the state-of-the-art tools has considered analyzing types changes over time or doing AST diffs.
+In this paper, we propose a method that analyses the changes in type usage and method invocations over time, which we claim offers more insight than line-based, file-based, and commit-based methods. Of the services we have surveyed, none of the tools visualize project evolution using granular type analysis per author via commit-by-commit abstract syntax tree differencing. For simplicity we decided to stick to analyzing Java projects as it allowed us to quickly develop and test our software. In the future the approach described later in the paper could be implemented to handle other strongly typed languages.
 
 In Java, a type can be a primitive type or an object reference. Primitive types are those that are built into the language such as an int or char. Object references point to instances of classes in memory which are defined in the project itself or through an included library. The types in a project represent the functionality available for a developer to work with. A large or complex project may have many different types, whereas a small project might only use a few. Different parts of a program use different types and external dependencies. When writing or contributing to a project, the author’s choice of which part of the program to edit will in turn affect what types they end up working with.
 
-Having advanced tools for analysing repositories would benefit many different parts of the software development process. Software management requires a high level understanding of the state of a repository and the changes being made which affect the functionality of the software. Tracking developer contributions in a less misleading way is also important for management since important contributions may be small and focused. Line difference only provide meaningful info when they are analysed by someone with familiarity with the source code being changed. Providing tools which bring more meaning to line differences would allow people less familiar with the code to understand changes being made. When large changes are made that cover many lines of code, it would also be useful to see how the change affects the software rather than a several thousand line diff.  Seeing how a project has changed over time is also vital for management since evaluating the state of completion of software can be very difficult.
+Type information is useful for seeing what libraries and functions are being used.  For example when a part of code becomes deprecated, continuing to use it may lead to design or even security flaws. Viewing the type information of a change can show when deprecated classes are added or removed from a project as well as how many remain over time. In a more general sense, we can see when types are being added or removed from the project as well as what types are heavily used throughout the project. Even better, we can see \emph{who} uses which types heavily.
 
-Type information is useful for seeing what libraries and functions are being used.  When a part of code becomes deprecated, continuing to use it may lead to design or security flaws. Viewing the type information of a change can show when deprecated classes are added or removed from a project as well as how many remain. In a more general sense we can see when types are being added or removed from the project as well as what types are heavily used throughout the project.
+Having advanced tools for analysing repositories would benefit many different parts of the software development process. Software management requires a high level understanding of the state of a repository and the changes being made which affect the functionality of the software. Tracking developer contributions in a less misleading way is also important for management since important contributions may be small and focused. Line difference only provide meaningful info when they are analysed by someone with familiarity with the source code being changed. Providing tools which bring more meaning to line differences would allow people less familiar with the code to understand changes being made. When large changes are made that cover many aspects of a project, it would also be useful to see how the change affects the software rather than a several thousand line diff.  Seeing how a project has changed over time is also vital for management since evaluating the state of completion of software can be very difficult.
+
+In the following sections of the paper we will introduce a tool that we developed that visualizes changes to types used in a project over time. The tool is able to extract type information from a repository by using comparing ASTs. We then ask the following questions: 
+\\ \\
+\textbf{RQ1:} Can we extract type information from repositories? \\ \\
+\textbf{RQ2:} Does the type information give any interesting or useful insight into the project? \\ \\
+\textbf{RQ3:} How does type coverage compare to file coverage?
 
 \section{Related Work}
+
+Analyzing source code is a popular research topic. Most of the focus is on how certain programming languages and features are used. However, there is no focus specifically on how types are used throughout a project.
 
 Dyer \textit{et al.} \cite{Dyer:2014:MBA:2568225.2568295} mined AST nodes to study the use of new Java language features over time. They found that all new Java features do get used, but not nearly as often as they could have been. New features varied greatly in popularity and adoption rate. Developers would also modify old code to use new features as they were released. The authors also found the most popular features and how teams adopted new features. They did not check to see how much a developer used a feature but instead only checked to see if they used it at all.
 
@@ -369,11 +376,13 @@ Grechanik \textit{et al.} \cite{Grechanik:2010:EIL:1852786.1852801} examined the
 
 Meyerovich and Rabkin \cite{Meyerovich:2013:EAP:2509136.2509515} surveyed developers and examined repositories to learn about language adoption and usage. Developers feel that certain language features are more important than others.
 
-Parnin \textit{et al.} \cite{Parnin:2011:JGA:1985441.1985446} mined repositories to see how Java generics have been used in open source projects and found that generic usages were often introduced by a single developer in a project. Generics usage was also fairly narrow, with the primary use being collecting and traversing lists of objects.
+Parnin \textit{et al.} \cite{Parnin:2011:JGA:1985441.1985446} mined repositories to see how Java generics have been used in open source projects and found that generic usages were often introduced by a single developer in a project. Generics usage was also fairly narrow, with the primary use being collecting and traversing lists of objects
 
 Wagstrom \textit{et al.} \cite{Patrick:Wagstrom:2012} explored the roles that developers take in a networked, social development environments like GitHub. These role were defined as their level of contribution as well as the types of issues they dealt with. Developers will take on multiple roles in a project and will sometimes fulfill the same role across different projects.
 
 L\"{a}mmel \textit{et al.} \cite{Lammel:2011:LAA:1982185.1982471} used ASTs to examine the usage of APIs in Java projects. They find what APIs are popular as well as if they are used in a framework like manner.
+
+The aforementioned research is trying to learn how developers are using programming languages by looking at many repositories. This type of info can be extracted from individual repositories using our new tool. Type info may also provide additional information on how developers use languages.
 
 Wu \textit{et al.} \cite{wu2004a} explore punctuated changes to software repositories with a tool that generates an Evolution Spectrograph. Each file has a representative row in the chart, with each cell in the row representing a section of time. This diagram would show changes to incoming and outgoing dependencies by darkening the cell where the change happened and lightening it over time if no changes were made.
 
@@ -383,18 +392,41 @@ Voinea \textit{et al.} \cite{voinea2006} visualizes CVS repositories using CVSgr
 
 Kim \textit{et al.} \cite{Kim:2009:DRS:1555001.1555046} built a tool called Logical Structural Diff (LSdiff) which examines code changes and produces logical rules to represent them. Changes which do not match the rules are then pointed out to the developer. They also formed a focus group with software engineers who found that LSdiff complements existing tools well and showed promise for discovering inconsistent changes.
 
+The service EasyBi \cite{EasyBi} provides additional visualizations for Git repositories for the purpose of business decisions. EasyBi works by taking the git log file and generating charts and graphs from it. It tries to solve the issue of summarizing many commits and has greater controls for granularity and authors but still operates on commits and line differences.
+
+Wagstrom \textit{et al.} \cite{Patrick:Wagstrom:2012} explored the roles that developers take in a networked, social development environments like GitHub. These role were defined as their level of contribution as well as the types of issues they dealt with. Developers will take on multiple roles in a project and will sometimes fulfill the same role across different projects.
+
 The GitHub tools have the strength that they do not rely on what type of code is being committed. It does not matter what language or errors exist in the commit GitHub will simply spit out the number of line additions and deletions. The issue with this type of analysis is that it does not give a clear breakdown of is being changed only that changes have occurred.
 
 \section{Methodology}
 
-An Abstract Syntax Tree (AST) is a tree structure which represents a piece of code by breaking its syntactic constructs into a tree structure. Each node in the tree represents a syntactically valid chunk of code which can be contained in a parent node or broken up into child nodes. This captures the structure of the code in an abstract manner. When a change is made to a file, the difference will also appear in the AST. This means that the AST of revisions in code repositories can be compared to see what structures a developer is touching. 
+The core of our analysis is calculating the differences between abstract syntax trees of subsequent commits (Figure~\ref{fig:context}).
 
-The ASTs were generated using Spoon \cite{pawlak:hal-01169705}. Spoon is a tool for transforming and analysing Java source code. It breaks code up into a meta-model including AST. The model consists of three parts: structural elements, code elements and references to program elements. The Spoon model is convenient because it provides the structure for performing an AST diff while retaining the code elements for analysis afterwards. Spoon also preserves all type and library information, which is what we were interested in.
+An \emph{abstract syntax tree} (AST) is a data structure derived from source code by breaking its syntactic constructs into a tree. Each node in the tree represents a syntactically valid chunk of code. This captures the structure of the code in an abstract and tractable manner. Converting raw source text to an AST is often one of the first steps performed by compilers. When a programmer changes code in a file, the difference will appear in the AST. This means that the AST of revisions in code repositories can be compared to see what structures a programmer is modifying.
 
-GumTree \cite{falleri:hal-01054552} is an algorithm which is used to compute the difference between two ASTs generated by Spoon. For new files and deleted files we did not use GumTree; we simply ran Spoon on the files and treated everything as an addition or deletion respectively.
+The Java ASTs in our analysis were generated using Spoon~\cite{pawlak:hal-01169705}. Spoon is a tool for transforming and analysing Java source code. It breaks code up into a meta-model including the AST itself. The model consists of three parts: structural elements, code elements and references to program elements. The Spoon model is convenient because it provides the infrastructure for performing AST differencing (described later) while retaining the code elements (such as type information) for analysis afterwards. Spoon also preserves all type and package (library) information—information vital to our semantic analysis.
 
-Once we have the generated ASTs we were able to run through the trees and count the declarations and invocations for a given type. For invocations we also recorded the method call. These stats were then marked as additions or deletions. 
-\\
+To determine what has changed between two subsequent commits, we computed their \emph{AST difference}. An AST difference (or simply \emph{AST diff}) states which nodes were added and removed from a tree (step two in Figure~\ref{fig:context}). For this purpose, we used GumTree~\cite{falleri:hal-01054552}, an algorithm made to compute the difference between two ASTs generated by Spoon. For new files and deleted files we did not use GumTree; we simply ran Spoon on the files and treated everything as an addition or deletion respectively.
+
+Once we have the generated ASTs, we were able to traverse through the trees to count the number of added or deleted \emph{declarations} and \emph{invocations} for a given type. 
+
+\begin{description}
+\item [declaration] 
+  Stating that use of a field or variable of a given type. For example declaration of a String type variable might look as follows:
+  \\
+  \begin{adjustwidth}{2.5em}{0pt}
+  String myString; \\
+  \end{adjustwidth}
+\item [invocation] 
+  A call site for a method that belongs to a type. For example an invocation of the trim method of a String type might look as follows:
+  \\
+  \begin{adjustwidth}{2.5em}{0pt}
+  myString.trim(); \\
+  \end{adjustwidth}
+\end{description} 
+
+Our analysis tool would produce the following output:
+
 \begin{adjustwidth}{2.5em}{0pt}
 \#DECLARE $\vert$ INSERT $\vert$ java.net.URI $\vert$ 2 \\
 \#DECLARE $\vert$ DELETE $\vert$ java.lang.String $\vert$ 2 \\
@@ -404,6 +436,7 @@ Once we have the generated ASTs we were able to run through the trees and count 
 \centering
 \includegraphics[height=2.5in]{commits_view}
 \caption{The commits increase in time from bottom up. Therefore, B and C are compared against A and E is compared with D. Since D is a merge commit it is ignored as its changes are recorded in C and B.}
+\label{fig:commits_view}
 \end{figure}
 
 In order to gather all the changes for a given repository over time we generated ASTs for each commit and compared the difference. We did this by running ‘git log’ over the git repository and listing all the commit ids in increasing time. Each commit and its parent were then compared. If the commit had no parent then every file in the commit was treated as an addition. Since we compared each commit to its parent we were able to account for branching that happened in the master branch of the repository. Also we ignored commits that were merges as all changes in the merge should already be accounted for in previous commits.
@@ -412,6 +445,7 @@ In order to gather all the changes for a given repository over time we generated
 \centering
 \includegraphics[width=\columnwidth]{context}
 \caption{}
+\label{fig:context}
 \end{figure}
 
 \section{The Tool}
@@ -430,8 +464,8 @@ In the following sections, we present {N} case studies demonstrating the extra i
 \includegraphics[width=\columnwidth]{ParserATNSimulator}
 \caption{Snapshot of TypeV showing changes to ParserATNSimulator in antlr4. Date ranges from approximately the begining of 2011 to the end of April in 2012.}
 \label{fig:parser1}
-
 \end{figure}
+
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=\columnwidth]{Antlr4-GH-Lines-ParserATNSimulator}
