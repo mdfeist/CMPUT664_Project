@@ -424,10 +424,9 @@ def send_css(path):
 
 @app.route('/')
 def root():
-    #return app.send_static_file('index.html')
-    return redirect('/projects')
+    return redirect('/projects/')
 
-@app.route('/projects')
+@app.route('/projects/')
 def dashboard():
     return render_template('projects.html', projects=projects)
 
