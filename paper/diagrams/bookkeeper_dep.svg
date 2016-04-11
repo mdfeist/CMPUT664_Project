@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.2"
+   width="652"
+   height="130"
+   id="svg2">
+  <metadata
+     id="metadata320">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs318" />
+  <g
+     transform="translate(-263.09589,2.19178)"
+     id="g82">
+    <rect
+       width="413.9726"
+       height="62"
+       x="500"
+       y="0"
+       id="rect84"
+       style="fill:#fafafa" />
+    <rect
+       width="7"
+       height="0"
+       x="689.60773"
+       y="0"
+       id="rect88"
+       style="fill:#ef8a62" />
+    <rect
+       width="7"
+       height="62"
+       x="529.60773"
+       y="0"
+       id="rect90"
+       style="fill:#67a9cf" />
+    <rect
+       width="7"
+       height="62"
+       x="686.65234"
+       y="0"
+       id="rect94"
+       style="fill:#ef8a62" />
+    <rect
+       width="7"
+       height="0"
+       x="846.65234"
+       y="62"
+       id="rect96"
+       style="fill:#67a9cf" />
+    <text
+       x="490"
+       y="32"
+       id="text98"
+       style="font-weight:bold;text-anchor:end;display:block">getLedgerManagerType()</text>
+  </g>
+  <rect
+     width="413.9726"
+     height="62"
+     x="236.90411"
+     y="66.191772"
+     id="rect102"
+     style="fill:#f4f4f4" />
+  <rect
+     width="7"
+     height="0"
+     x="611.55646"
+     y="66.191772"
+     id="rect106"
+     style="fill:#ef8a62" />
+  <rect
+     width="7"
+     height="62"
+     x="423.55646"
+     y="66.191772"
+     id="rect108"
+     style="fill:#67a9cf" />
+  <rect
+     width="7"
+     height="0"
+     x="660.30444"
+     y="115.79181"
+     id="rect112"
+     style="fill:#ef8a62" />
+  <rect
+     width="7"
+     height="12.4"
+     x="472.30444"
+     y="115.79181"
+     id="rect114"
+     style="fill:#67a9cf" />
+  <rect
+     width="7"
+     height="0"
+     x="665.72089"
+     y="90.99176"
+     id="rect118"
+     style="fill:#ef8a62" />
+  <rect
+     width="7"
+     height="37.200001"
+     x="477.72089"
+     y="90.99176"
+     id="rect120"
+     style="fill:#67a9cf" />
+  <rect
+     width="7"
+     height="0"
+     x="763.24908"
+     y="115.79181"
+     id="rect124"
+     style="fill:#ef8a62" />
+  <rect
+     width="7"
+     height="12.4"
+     x="575.24908"
+     y="115.79181"
+     id="rect126"
+     style="fill:#67a9cf" />
+  <text
+     x="226.90411"
+     y="98.191772"
+     id="text128"
+     style="font-weight:bold;text-anchor:end;display:block">getLedgerManagerFactoryClass()</text>
+  <flowRoot
+     transform="translate(0,-510)"
+     id="flowRoot3297"
+     xml:space="preserve"
+     style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><flowRegion
+       id="flowRegion3299"><rect
+         width="1736.9863"
+         height="478.90411"
+         x="-333.1507"
+         y="252.05479"
+         id="rect3301" /></flowRegion><flowPara
+       id="flowPara3303" /></flowRoot></svg>

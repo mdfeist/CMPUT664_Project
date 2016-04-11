@@ -353,7 +353,7 @@ Source code is often represented as text in a source code file. This text is the
 
 The history and evolution of a software project is often tracked by version control systems, such as Git, in a programming language agnostic way. Updates to source code, documentation, and tests are recorded in the form of commits, which show the differences in lines between each subsequent revision of the software. Version control systems become vital for large projects since individual changes would be impossible to track manually. Large projects have thousands of individual changes made by many different developers. With more changes to peruse, it becomes more difficult to see how a project is evolving over time since there is so much information to look through. Most hosting services for Git repositories provide some basic tools for analyzing projects over time~\cite{github-graphs,bitbucket-graphs}; however, as we will show, these tools often lack the kind of detail to gather insightful analysis. While commits may store individual changes to lines of code, they represent the change in \emph{structure} of the software.  By visualizing lines changed, or files changed, the current state-of-the-art for software project visualization rarely capture the \emph{meaning} behind each commit; lines of code alone does not describe how a repository changed at a particular point in time. Thus, information regarding contributions from developers is often misleading since the number of commits and lines of code changed does not necessarily reflect meaningful changes to a repository~\cite{robles2014}.
 
-Consider tools easily available to an open source software developer: GitHub graphs~\cite{github-graphs}. Since GitHub tracks contributions based solely on number of commits, and numbers of lines changes, data may be lacking, or even misleading. In the case of the Antlr4 project (Figure~\ref{fig:GH_code_freq}), the graph creates more questions than it answers. What happened at those big spikes of line changes in the graph? One of the spikes is so large, we had to truncate the graph to be able to show it. How did these large changes affect the code base? Who committed these large changes? Was it a team of contributors or a one particularly prolific programmer? Plotting the number of lines changed may be misleading, because a huge spike in additions may be caused a number of reasons, such as the inclusion of automatically-generated documentation, the inclusion of an external library, or perhaps even a huge refactoring effort.
+Consider tools easily available to an open source software developer; for example GitHub graphs (see Figure~\ref{fig:GH_code_freq})~\cite{github-graphs}. Since GitHub tracks contributions based solely on number of commits and numbers of lines changes, data may be lacking, or even misleading. In the case of the Antlr4 project (Figure~\ref{fig:GH_code_freq}), the graph creates more questions than it answers. What happened at those big spikes of line changes in the graph? One of the spikes is so large, we had to truncate the graph to be able to show details of other changes. How did these large changes affect the code base? Who committed these large changes? Was it a team of contributors or one particularly prolific programmer? Plotting the number of lines changed may be misleading. A huge spike in additions may be caused by numerous reasons, such as the inclusion of automatically-generated documentation, the inclusion of an external library, or perhaps even a huge refactoring effort.
 
 In this paper, we propose a method that analyses the changes in type usage and method invocations over time, as well as a tool to visualize this analysis, which we call TypeV. We claim that type usage offers more insight than line-based, file-based, and commit-based methods of visualization and analysis. Of the services we have surveyed, none of the tools visualize project evolution using granular type analysis per author via commit-by-commit abstract syntax tree differencing. For simplicity, we analyze only Java projects, as it allowed us to quickly develop and test our software. Since our approach described in this paper can be generally applied to any statically-typed language, we plan to extend it to other languages.
 
@@ -455,14 +455,14 @@ This states that two declarations of type \texttt{java.net.URI} were added, and 
 \label{fig:commits}
 \end{figure}
 
-In order to gather all the changes for a given repository over time, we generated ASTs for each commit and compared the difference. We did this by running \texttt{git log} over the Git repository and listing all the commit IDs in chronological order (Figure~\ref{fig:commits}). Each commit and its parent were then compared using AST differencing as described above. There are a few edge cases; however, if a commit has no parent, then every declaration or invocation in the commit was treated as an addition. Since we compared each commit to its parent, as reported by Git, we were able to account for any branching that happened outside the primary branch of the repository (usually named \texttt{master}). If a commit has more than one parent, this indicates a merge commit in Git. Merge commits contain the changes made in each parent commit combined. Therefore, we ignored merge commits since all changes in the merge should already have been accounted for in previous commits.
+In order to gather all the changes for a given repository over time, we generated ASTs for each commit and compared the difference. We did this by running \texttt{git log} over the Git repository and listing all the commit IDs in chronological order (Figure~\ref{fig:commits}). Each commit and its parent were then compared using AST differencing as described above. There are a few edge cases; however, if a commit has no parent, then every declaration or invocation in the commit was treated as an addition. Since we compared each commit to its parent, as reported by Git, we were able to account for any branching that happened outside the primary branch of the repository (usually named \texttt{master}). If a commit has more than one parent, this indicates a merge commit in Git. Merge commits contain the changes made in each parent commit combined. Therefore, we ignored merge commits since all changes in the merge should already have been accounted for in previous commits. Thus, any branch that has been merged into the primary branch would have been analyzed and included by TypeV.
 
 \section{TypeV: The Visualization Tool}
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{Screenshot_antlr4}
-\caption{}
+\caption{Screenshot showing the main view for TypeV. The data being displayed is from the antlr4 repository.}
 \label{fig:main-view}
 \end{figure*}
 
@@ -470,22 +470,22 @@ The data would be difficult to analyze if displayed as its raw text form; instea
 
 TypeV provide a variety of views to help organize the data and provide different levels of detail. The main view displays a series of stacked bar graphs which show changes to types over a period of time in a project (Figure~\ref{fig:main-view}). The blue and orange portions account for the number of additions and deletions in a similar fashion to GitHub’s code frequency graph (Figure~\ref{fig:GH_code_freq}). The height of each bar shows the number of changes to a type. The width of each bar represents a set time period and can be changed to an hour, day, week, or month. A bar which fills the row vertically is the period with the largest number of changes to that type out of the visible time periods. The other bars in the row are proportional to that maximum number.  The bar height is calculated by multiplying the maximum bar height by the number of changes during that time period divided by the maximum number of changes attested for this type. The rows are sorted so that the graph for the most used types appear the top and are in descending order.
 
-When a user mouses over a specific bar in the graph they are given simple statistics for the type and time period at that location. This includes the fully-qualified name of the type, the number of commits, the number of authors, the number of additions, the number of deletions, and the start and end date of that time period. If the user clicks on the bar, they are given more detailed statistics which list the authors who made the commits and each commit message.
+When a user mouses over a specific bar in the graph they are given information for the type and time period at that location. The information includes the fully-qualified name of the type, the number of commits, the number of authors, the number of additions, the number of deletions, and the start and end date of that time period. If the user clicks on the bar, they are given more detailed statistics which list the authors who made the commits and each commit message.
 
-One issue with analyzing individual authors is that authors can commit from a variety of different computers which can have different emails and usernames attached to the Git configuration. This means in the \texttt{git log} one author might appear as several different users. There is no perfect way to deal with this problem; however, we allow the user of our software to select and view multiple users at a time. Thus allowing the user to view changes from an individual or group of developers.
+One issue with analyzing individual authors is that authors can commit from a variety of different computers which can have different emails and usernames attached to the Git configuration. This may result in one author appearing as several different users in the \texttt{git log}. There is no perfect way to deal with this problem; however, we allow the user of our software to select and view multiple users at a time, thus allowing the user to view changes from an individual or group of developers.
 
-To allow for a more detailed analysis of a specific component of the repository we added some basic filtering tools. The first is that a user can filter by type name. The second allows the user to view changes that fall within a specific start and end date. The third allows them to specify the time span represented by each bar: either hour, day, week, or month. Finally, they can choose to see only types declarations, types used in declarations and invocations, or only invocations.
+To allow for a more detailed analysis of a specific component of the repository we added some basic filtering tools. First a user can filter by type name. Second the user can view changes that fall within a specific start and end date. Third the user can specify the time span represented by each bar: hour, day, week, or month. Finally, the user can choose to see only declarations of types, types used in declarations and invocations, or only invocations.
 
 \section{Case Study}
 
-In the following sections, we present case studies demonstrating the extra insight that the TypeV method makes available.
+In the following sections we present case studies demonstrating the extra insight that the TypeV method makes available.
 
 \subsection{antlr4}
 
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=\columnwidth]{ParserATNSimulator}
-\caption{Snapshot of TypeV showing changes to ParserATNSimulator in antlr4. Date ranges from approximately the begining of 2011 to the end of April in 2012.}
+\caption{Snapshot of TypeV showing changes to ParserATNSimulator in antlr4. Date ranges from approximately the begining of 2011 to the end of April, 2012.}
 \label{fig:parser1}
 \end{figure}
 
@@ -500,26 +500,34 @@ We chose Antlr4 because it is a substantial Java project with a commit history s
 
 For example, in December of 2011 we can see that the ParserATNSimulator class has a large amount of additions and deletions in roughly equal proportion (Figure~\ref{fig:parser1}). This suggests that ParserATNSimulator is not being removed from the project but instead there is some refactoring being done. If we take a closer look at the commit messages we can see that they mention refactoring and reorganization of code. Zooming in on that date,  shows that during that month they were finishing work on a new version of ParserATNSimulator.
 
-If we tried to do the same analyses with the GitHub tools it would be significantly more difficult to achieve the same conclusion (Figure~\ref{fig:parser2}). First if we only look at line changes this change to ParserATNSimulator is overwhelmed by other changes and hardly shows up on the GitHub tools. Then if we did notice an increase in activity we would not know what types were being worked on. Finally we could not quickly look at the commit messages for that specific time and type.
+If we tried to do the same analysis with the GitHub tools it would be significantly more difficult to achieve the conclusion achieved using TypeV (Figure~\ref{fig:parser2}). First if we only look at line changes this change to ParserATNSimulator is overwhelmed by other changes and hardly shows up on the GitHub tools. If we did notice an increase in activity we would not know what types were being worked on. Finally, we could not quickly look at the commit messages for that specific time and type if we used the GitHub tools.
 
-At certain times we can can see major increases across all types. This shows us when major changes to the code were being done versus code maintenance. Usually this happens when a large amount of code is being pulled in from another location.
+Using TypeV we can can see that at certain times there were major changes across all types. This shows us when major changes to the code were being done versus code maintenance. 
 
 \subsection{Apache Bookkeeper}
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\columnwidth]{bookkeeper_dep}
+\caption{Shows deprecated invocation getLedgerManagerType() and replacement invocation getLedgerManagerFactoryClass() for Apache Bookkeeper.}
+\label{fig:bookkeeper-depr}
+\end{figure}
+
 For deprecation analysis, we chose Apache Bookkeeper. As an Apache Foundation project it is a well-curated example of an open source software project. It also demonstrates an instance of deprecated methods. 
 
-Apache Bookkeeper deprecated the method AbstractConfiguration.getLedgerManagerType() in release 4.2.0\footnote{\url{https://bookkeeper.apache.org/docs/r4.2.0/apidocs/deprecated-list.html}} and replaced it with AbstractConfiguration.getLedgerManagerFactoryClass(). If we look at getLedgerManagerType() we can see at the time of the start of the deprecation all instances were removed and getLedgerManagerFactoryClass() was added. After the deprecation, we see no more changes to getLedgerManagerType() and only some additions of getLedgerManagerFactoryClass().
+Apache Bookkeeper deprecated the method AbstractConfiguration.getLedgerManagerType() in release 4.2.0\footnote{\url{https://bookkeeper.apache.org/docs/r4.2.0/apidocs/deprecated-list.html}} and replaced it with AbstractConfiguration.getLedgerManagerFactoryClass(). If we look at getLedgerManagerType() we can see at the time of the start of the deprecation all instances were removed and getLedgerManagerFactoryClass() was added (Figure~\ref{fig:bookkeeper-depr}). After the deprecation, we see no more changes to getLedgerManagerType() and only some additions of getLedgerManagerFactoryClass().
 
 \section{Evaluation}
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.3}
-\caption{Comparision of Type Coverage and File Coverage in Projects}
+\caption{Comparison of Type Coverage and File Coverage in Projects}
 \label{tab:summary}
 \centering
 \begin{tabular}{c|ccc}
 \hline
-\bfseries Project & \bfseries Wilcoxon & \bfseries Pearson (lin) cor & \bfseries Spearman (rank) cor \\
+\bfseries Project & \bfseries Wilcoxon& \bfseries Pearson (linear) & \bfseries Spearman (rank) \\
+& p-value & Correlation & Correlation \\
 \hline
 antlr4 & p$\ll$0.01 & 0.943 & 0.907\\
 bookkeeper & 0.313 & 0.984 & 0.972\\
@@ -561,13 +569,21 @@ We ignore the merge commits so we do not double count changes; however, if there
 
 \subsection{Future work}
 
-Currently for generic types we treat every instance of a generic as a different type. So for example if a user declares a list of strings and a list of integers these will appear as two different types. However, if they declare multiple instances of a list of strings then these instances will count toward the same type. In the future we would nice to come up with a way to better handle generic types.
+Currently, we treat every instance of a generic type as a different type. For example, considered the \texttt{List<T>} generic class in Java. If a user declares a List of Strings and later declares a List of Integers these will appear as two different types in TypeV. However, if they declare multiple instances of a List of Strings then these instances will count toward the same type. In the future, we want to work on a better way to track and represent generic types.
 
-Currently we are only looking at declarations and invocations, but it would be nice to also view what classes these changes were made to.
+Currently we are only looking at declaration of types and invocation of methods; it would be useful to also view what classes changes are being made to. Enabling this ability would also enable analysis of self-invocations.
+
+The methodology used in TypeV is only well-defined for statically-typed languages such as Haskell and Java. Dynamically-typed languages like Erlang and JavaScript. However, type annotation systems such as TypEr for Erlang~\cite{typer} or statically-typed language dialects such as TypeScript for JavaScript may prove to be sufficient to enable type analysis as we have demonstrated for Java. 
 
 \section{Conclusion}
-The conclusion goes here.
 
+In this paper, we introduced TypeV, a source code repository analysis and visualization tool. Its use of commit-by-commit abstract syntax tree differencing enable for more insightful visualization than tools that merely use commit counts, line counts, and file changes. We answered our research questions as thus:
+
+RQ1: Using abstract syntax trees, we can determine the types affected by each commits in a repository. Type information is not directly available through regular line diffs recorded by Git.
+
+RQ2: The evolution of a project and developer activity can be seen through the changes to types in a project. Significant events can be observed with greater understanding by seeing the changes to types in addition to the existing commit information.
+
+RQ3: Type coverage and file coverage are found to be highly correlated but do not always have the same distribution or a one to one ratio as might be expected in Java.
 
 
 
