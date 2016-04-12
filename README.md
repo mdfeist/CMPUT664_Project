@@ -13,17 +13,17 @@ following:
  * Java 1.7+
  * Maven 2+
 
-#### Server
+#### Web Server
 
  * Python 3.x
      - pip
 
 ### Installing the AST Diff
 
-Type `make` in the repostory root. Test with `make test`.
+Type `make` in the repository root. Test with `make test`.
 
 Export `$TYPEV_PATH` as the directory where this repository is located.
-If you're using bash, you can simply do this to export the environment
+If you're using Bash, you can simply do this to export the environment
 variable when your shell starts up:
 
 ```sh
@@ -43,6 +43,10 @@ install Flask globally as well:
 
     make get-deps
 
+or:
+
+    pip install -r requirements.txt
+
 # Usage
 
 ### AST Diff
@@ -51,11 +55,14 @@ To compute the AST diff of a repository.
 
     test "$TYPEV_PATH" != '' && ./project_stats.sh path/to/git/repo > ast-output.out
 
-### Server
+### Web Server
+
+Ensure you've activated the proper virtualenv (if you're using
+virtualenv) and simply type:
 
     python server.py
 
-This will start a server listening on http://localhost:5000.
+This will start the web server listening on <http://localhost:5000/>.
 
 # License
 
