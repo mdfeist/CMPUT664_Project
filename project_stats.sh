@@ -10,7 +10,7 @@ if [ ! -d "$GIT" ]; then
 	echo "#ERROR | Not git repository."
 	echo "#PROJECT_END"
 	cd ..
-	exit
+	exit -1
 fi
 
 # Create a temporary directory filled with all of this junk.
