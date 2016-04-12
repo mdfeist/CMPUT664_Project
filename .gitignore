@@ -6,3 +6,4 @@ repositories*
 runDiff.sh
 tmp/
 repos/
+/tests/

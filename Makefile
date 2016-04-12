@@ -8,15 +8,34 @@ all: $(OUTPUTS) $(GUMTREE)
 	@echo 'virutalenv recommended: https://virtualenv.pypa.io/en/latest/'
 	@printf '\033[m'
 
+# Install Python dependencies.
 get-deps:
 	pip install -r requirements.txt
+
+test: tests
+	@test '$(TYPEV_PATH)' != '' || (echo 'Must set TYPEV_PATH environment variable!' && false)
+	sh get_stats.sh $<
+
+# Updates the tar archive with the test Git repository.
+update-archive:
+	tar -czvf tests.tar.gz tests
+
+#### Real Targets ####
 
 # Compile GumTree
 $(GUMTREE):
 	cd gumtree-spoon-ast-diff && mvn install -DskipTests
 
+#### Pattern rules ####
+
+# How to unextract a .out file from a gzipped tarball.
 %.out: %.tar.gz
 	tar -xzC $(AST_OUTDIR) -f $<
 	touch $@ # Reset the modification time, to not extract again.
 
-.PHONY: all build get-deps
+# How to unextract a directory that was tar'd and gzip'd.
+%: %.tar.gz
+	tar -xvzf $<
+	touch $@ # Reset the modification time, to not extract again.
+
+.PHONY: all build get-deps update-archive test
