@@ -15,7 +15,7 @@ then
     echo "#FILE2 | $3"
     echo "#TYPE | $1"
 
-	$TIMEOUT java -cp $CMPUT664_PROJECT/gumtree-spoon-ast-diff/target/gumtree-spoon-ast-diff-0.0.3-SNAPSHOT-jar-with-dependencies.jar fr.inria.sacha.spoon.diffSpoon.DiffSpoonImpl $1 $2 $3
+	$TIMEOUT java -cp $TYPEV_PATH/gumtree-spoon-ast-diff/target/gumtree-spoon-ast-diff-0.0.3-SNAPSHOT-jar-with-dependencies.jar fr.inria.sacha.spoon.diffSpoon.DiffSpoonImpl $1 $2 $3
 
     echo "#STATS_END"
 fi
