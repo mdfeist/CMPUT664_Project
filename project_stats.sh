@@ -13,8 +13,9 @@ if [ ! -d "$GIT" ]; then
 	exit
 fi
 
-if [ ! -d "$CMPUT664_PROJECT/tmp" ]; then
-	mkdir $CMPUT664_PROJECT/tmp
+# Create a temporary directory filled with all of this junk.
+if [ ! -d "$TYPEV_PATH/tmp" ]; then
+	mkdir $TYPEV_PATH/tmp
 fi
 
 git log --reverse --date=iso8601 --format="%H;%ad;%aN;%aE" | while read line
@@ -75,8 +76,8 @@ do
 			if [[ $file == *".java"* ]]
 			then
 			  fname=${commit: -5}_${file##*/}
-			  git show $commit:$file > $CMPUT664_PROJECT/tmp/$fname
-			  bash $CMPUT664_PROJECT/ast.sh one $CMPUT664_PROJECT/tmp/$fname /dev/null
+			  git show $commit:$file > $TYPEV_PATH/tmp/$fname
+			  bash $TYPEV_PATH/ast.sh one $TYPEV_PATH/tmp/$fname /dev/null
 			fi
 		done
 	fi

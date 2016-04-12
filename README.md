@@ -2,13 +2,17 @@
 
 Setting up AST tool:
 
-Export `$CMPUT664_PROJECT` as the directory where this repository is
-located.
+Export `$TYPEV_PATH` as the directory where this repository is located.
+If you're using bash:
 
-In `~/.gitconfig`:
+```sh
+echo "export TYPEV_PATH=$(pwd)" >> .bashrc
+```
+
+And add this to `~/.gitconfig`:
 
     [difftool "gumtree_cmp"]
-    cmd = bash $CMPUT664_PROJECT/ast.sh cmp $LOCAL $REMOTE
+    cmd = bash $TYPEV_PATH/ast.sh cmp $LOCAL $REMOTE
 
 # License
 
