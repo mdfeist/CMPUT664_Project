@@ -2,7 +2,7 @@ LATEXMKFLAGS ?= -quiet
 
 # Use xelatex on OS X
 ifeq ($(shell uname -s),Darwin)
-override LATEXMKFLAGS += -xelatex
+override LATEXMKFLAGS += -pdf
 endif
 
 MAIN = paper.pdf
@@ -11,7 +11,7 @@ MAIN = paper.pdf
 all: $(MAIN)
 
 .PHONY: $(MAIN)
-$(MAIN): $(basename $(MAIN)).tex $(wildcard *.bib)
+$(MAIN): $(basename $(MAIN)).tex $(wildcard *.bib) document.tex
 	latexmk -pdf -bibtex $(LATEXMKFLAGS) $<
 
 .PHONY: clean
