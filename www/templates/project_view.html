@@ -195,7 +195,7 @@
         xhttp.send();
       }
 
-      function redrawTable() {
+      window.redrawTable = function () {
         var filter = getFilters();
         createTable2(filter);
       }
@@ -258,24 +258,24 @@
         }
       }
 
-      function toggleView() {
+      window.toggleView = function () {
         $("#dna-table").toggleClass("collapse");
         $("#stats-table").toggleClass("collapse");
       }
 
-      function toggleAuthors() {
+      window.toggleAuthors = function () {
         $("#authors").toggleClass( "collapse" );
       }
 
-      function toggleStats() {
+      window.toggleStats = function () {
         $("#stats").toggleClass( "collapse" );
       }
 
-      function toggleFilters() {
+      window.toggleFilters = function () {
         $("#filters").toggleClass( "collapse" );
       }
 
-      function uncheckAuthors() {
+      window.uncheckAuthors = function () {
         $('.author-check-box').prop('checked', false);
       }
     </script>
