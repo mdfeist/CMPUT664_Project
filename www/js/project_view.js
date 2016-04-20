@@ -33,7 +33,7 @@ cellInfo.append('div')
 
 
 /* Draw table given JSON */
-function createTable(data, filter) {
+export function createTable(data, filter) {
   window.DATA = data;
   window.preprocessedData = preprocessData(window.DATA);
 
@@ -735,7 +735,7 @@ function countTypeAbsoluteFrequency(astDiffs) {
 function forEachCommit(diffs, fn) {
   var currentCommit, filesOverall, typesOverall;
 
-  for (diff of diffs) {
+  for (var diff of diffs) {
     /* When encoutering a new commit... */
     if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
       /* Do the callback. */
@@ -752,7 +752,7 @@ function forEachCommit(diffs, fn) {
     /* Update the types. */
     typesOverall.add(diff.type);
 
-    for (filename of diff.filesModified) {
+    for (var filename of diff.filesModified) {
       filesOverall.add(filename);
     }
   }
@@ -1150,8 +1150,8 @@ window.makeCSVLink = function makeCSVLink(data) {
   /* Add the header. */
   addRow('Metric', 'Author', 'Date', 'Coverage');
 
-  for (authorName of Object.keys(data.authorStats)) {
-    for (stats of data.authorStats[authorName]) {
+  for (var authorName of Object.keys(data.authorStats)) {
+    for (var stats of data.authorStats[authorName]) {
       addRow(
         'file',
         authorName,
