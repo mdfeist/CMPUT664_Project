@@ -7,6 +7,8 @@
  *  - Ian Watts
  */
 
+import ASTDiff from './ast-diff.js';
+
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
 /** The set of edit kinds.  */
@@ -59,120 +61,6 @@ function createTable2(filter) {
 
 
 /*=== Classes ===*/
-
-/**
- * Class: ASTDiff
- *
- * Instantiated with an original data object.
- */
-function ASTDiff(original, commit) {
-  var date = new Date(original.date);
-  /* The date must be reasonable... */
-  assert(typeof original.type === 'string');
-  assert(commit.commitID === original.commitID);
-  assert(ASTDiff.EDIT_KIND.has(original.edit));
-
-  this.date = date;
-  this.type = original.type;
-  this.edit = original.edit;
-  this._commit = commit;
-}
-
-/**
- * Create an ASTDiff using the information in the commit map.
- * A commit map maps the Git SHA to the commit contents themselves.
- */
-ASTDiff.withCommitMap = function (commits, diff) {
-  return new ASTDiff(diff, commits[diff.commitID])
-};
-
-/**
- * ASTDiff methods and computed properties.
- */
-Object.defineProperties(ASTDiff.prototype, {
-  isAdd: {
-    get: function () {
-      return this.edit === 'ADD';
-    }
-  },
-
-  isRemove: {
-    get: function () {
-      return this.edit === 'REMOVE';
-    }
-  },
-
-  /**
-   * Get the raw commit info.
-   */
-  commit: {
-    get: function () {
-      return this._commit;
-    }
-  },
-
-  /**
-   * The Git commit ID.
-   */
-  sha: {
-    get: function () {
-      return this._commit.commitID;
-    },
-    enumerable: true
-  },
-
-  /**
-   * The commit's author.
-   */
-  author: {
-    get: function () {
-      return this._commit.author;
-    },
-    enumerable: true
-  },
-
-  /**
-   * Files modified in this commit.
-   */
-  filesModified: {
-    get: function () {
-      return this._commit.files;
-    }
-  },
-
-  /**
-   * All files present at this point in time.
-   */
-  allFiles: {
-    get: function () {
-      return this._commit.all_files;
-    }
-  },
-
-  /**
-   * Log message of the commit associated with this ASTDiff.
-   */
-  commitMessage: {
-    get: function () {
-      return this._commit.message;
-    },
-    enumerable: true
-  },
-
-  /**
-   * Delegate valueOf() to the internal date object. This makes relational
-   * comparisons with ASTDiff objects equivillent to comparing their dates.
-   * (i.e.,
-   *    (ASTDiff(...) < ASTDiff(...)) ===
-   *        (ASTDiff(...).date < ASTDiff(...))
-   * )
-   */
-  valueOf: {
-    value: function () {
-      return this.date.valueOf();
-    },
-  },
-});
 
 
 /**
