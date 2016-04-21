@@ -804,17 +804,6 @@ function cellWidthFromScale(cell, scale) {
 
 /*=== Predicates used in assertions and checks ===*/
 
-function looksLikeAnEmail(thing) {
-  if (typeof thing !== 'string') {
-    return false;
-  }
-
-  /* Emails are actually really complicated, but let's... do this: */
-  return thing.match(/^.+@.+$/);
-}
-window.looksLikeAnEmail = looksLikeAnEmail;
-
-
 function looksLikeAGitSha(thing) {
   if (typeof thing !== 'string') {
     return false;
@@ -833,4 +822,4 @@ function union(set, iterable) {
   return set;
 }
 
-/*globals d3, moment*/
+/*globals d3*/
