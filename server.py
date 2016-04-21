@@ -15,6 +15,33 @@ class attrdict(dict):
         dict.__init__(self, *args, **kwargs)
         self.__dict__ = self
 
+
+def singleton(cls):
+    return cls()
+
+
+class Modification:
+    pass
+
+
+@singleton
+class Add(Modification):
+    """
+    Represents an addition of a declaration or invocation in a file.
+    """
+    def toJSON(self):
+        return '+'
+
+@singleton
+class Remove(Modification):
+    """
+    Represents an deletion of a declaration or invocation in a file.
+    """
+    def toJSON(self):
+        return '-'
+
+
+
 class Project:
     def __init__(self):
         self._dir = ""
@@ -43,11 +70,12 @@ class Project:
 
     def getEdit(self, commit, edit, t):
         date_json = {}
-        date_json["author"] = commit.getAuthor()
         date_json["commitID"] = commit.getCommitID()
-        date_json["date"] = commit.getDate()
+        # The client can determine the author from the commit SHA.
+        #date_json["author"] = commit.getAuthor()
+        #date_json["date"] = commit.getDate()
         date_json["type"] = t
-        date_json["edit"] = edit
+        date_json["edit"] = edit.toJSON()
 
         return date_json
 
@@ -72,6 +100,9 @@ class Project:
             commit_json["date"] = commit.getDate()
             commit_json["message"] = commit.getMessage()
             commit_json["files"] = [f for f in commit.getTFiles() if '.java' in f]
+            # TODO: Could probably embed a diff of filenames here for
+            # sequential processing. Far less data to transfer, but more
+            # difficult to compute.
             commit_json["all_files"] = [f for f in commit.getTreeFiles() if '.java' in f]
 
             json_data["commits"].append(commit_json)
@@ -81,10 +112,10 @@ class Project:
                 if options.types == "Declarations" or options.types == "Types":
                     for t in f.getDeclarations().getAdditionHist():
                         types.add(t)
-                        json_data["dates"].append(self.getEdit(commit, "ADD", t))
+                        json_data["dates"].append(self.getEdit(commit, Add, t))
                     for t in f.getDeclarations().getDeletionHist():
                         types.add(t)
-                        json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
+                        json_data["dates"].append(self.getEdit(commit, Remove, t))
 
                 if options.types == "Types":
                     for t in f.getInvocations().getAdditionHist():
@@ -95,7 +126,7 @@ class Project:
                         tt = t.split("#")
                         if (tt[0] != ""):
                             types.add(tt[0])
-                            json_data["dates"].append(self.getEdit(commit, "ADD", tt[0]))
+                            json_data["dates"].append(self.getEdit(commit, Add, tt[0]))
                     for t in f.getInvocations().getDeletionHist():
                         # Skip java.lang.Object#Object()
                         if (t == "java.lang.Object#Object()"):
@@ -104,7 +135,7 @@ class Project:
                         tt = t.split("#")
                         if (tt[0] != ""):
                             types.add(tt[0])
-                            json_data["dates"].append(self.getEdit(commit, "REMOVE", tt[0]))
+                            json_data["dates"].append(self.getEdit(commit, Remove, tt[0]))
 
                 if options.types == "Invocations":
                     for t in f.getInvocations().getAdditionHist():
@@ -113,14 +144,14 @@ class Project:
                             continue
 
                         types.add(t)
-                        json_data["dates"].append(self.getEdit(commit, "ADD", t))
+                        json_data["dates"].append(self.getEdit(commit, Add, t))
                     for t in f.getInvocations().getDeletionHist():
                         # Skip java.lang.Object#Object()
                         if (t == "java.lang.Object#Object()"):
                             continue
 
                         types.add(t)
-                        json_data["dates"].append(self.getEdit(commit, "REMOVE", t))
+                        json_data["dates"].append(self.getEdit(commit, Remove, t))
 
         json_data["types"] = list(types)
 

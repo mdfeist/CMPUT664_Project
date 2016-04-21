@@ -16,9 +16,6 @@ import { first, last } from './utils.js';
 
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
-/** The set of edit kinds.  */
-ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
-
 /* Shim the assert function in there! */
 !window.assert ? (window.assert = console.assert.bind(console)) : undefined;
 
@@ -102,6 +99,15 @@ function createCommitMap (commits) {
 
 /* Returns AST Diff data, in asscending order of date. */
 function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
+  /* Ensure each commit has a proper Date object. */
+  for (let sha in commits) {
+    if (!commits.hasOwnProperty(sha)) {
+      continue;
+    }
+    let commit = commits[sha];
+    commit.date = new Date(commit.date)
+  }
+
   return astDiffsByType
     .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
     /* Note: unary + coerces to smallint using Date#valueOf() */

@@ -1,3 +1,5 @@
+const EDIT_KIND = ['+', '-'];
+
 /**
  * Class: ASTDiff
  *
@@ -5,13 +7,10 @@
  */
 export default class ASTDiff {
   constructor(original, commit) {
-    var date = new Date(original.date);
-    /* The date must be reasonable... */
-    assert(typeof original.type === 'string');
     assert(commit.commitID === original.commitID);
-    assert(ASTDiff.EDIT_KIND.has(original.edit));
+    assert(typeof original.type === 'string');
+    assert(EDIT_KIND.includes(original.edit));
 
-    this.date = date;
     this.type = original.type;
     this.edit = original.edit;
     this._commit = commit;
@@ -40,11 +39,28 @@ export default class ASTDiff {
   }
 
   get isAdd() {
-    return this.edit === 'ADD';
+    return this.edit === '+';
   }
 
   get isRemove() {
-    return this.edit === 'REMOVE';
+    return this.edit === '-';
+  }
+
+  /**
+   * The commit's author.
+   *
+   * NOTE: This was an enumerable property in an older version. This is
+   * probably unnecessary now.
+   */
+  get author() {
+    return this._commit.author;
+  }
+
+  /**
+   * The commit's date.
+   */
+  get date() {
+    return this._commit.date;
   }
 
   /**
@@ -80,15 +96,5 @@ export default class ASTDiff {
    */
   get commitMessage() {
     return this._commit.message;
-  }
-
-  /**
-   * The commit's author.
-   *
-   * NOTE: This was an enumerable property in an older version. This is
-   * probably unnecessary now.
-   */
-  get author() {
-    return this._commit.author;
   }
 }
