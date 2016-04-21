@@ -40,9 +40,6 @@
             <a href="#" onclick="redrawTable()">Update Table</a>
           </li>
           <li role="presentation">
-            <a id="svg-link" href="#">Save SVG</a>
-          </li>
-          <li role="presentation">
             <a id="csv-link" href="">Download CSV</a>
           </li>
         </ul>
@@ -182,9 +179,6 @@
 
             var link = makeCSVLink(window.filteredData);
             $('#csv-link').attr('href', link);
-
-            var link = makeSVGLink(window.filteredData);
-            $('#svg-link').attr('href', link);
           }
         };
 

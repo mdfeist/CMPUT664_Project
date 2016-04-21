@@ -743,23 +743,6 @@ window.makeCSVLink = function makeCSVLink(data) {
   return URL.createObjectURL(blob);
 }
 
-
-/**
- * Returns the download link for a SVG file
- */
-window.makeSVGLink = function makeSVGLink(data) {
-  var doctype = '<?xml version="1.0" standalone="no"?>'
-    + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
-
-  // serialize our SVG XML to a string.
-  var source = (new XMLSerializer()).serializeToString(d3.select('#dna-table').select('.main-figure').node());
-
-  // create a file blob of our SVG.
-  var blob = new Blob([source], { type: 'image/svg' });
-  return URL.createObjectURL(blob);
-}
-
-
 /**
  * Places the axis on the bottom of the graph on initial render, when the
  * screen is too big.
