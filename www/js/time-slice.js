@@ -1,3 +1,4 @@
+import assert from './assert.js';
 import ASTDiff from './ast-diff.js';
 
 /**
@@ -64,18 +65,18 @@ export default class TimeSlice {
       currentStart = moment(currentEnd);
 
       switch (step) {
-          case 'hour':
-              currentStart.subtract(1, 'hour');
-              break;
-          case 'day':
-              currentStart.subtract(1, 'day');
-              break;
-          case 'week':
-              /* TODO: Make this smarter? */
-              currentStart.subtract(1, 'weeks');
-              break;
-          case 'month':
-              currentStart.subtract(1, 'month');
+        case 'hour':
+          currentStart.subtract(1, 'hour');
+          break;
+        case 'day':
+          currentStart.subtract(1, 'day');
+          break;
+        case 'week':
+          /* TODO: Make this smarter? */
+          currentStart.subtract(1, 'weeks');
+          break;
+        case 'month':
+          currentStart.subtract(1, 'month');
       }
 
       currentStart = currentStart.toDate();
@@ -87,3 +88,4 @@ export default class TimeSlice {
     return array.reverse();
   }
 }
+/*global moment*/

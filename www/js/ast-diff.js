@@ -1,3 +1,5 @@
+import assert from './assert.js';
+
 const EDIT_KIND = ['+', '-'];
 
 /**
@@ -21,7 +23,7 @@ export default class ASTDiff {
    * A commit map maps the Git SHA to the commit contents themselves.
    */
   static withCommitMap(commits, diff) {
-    return new ASTDiff(diff, commits[diff.commitID])
+    return new ASTDiff(diff, commits[diff.commitID]);
   }
 
   /**

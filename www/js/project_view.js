@@ -13,13 +13,13 @@ import TimeSlice from './time-slice.js';
 
 import { first, last } from './utils.js';
 
+import assert from './assert.js';
 
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
 /* Shim the assert function in there! */
-!window.assert ? (window.assert = console.assert.bind(console)) : undefined;
 
-var CELL_INFO_WIDTH = 500
+var CELL_INFO_WIDTH = 500;
 
 /* Cell Info */
 var cellInfo = d3.select("body")

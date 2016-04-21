@@ -1,3 +1,5 @@
+import assert from './assert.js';
+
 /**
  * A bunch of random utilities I had no idea what to do with.
  */
