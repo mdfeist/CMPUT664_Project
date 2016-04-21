@@ -95,3 +95,5 @@ export default class Cell {
     return commits.values();
   }
 }
+
+/*globals d3*/

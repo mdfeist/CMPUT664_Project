@@ -72,7 +72,7 @@ function preprocessData(data) {
   assert(data.dates instanceof Array);
 
   /* A set of types. */
-  var types = new Set(data.types)
+  var types = new Set(data.types);
   /* Mapping GitSha -> Commit Metadata. */
   var commits = createCommitMap(data.commits);
 
@@ -105,7 +105,7 @@ function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
       continue;
     }
     let commit = commits[sha];
-    commit.date = new Date(commit.date)
+    commit.date = new Date(commit.date);
   }
 
   return astDiffsByType
@@ -152,7 +152,7 @@ function filterTypes(data, filters) {
   /* XXX: refactor... */
   var typeNames = typeFilter === null ? Object.keys(typesPresent) :
     Object.keys(typesPresent).filter(typeName => {
-      return typeName.toLowerCase().includes(typeFilter.toLowerCase())
+      return typeName.toLowerCase().includes(typeFilter.toLowerCase());
     });
 
   var sortedTypeNames = typeNames
@@ -335,7 +335,7 @@ function drawGraph(data, width) {
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
-    .domain(data.types.map(function (type) { return type.fullyQualifiedName }))
+    .domain(data.types.map(type => type.fullyQualifiedName ))
     .rangeBands([0, height]);
 
   /* Create a scale for the dates i.e., the x-axis */
@@ -379,7 +379,7 @@ function drawGraph(data, width) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.shortName });
+      .text(type => type.shortName );
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
@@ -438,7 +438,7 @@ function drawGraph(data, width) {
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         var topHalf = proportion * maxCellHeight * height;
 
-        return 'translate(0, ' + topHalf + ')'
+        return `translate(0, ${topHalf})`;
       })
       .attr('height', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
@@ -466,7 +466,7 @@ function drawGraph(data, width) {
       info.append('p')
         .text("Commits: " + cell_data.commits.length);
 
-      info.append('br')
+      info.append('br');
 
       info.append('b')
         .text("Authors:");
@@ -474,9 +474,9 @@ function drawGraph(data, width) {
       cell_data.authors.forEach(function (author) {
         info.append('p')
           .text(author);
-      })
+      });
 
-      info.append('br')
+      info.append('br');
 
       var commit_map = window.preprocessedData.commits;
 
@@ -505,8 +505,8 @@ function drawGraph(data, width) {
           .text(line);
         });
 
-        info.append('br')
-      })
+        info.append('br');
+      });
     });
 
     /* Mouse over: Show and update cell info */
@@ -607,7 +607,7 @@ function drawStats(data, width) {
   /* This one is used per author stats. */
   var yScaleSmall = d3.scale.linear()
     .domain([0, 1])
-    .range([rowHeight, 0])
+    .range([rowHeight, 0]);
 
   var timeAxis = d3.svg.axis()
     .scale(xScale)
@@ -732,7 +732,7 @@ window.makeCSVLink = function makeCSVLink(data) {
         stats.type.cumulative / typesTotal
       );
     }
-  };
+  }
 
   function addRow() {
     var i;
@@ -747,7 +747,7 @@ window.makeCSVLink = function makeCSVLink(data) {
   var blob = new Blob(lines, {type: 'text/csv'});
 
   return URL.createObjectURL(blob);
-}
+};
 
 /**
  * Places the axis on the bottom of the graph on initial render, when the

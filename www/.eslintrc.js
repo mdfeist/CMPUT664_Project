@@ -17,13 +17,33 @@ module.exports = {
             "error",
             "unix"
         ],
+        /* Prefer single quotes, but forgive double quotes. */
         "quotes": [
-            "error",
-            "single"
+            "warn",
+            "single",
+            {
+                "avoidEscape": true,
+                "allowTemplateLiterals": true
+            }
         ],
+        /* ALWAYS use semicolons! */
         "semi": [
             "error",
             "always"
+        ],
+        /* Only permit comma-dangle on multiline things. */
+        "comma-dangle": [
+            "warn",
+            "only-multiline"
+        ],
+        /* Warn on unused variables, but permit _danglingUnderscore. */
+        "no-unused-vars": [
+            "warn",
+            {
+                "args": "after-used",
+                "argsIgnorePattern": "^_"
+            }
         ]
+
     }
 };

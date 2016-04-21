@@ -3,4 +3,4 @@ const assert = typeof console.assert !== undefined
   : function () {};
 
 export default assert;
-/*eslint no-console:false*/
+/*eslint no-console:0*/
