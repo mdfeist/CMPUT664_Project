@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+/**
+ * The main styles for the entire site.
+ */
+
+
+/* Adds a cool greyed-out effect for inactive links. */
+a[href=''] {
+  opacity: 0.6;
+  filter: grayscale(50%);
+  -webkit-filter: grayscale(50%);
+  -moz-filter: grayscale(50%);
+}

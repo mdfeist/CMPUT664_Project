@@ -7,6 +7,13 @@
  *  - Ian Watts
  */
 
+import ASTDiff from './ast-diff.js';
+import JavaType from './java-type.js';
+import TimeSlice from './time-slice.js';
+
+import { first, last } from './utils.js';
+
+
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
 /** The set of edit kinds.  */
@@ -33,7 +40,7 @@ cellInfo.append('div')
 
 
 /* Draw table given JSON */
-function createTable(data, filter) {
+export function createTable(data, filter) {
   window.DATA = data;
   window.preprocessedData = preprocessData(window.DATA);
 
@@ -56,452 +63,6 @@ function createTable2(filter) {
 
   return data;
 }
-
-
-/*=== Classes ===*/
-
-/**
- * Class: ASTDiff
- *
- * Instantiated with an original data object.
- */
-function ASTDiff(original, commit) {
-  var date = new Date(original.date);
-  /* The date must be reasonable... */
-  assert(typeof original.type === 'string');
-  assert(commit.commitID === original.commitID);
-  assert(ASTDiff.EDIT_KIND.has(original.edit));
-
-  this.date = date;
-  this.type = original.type;
-  this.edit = original.edit;
-  this._commit = commit;
-}
-
-/**
- * Create an ASTDiff using the information in the commit map.
- * A commit map maps the Git SHA to the commit contents themselves.
- */
-ASTDiff.withCommitMap = function (commits, diff) {
-  return new ASTDiff(diff, commits[diff.commitID])
-};
-
-/**
- * ASTDiff methods and computed properties.
- */
-Object.defineProperties(ASTDiff.prototype, {
-  isAdd: {
-    get: function () {
-      return this.edit === 'ADD';
-    }
-  },
-
-  isRemove: {
-    get: function () {
-      return this.edit === 'REMOVE';
-    }
-  },
-
-  /**
-   * Get the raw commit info.
-   */
-  commit: {
-    get: function () {
-      return this._commit;
-    }
-  },
-
-  /**
-   * The Git commit ID.
-   */
-  sha: {
-    get: function () {
-      return this._commit.commitID;
-    },
-    enumerable: true
-  },
-
-  /**
-   * The commit's author.
-   */
-  author: {
-    get: function () {
-      return this._commit.author;
-    },
-    enumerable: true
-  },
-
-  /**
-   * Files modified in this commit.
-   */
-  filesModified: {
-    get: function () {
-      return this._commit.files;
-    }
-  },
-
-  /**
-   * All files present at this point in time.
-   */
-  allFiles: {
-    get: function () {
-      return this._commit.all_files;
-    }
-  },
-
-  /**
-   * Log message of the commit associated with this ASTDiff.
-   */
-  commitMessage: {
-    get: function () {
-      return this._commit.message;
-    },
-    enumerable: true
-  },
-
-  /**
-   * Delegate valueOf() to the internal date object. This makes relational
-   * comparisons with ASTDiff objects equivillent to comparing their dates.
-   * (i.e.,
-   *    (ASTDiff(...) < ASTDiff(...)) ===
-   *        (ASTDiff(...).date < ASTDiff(...))
-   * )
-   */
-  valueOf: {
-    value: function () {
-      return this.date.valueOf();
-    },
-  },
-});
-
-
-/**
- * Class: Cell
- *
- * Represents the data for a single cell in the table.  The data is a number
- * of observations, which are either additions or deletions.
- */
-function Cell(start, until, type) {
-  /* Instantiate a new Cell object if called without `new`. */
-  if (!(this instanceof Cell)) {
-    return new Cell(start, until, type);
-  }
-
-  assert(start instanceof Date);
-  assert(until instanceof Date);
-  assert(typeof type === 'string');
-
-  this.diffs = []
-  this.startDate = start;
-  this.endDate = until;
-  this.type = type;
-}
-
-Object.defineProperties(Cell.prototype, {
-  /**
-   * Adds a single diff.
-   */
-  addDiff: {
-    value: function (diff) {
-      assert(diff instanceof ASTDiff);
-      assert(this.isAcceptableDiff(diff));
-      assert(diff.type === this.type);
-      this.diffs.push(diff);
-      return this;
-    },
-  },
-
-  isAcceptableDiff: {
-    value: function (diff) {
-      if (!(diff instanceof ASTDiff)) {
-        return false;
-      }
-
-      /* Chrome V8 will bail-out of optimizing this function if you compare
-       * the dates directly (non-primitive compare);
-       * instead, compare the valueOf()s, since this ends up being a Number
-       * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
-       * generate native code for.  */
-      return this.startDate.valueOf() <= diff.date.valueOf() &&
-        diff.date.valueOf() <= this.endDate.valueOf();
-    },
-  },
-
-  /** True if the cell contains at least one AST diff.  */
-  hasData: {
-    get: function () {
-      return this.diffs && (this.diffs.length > 0);
-    }
-  },
-
-  /** Number of observations. */
-  numberOfObservations: {
-    get: function () {
-      return this.diffs.length;
-    }
-  },
-
-  /** Number of additions.  */
-  numberOfAdds: {
-    get: function () {
-      return this.diffs.filter(function (diff) {
-        return diff.isAdd;
-      }).length;
-    }
-  },
-
-  /** Number of deletions.  */
-  numberOfDeletions: {
-    get: function () {
-      return this.diffs.filter(function (diff) {
-        return diff.isRemove;
-      }).length;
-    }
-  },
-
-  /** Get set of authors */
-  authors: {
-    get: function () {
-      var authors = d3.set();
-
-      this.diffs.forEach( function (diff) {
-        authors.add(diff.author);
-      });
-
-      return authors.values();
-    }
-  },
-
-  /** Get set of commit id's */
-  commits: {
-    get: function () {
-      var commits = d3.set();
-
-      this.diffs.forEach( function (diff) {
-        commits.add(diff.sha);
-      });
-
-      return commits.values();
-    }
-  }
-});
-
-
-/**
- * Class: JavaType
- *
- * Represents a type in Java.
- * Note: There probably should be a JavaEntity,
- * with methods having a JavaType parent, and JavaType arguments;
- * and for there to be a DataEntry class that contains cells. But that sounds
- * like too much effort.
- *
- * Create an array of these and you get a y-axis!
- */
-function JavaType(name) {
-  /* Instantiate a new Cell object if called without `new`. */
-  if (!(this instanceof JavaType)) {
-    return new JavaType(name);
-  }
-
-  /* TODO: primitive types? */
-  /* TODO: generics? */
-  var sides = name.split('#');
-  var generics_components = sides[0].split('<');
-  var components = generics_components[0].split('.');
-
-  /* Max adds per type. */
-  this._largest = null;
-
-  this.className = components.pop();
-  this.package = components.join('.');
-  this.methodName = sides[1] || '';
-
-  if (generics_components.length > 1) {
-    this.className += "<" + generics_components[1];
-  }
-
-  this.cells = [];
-};
-
-Object.defineProperties(JavaType.prototype, {
-  /**
-   * Returns the fully-qualified name (package + class name) of this type.
-   */
-  name: {
-    get: function () {
-      if (this.package) {
-        return this.package + '.' + this.shortName;
-      }
-
-      return this.shortName;
-    }
-  },
-
-  /**
-   * The short name is simply the class name, plus its arguments, if they
-   * exist.
-   */
-  shortName: {
-    get: function () {
-      if (this.methodName) {
-        return this.className + '#' + this.methodName;
-      }
-      return this.className;
-    }
-  },
-
-  /**
-   * Alias for name.
-   */
-  fullyQualifiedName: {
-    get: function () {
-      return this.name;
-    }
-  },
-
-  /**
-   * Adds a data cell.
-   */
-  addCell: {
-    value: function (cell) {
-      assert(cell instanceof Cell);
-      return this.cells.push(cell);
-    }
-  },
-
-  /**
-   * Adds an AST diff to the current type.
-   */
-  addDiff: {
-    value: function (diff, startDate, endDate) {
-      if (!this.cells.length || !last(this.cells).isAcceptableDiff(diff)) {
-        /* Automatically add a new cell, if needed. */
-        this.addCell(new Cell(startDate, endDate, this.name));
-      }
-      last(this.cells).addDiff(diff);
-    }
-  },
-
-  /**
-   * Returns the number of commits in the largest cell.
-   */
-  numberOfObservationsInLargestCell: {
-    get: function () {
-      if (this._largest) {
-        return this._largest;
-      }
-
-      /* Calculate it! */
-      var maxCell = d3.max(this.cells, function (cell) {
-        return cell.numberOfObservations;
-      });
-
-      this._largest = maxCell;
-      return this._largest;
-    }
-  },
-
-  /**
-   * toString() will simply return the fully-qualified name.
-   */
-  toString: {
-    value: function () {
-      return this.fullyQualifiedName;
-    }
-  }
-});
-
-
-/**
- * Class: TimeSlice
- * A slice of time, with a start date and an end date.
- * Contains file coverage and
- *
- * Create an array of these and you get an x-axis!
- */
-function TimeSlice(start, end) {
-  assert(start instanceof Date);
-  assert(end instanceof Date);
-  this.startDate = start;
-  this.endDate = end;
-
-  this._typeCount = null;
-
-  this._diffs = [];
-}
-
-Object.defineProperties(TimeSlice.prototype, {
-  /**
-   * Add a diff. This carries:
-   *  - an author
-   *  - a commit
-   *  - files
-   */
-  addDiff: {
-    value: function (diff) {
-      assert(diff instanceof ASTDiff);
-      this._diffs.push(diff);
-    }
-  },
-
-  cumulativeTypeCount: {
-    get: function () {
-      if (this._typeCount === null) {
-        throw new Error('Did not explicitly set cumulativeTypeCount!');
-      }
-      return this._typeCount;
-    },
-
-    set: function (value) {
-      if (this._typeCount !== null) {
-        throw new Error('cumulativeTypeCount can only be set once!');
-      }
-      if (typeof value !== 'number') {
-        throw new Error('cumulativeTypeCount must be a number!');
-      }
-      return this._typeCount = value;
-    }
-  }
-});
-
-/**
- * Given start and end dates, calls the given callback with the start and end
- * date.
- */
-TimeSlice.createRange = function (start, end, step) {
-  var currentStart;
-  var currentEnd = end;
-  var array = [];
-
-  while (start < currentEnd) {
-    currentStart = moment(currentEnd);
-
-    switch (step) {
-        case 'hour':
-            currentStart.subtract(1, 'hour');
-            break;
-        case 'day':
-            currentStart.subtract(1, 'day');
-            break;
-        case 'week':
-            /* TODO: Make this smarter? */
-            currentStart.subtract(1, 'weeks');
-            break;
-        case 'month':
-            currentStart.subtract(1, 'month');
-    }
-
-    currentStart = currentStart.toDate();
-    array.push(new TimeSlice(currentStart, currentEnd));
-    currentEnd = currentStart;
-  }
-
-  /* Such that the timeslices are in ascending chronological order. */
-  return array.reverse();
-}
-
-
 
 /*=== Core functions ====*/
 
@@ -735,7 +296,7 @@ function countTypeAbsoluteFrequency(astDiffs) {
 function forEachCommit(diffs, fn) {
   var currentCommit, filesOverall, typesOverall;
 
-  for (diff of diffs) {
+  for (var diff of diffs) {
     /* When encoutering a new commit... */
     if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
       /* Do the callback. */
@@ -752,7 +313,7 @@ function forEachCommit(diffs, fn) {
     /* Update the types. */
     typesOverall.add(diff.type);
 
-    for (filename of diff.filesModified) {
+    for (var filename of diff.filesModified) {
       filesOverall.add(filename);
     }
   }
@@ -1150,8 +711,8 @@ window.makeCSVLink = function makeCSVLink(data) {
   /* Add the header. */
   addRow('Metric', 'Author', 'Date', 'Coverage');
 
-  for (authorName of Object.keys(data.authorStats)) {
-    for (stats of data.authorStats[authorName]) {
+  for (var authorName of Object.keys(data.authorStats)) {
+    for (var stats of data.authorStats[authorName]) {
       addRow(
         'file',
         authorName,
@@ -1239,21 +800,7 @@ function cellWidthFromScale(cell, scale) {
   return Math.ceil(bigger - smaller) + 1;
 }
 
-function first(array) {
-  assert(array instanceof Array);
-  if (array.length < 1) {
-    throw new Error('Cannot get the first item of an empty array; is the project empty?');
-  }
-  return array[0];
-}
 
-function last(array) {
-  assert(array instanceof Array);
-  if (array.length < 1) {
-    throw new Error('Cannot get the first item of an empty array; is the project empty?');
-  }
-  return array[array.length - 1];
-}
 
 /*=== Predicates used in assertions and checks ===*/
 
