@@ -1,3 +1,4 @@
+import assert from './assert.js';
 import Cell from './cell.js';
 import { last } from './utils.js';
 
@@ -33,7 +34,7 @@ export default class JavaType {
     this.methodName = sides[1] || '';
 
     if (generics_components.length > 1) {
-      this.className += "<" + generics_components[1];
+      this.className += `<${generics_components[1]}>`;
     }
 
     this.cells = [];
@@ -113,3 +114,5 @@ export default class JavaType {
     return this._largest;
   }
 }
+
+/*globals d3*/

@@ -1,3 +1,4 @@
+import assert from './assert.js';
 import ASTDiff from './ast-diff.js';
 
 /**
@@ -17,7 +18,7 @@ export default class Cell {
     assert(until instanceof Date);
     assert(typeof type === 'string');
 
-    this.diffs = []
+    this.diffs = [];
     this.startDate = start;
     this.endDate = until;
     this.type = type;
@@ -94,3 +95,5 @@ export default class Cell {
     return commits.values();
   }
 }
+
+/*globals d3*/

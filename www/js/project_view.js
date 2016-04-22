@@ -13,16 +13,13 @@ import TimeSlice from './time-slice.js';
 
 import { first, last } from './utils.js';
 
+import assert from './assert.js';
 
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
-/** The set of edit kinds.  */
-ASTDiff.EDIT_KIND = d3.set(['ADD', 'REMOVE']);
-
 /* Shim the assert function in there! */
-!window.assert ? (window.assert = console.assert.bind(console)) : undefined;
 
-var CELL_INFO_WIDTH = 500
+var CELL_INFO_WIDTH = 500;
 
 /* Cell Info */
 var cellInfo = d3.select("body")
@@ -75,7 +72,7 @@ function preprocessData(data) {
   assert(data.dates instanceof Array);
 
   /* A set of types. */
-  var types = new Set(data.types)
+  var types = new Set(data.types);
   /* Mapping GitSha -> Commit Metadata. */
   var commits = createCommitMap(data.commits);
 
@@ -102,6 +99,15 @@ function createCommitMap (commits) {
 
 /* Returns AST Diff data, in asscending order of date. */
 function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
+  /* Ensure each commit has a proper Date object. */
+  for (let sha in commits) {
+    if (!commits.hasOwnProperty(sha)) {
+      continue;
+    }
+    let commit = commits[sha];
+    commit.date = new Date(commit.date);
+  }
+
   return astDiffsByType
     .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
     /* Note: unary + coerces to smallint using Date#valueOf() */
@@ -146,7 +152,7 @@ function filterTypes(data, filters) {
   /* XXX: refactor... */
   var typeNames = typeFilter === null ? Object.keys(typesPresent) :
     Object.keys(typesPresent).filter(typeName => {
-      return typeName.toLowerCase().includes(typeFilter.toLowerCase())
+      return typeName.toLowerCase().includes(typeFilter.toLowerCase());
     });
 
   var sortedTypeNames = typeNames
@@ -329,7 +335,7 @@ function drawGraph(data, width) {
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
-    .domain(data.types.map(function (type) { return type.fullyQualifiedName }))
+    .domain(data.types.map(type => type.fullyQualifiedName ))
     .rangeBands([0, height]);
 
   /* Create a scale for the dates i.e., the x-axis */
@@ -373,7 +379,7 @@ function drawGraph(data, width) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(function (type) { return type.shortName });
+      .text(type => type.shortName );
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
@@ -432,7 +438,7 @@ function drawGraph(data, width) {
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         var topHalf = proportion * maxCellHeight * height;
 
-        return 'translate(0, ' + topHalf + ')'
+        return `translate(0, ${topHalf})`;
       })
       .attr('height', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
@@ -460,7 +466,7 @@ function drawGraph(data, width) {
       info.append('p')
         .text("Commits: " + cell_data.commits.length);
 
-      info.append('br')
+      info.append('br');
 
       info.append('b')
         .text("Authors:");
@@ -468,9 +474,9 @@ function drawGraph(data, width) {
       cell_data.authors.forEach(function (author) {
         info.append('p')
           .text(author);
-      })
+      });
 
-      info.append('br')
+      info.append('br');
 
       var commit_map = window.preprocessedData.commits;
 
@@ -499,8 +505,8 @@ function drawGraph(data, width) {
           .text(line);
         });
 
-        info.append('br')
-      })
+        info.append('br');
+      });
     });
 
     /* Mouse over: Show and update cell info */
@@ -601,7 +607,7 @@ function drawStats(data, width) {
   /* This one is used per author stats. */
   var yScaleSmall = d3.scale.linear()
     .domain([0, 1])
-    .range([rowHeight, 0])
+    .range([rowHeight, 0]);
 
   var timeAxis = d3.svg.axis()
     .scale(xScale)
@@ -726,7 +732,7 @@ window.makeCSVLink = function makeCSVLink(data) {
         stats.type.cumulative / typesTotal
       );
     }
-  };
+  }
 
   function addRow() {
     var i;
@@ -741,24 +747,7 @@ window.makeCSVLink = function makeCSVLink(data) {
   var blob = new Blob(lines, {type: 'text/csv'});
 
   return URL.createObjectURL(blob);
-}
-
-
-/**
- * Returns the download link for a SVG file
- */
-window.makeSVGLink = function makeSVGLink(data) {
-  var doctype = '<?xml version="1.0" standalone="no"?>'
-    + '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
-
-  // serialize our SVG XML to a string.
-  var source = (new XMLSerializer()).serializeToString(d3.select('#dna-table').select('.main-figure').node());
-
-  // create a file blob of our SVG.
-  var blob = new Blob([source], { type: 'image/svg' });
-  return URL.createObjectURL(blob);
-}
-
+};
 
 /**
  * Places the axis on the bottom of the graph on initial render, when the
@@ -804,17 +793,6 @@ function cellWidthFromScale(cell, scale) {
 
 /*=== Predicates used in assertions and checks ===*/
 
-function looksLikeAnEmail(thing) {
-  if (typeof thing !== 'string') {
-    return false;
-  }
-
-  /* Emails are actually really complicated, but let's... do this: */
-  return thing.match(/^.+@.+$/);
-}
-window.looksLikeAnEmail = looksLikeAnEmail;
-
-
 function looksLikeAGitSha(thing) {
   if (typeof thing !== 'string') {
     return false;
@@ -833,4 +811,4 @@ function union(set, iterable) {
   return set;
 }
 
-/*globals d3, moment*/
+/*globals d3*/

@@ -40,9 +40,6 @@
             <a href="#" onclick="redrawTable()">Update Table</a>
           </li>
           <li role="presentation">
-            <a id="svg-link" href="#">Save SVG</a>
-          </li>
-          <li role="presentation">
             <a id="csv-link" href="">Download CSV</a>
           </li>
         </ul>
@@ -143,6 +140,7 @@
     <!-- TODO: Extract this into its own script. -->
     <script type="module">
       import { createTable } from "/js/project_view.js";
+      import assert from "/js/assert.js";
 
       /* Add date picker widgets on platforms that don't have them. */
       if (!hasDatePicker()) {
@@ -182,9 +180,6 @@
 
             var link = makeCSVLink(window.filteredData);
             $('#csv-link').attr('href', link);
-
-            var link = makeSVGLink(window.filteredData);
-            $('#svg-link').attr('href', link);
           }
         };
 
