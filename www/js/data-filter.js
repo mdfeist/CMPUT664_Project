@@ -4,7 +4,78 @@ import TimeSlice from './time-slice.js';
 import assert from './assert.js';
 import { first, last, union } from './utils.js';
 
-const VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
+const VALID_STEP_SIZES = ['hour', 'day', 'month', 'week'];
+
+export default class DataView {
+  constructor({types, timeslices, typesPresent, authorStats, astDiffs,
+              typesOverall, filesOverall}) {
+    this.types = types;
+    this.timeslices = timeslices;
+    this.typesPresent = typesPresent;
+    this.authorStats = authorStats;
+    this.astDiffs = astDiffs;
+    this.typesOverall = typesOverall;
+    this.filesOverall = filesOverall;
+
+    assert(this.minDate <= this.maxDate);
+  }
+
+  /**
+   * Returns a new DataView with the given filters applied:
+   *
+   * # startDate
+   * # endDate
+   * # limit -- maximum number of types
+   * # stepSize -- What size to group ASTDiffs
+   * # authors -- Filter only to the given authors.
+   * # typeFilter -- only types matching this pattern are selected.
+   */
+  static filter(data, filters) {
+    const rawFilteredData = filterTypes(data, filters);
+    return new DataView(rawFilteredData);
+  }
+
+  /* TODO: Rename to allTypeNames */
+  /** All types name, without arbitrary filtering or sorting. **/
+  get allTypes() {
+    return Object.keys(this.typesPresent);
+  }
+
+  /* TODO: rename to authorNames. */
+  /** The name of every author selected in the view. */
+  get authors() {
+    return Object.keys(this.authorStats);
+  }
+
+  get minDate() {
+    return first(this.timeslices).startDate;
+  }
+
+  get maxDate() {
+    return last(this.timeslices).endDate;
+  }
+
+  get numberOfTypes() {
+    return this.typesOverall.size;
+  }
+
+  get numberOfFiles() {
+    return this.filesOverall.size;
+  }
+
+  /* The following two are used for the date display picker thing. */
+  get absoluteMinDate() {
+    return first(this.astDiffs).date;
+  }
+
+  get absoluteMaxDate() {
+    return last(this.astDiffs).date;
+  }
+
+  get numberOfColumns() {
+    return this.timeslices.length;
+  }
+}
 
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
@@ -12,7 +83,7 @@ const VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
  *
  * Each type has its Cells, with ASTDiffs.
  */
-export function filterTypes(data, filters) {
+function filterTypes(data, filters) {
   /* Let filters be undefined or null. */
   filters = filters ? filters : {};
 
@@ -29,7 +100,7 @@ export function filterTypes(data, filters) {
   assert(endDate instanceof Date);
   assert(startDate < endDate);
   assert(typeof numberOfTypesUpperBound === 'number');
-  assert(VALID_STEP_SIZES.has(stepSize));
+  assert(VALID_STEP_SIZES.includes(stepSize));
   assert(authors instanceof Array);
 
   /* Find the range of diffs to use. */
@@ -103,10 +174,6 @@ export function filterTypes(data, filters) {
     timeslice.cumulativeTypeCount = typesOverall.size;
   });
 
-  var minDate = first(timeslices).startDate;
-  var maxDate = last(timeslices).endDate;
-  assert(minDate <= maxDate);
-
   /* Will need to recalculate this for this measurement: */
   typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
@@ -145,20 +212,12 @@ export function filterTypes(data, filters) {
   return {
     /* Filtered types. */
     types,
-    /* All types, without arbitrary filtering or sorting. */
-    allTypes: Object.keys(typesPresent),
+    typesPresent,
     timeslices,
-    minDate,
-    maxDate,
-    numberOfColumns: timeslices.length,
-    /* The authors selected and seen. */
-    authors: Object.keys(authorMap),
     authorStats: authorMap,
-    numberOfTypes: typesOverall.size,
-    numberOfFiles: filesOverall.size,
-    /* The following two are used for the date display picker thing. */
-    absoluteMinDate: first(data.astDiffs).date,
-    absoluteMaxDate: last(data.astDiffs).date,
+    typesOverall,
+    filesOverall,
+    astDiffs: data.astDiffs
   };
 }
 

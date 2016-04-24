@@ -10,7 +10,7 @@
 
 import assert from './assert.js';
 import preprocessData from './preprocess-data.js';
-import { filterTypes } from './data-filter.js';
+import DataView from './data-filter.js';
 
 /* Shim the assert function in there! */
 
@@ -49,7 +49,7 @@ function createTable2(filter) {
   dnaTable.innerHTML = "";
 
   var processed = window.preprocessedData;
-  var data = window.filteredData = filterTypes(processed, filter);
+  var data = window.filteredData = DataView.filter(processed, filter);
   drawGraph(data, dnaTable.offsetWidth);
   drawStats(data, dnaTable.offsetWidth);
 
