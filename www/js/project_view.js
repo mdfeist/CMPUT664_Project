@@ -8,15 +8,9 @@
  */
 
 
-import JavaType from './java-type.js';
-import TimeSlice from './time-slice.js';
-
 import assert from './assert.js';
 import preprocessData from './preprocess-data.js';
-import { first, last } from './utils.js';
-
-
-var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
+import { filterTypes } from './data-filter.js';
 
 /* Shim the assert function in there! */
 
@@ -62,219 +56,12 @@ function createTable2(filter) {
   return data;
 }
 
-/*=== Core functions ====*/
-
-
-/**
- * Takes preprocessed data, and returns an array of types, in ascending order
- * of popularity.
- *
- * Each type has its Cells, with ASTDiffs.
- */
-function filterTypes(data, filters) {
-  /* Let filters be undefined or null. */
-  filters = filters ? filters : {};
-
-  /* Either the date provided, or the first date attested. */
-  var startDate = filters.start || first(data.astDiffs).date;
-  /* Either the date provided or the last date attested. */
-  var endDate = filters.end || last(data.astDiffs).date;
-  var numberOfTypesUpperBound = filters.limit || Infinity;
-  var stepSize = filters.stepSize || 'month';
-  var authors = filters.authors || [];
-  var typeFilter = filters.typeFilter ? filters.typeFilter : null;
-
-  assert(startDate instanceof Date);
-  assert(endDate instanceof Date);
-  assert(startDate < endDate);
-  assert(typeof numberOfTypesUpperBound === 'number');
-  assert(VALID_STEP_SIZES.has(stepSize));
-  assert(authors instanceof Array);
-
-  /* Find the range of diffs to use. */
-  var lowerIndex = d3.bisectLeft(data.astDiffs, startDate);
-  var upperIndex = d3.bisectRight(data.astDiffs, endDate);
-
-  var applicableDiffs = data.astDiffs.slice(lowerIndex, upperIndex);
-  /* Filter types, first by the types that are ACTUALLY present in the
-   * filtered ASTDiffs */
-  var typesPresent = countTypeAbsoluteFrequency(applicableDiffs);
-  /* XXX: refactor... */
-  var typeNames = typeFilter === null ? Object.keys(typesPresent) :
-    Object.keys(typesPresent).filter(typeName => {
-      return typeName.toLowerCase().includes(typeFilter.toLowerCase());
-    });
-
-  var sortedTypeNames = typeNames
-    .sort((a, b) => d3.descending(typesPresent[a], typesPresent[b]))
-    .slice(0, numberOfTypesUpperBound);
-
-  /* TODO: This is actually okay! You've just got an empty selection! */
-  assert(sortedTypeNames.length > 0);
-
-  /* Create a list of each type. */
-  var types = sortedTypeNames.map(JavaType);
-  var typeMap = {};
-  /* Map full type names to their type. */
-  types.forEach(function (type) {
-    typeMap[type.name] = type;
-  });
-
-  var authorMap = {};
-  var authorSets = {};
-  var typesOverall = new Set();
-  var filesOverall = new Set();
-
-  /* Create all cells applicable for display.  */
-  var timeslices = TimeSlice.createRange(startDate, endDate, stepSize);
-
-  timeslices.forEach(function (timeslice) {
-    var startDate = timeslice.startDate;
-    var endDate = timeslice.endDate;
-
-    /* This will filter out only the applicable diffs. */
-    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
-    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
-    var i, diff, type;
-
-    /* For each applicable diff in the time range... */
-    for (i = lowerIndex; i < upperIndex; i++) {
-      diff = applicableDiffs[i];
-      /* Count the type, regardless if it's filtered. */
-      typesOverall.add(diff.type);
-
-      type = typeMap[diff.type];
-
-      /* The type must exist! */
-      if (type === undefined) {
-        continue;
-      }
-
-      /* Add the diff, accounting for author filters. */
-      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
-        type.addDiff(diff, startDate, endDate);
-        timeslice.addDiff(diff);
-      }
-
-    }
-
-    /* Finally, commit the count to the timeslice. */
-    timeslice.cumulativeTypeCount = typesOverall.size;
-  });
-
-  var minDate = first(timeslices).startDate;
-  var maxDate = last(timeslices).endDate;
-  assert(minDate <= maxDate);
-
-  /* Will need to recalculate this for this measurement: */
-  typesOverall = new Set();
-  forEachCommit(applicableDiffs, (commit, files, types) => {
-    var author = commit.author;
-    var date = new Date(commit.date);
-    if (!(author in authorMap)) {
-      authorMap[author] = [];
-      authorSets[author] = {
-        files: new Set(),
-        types: new Set()
-      };
-    }
-
-    /* Add all observed files and types to their respective sets. */
-    union(filesOverall, files);
-    union(authorSets[author].files, files);
-    union(typesOverall, types);
-    union(authorSets[author].types, types);
-
-    /* Record stats! */
-    authorMap[author].push({
-      type: {
-        observed: types.size,
-        cumulative: authorSets[author].types.size,
-        total: typesOverall.size
-      },
-      file: {
-        observed: files.size,
-        cumulative: authorSets[author].files.size,
-        total: filesOverall.size
-      },
-      date
-    });
-  });
-
-  return {
-    /* Filtered types. */
-    types,
-    /* All types, without arbitrary filtering or sorting. */
-    allTypes: Object.keys(typesPresent),
-    timeslices,
-    minDate,
-    maxDate,
-    numberOfColumns: timeslices.length,
-    /* The authors selected and seen. */
-    authors: Object.keys(authorMap),
-    authorStats: authorMap,
-    numberOfTypes: typesOverall.size,
-    numberOfFiles: filesOverall.size,
-    /* The following two are used for the date display picker thing. */
-    absoluteMinDate: first(data.astDiffs).date,
-    absoluteMaxDate: last(data.astDiffs).date,
-  };
-}
-
-
-/**
- * Count all types in the given ASTDiff objects.
- */
-function countTypeAbsoluteFrequency(astDiffs) {
-  var typesFrequency = {};
-  astDiffs.forEach(function (diff) {
-    var freq = typesFrequency[diff.type] || 0;
-    typesFrequency[diff.type] = freq + 1;
-  });
-
-  return typesFrequency;
-}
-
-
-
 /**
  * TODO:
  *  - Calculate type and file coverage PER COMMIT.
  *  - Per each author, get their type/file coverage.
  *  - Put it in a CSV
  */
-
-
-/**
- * Given diffs, calls the callback for each commit.
- * The callback is called with the raw commit, a set of files touched, and a
- * set of types type
- */
-function forEachCommit(diffs, fn) {
-  var currentCommit, filesOverall, typesOverall;
-
-  for (var diff of diffs) {
-    /* When encoutering a new commit... */
-    if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
-      /* Do the callback. */
-      if (currentCommit !== undefined) {
-        fn(currentCommit, filesOverall, typesOverall);
-      }
-
-      /* Reset the current commit. */
-      currentCommit = diff.commit;
-      typesOverall = new Set();
-      filesOverall = new Set();
-    }
-
-    /* Update the types. */
-    typesOverall.add(diff.type);
-
-    for (var filename of diff.filesModified) {
-      filesOverall.add(filename);
-    }
-  }
-}
 
 
 /*=== Graph ===*/
@@ -738,16 +525,6 @@ function cellWidthFromScale(cell, scale) {
   assert(bigger > smaller);
   /* Ensure it rounds up to remove horizontal gaps. */
   return Math.ceil(bigger - smaller) + 1;
-}
-
-/**
- * Union of two sets.
- */
-function union(set, iterable) {
-  for (var item of iterable) {
-    set.add(item);
-  }
-  return set;
 }
 
 /*globals d3*/

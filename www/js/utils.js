@@ -4,7 +4,6 @@ import assert from './assert.js';
  * A bunch of random utilities I had no idea what to do with.
  */
 
-
 /**
  * Returns the first element of an array. Complains bitterly if the array is
  * empty.
@@ -27,4 +26,14 @@ export function last(array) {
     throw new Error('Cannot get the first item of an empty array; is the project empty?');
   }
   return array[array.length - 1];
+}
+
+/**
+ * Union of two sets.
+ */
+export function union(set, iterable) {
+  for (var item of iterable) {
+    set.add(item);
+  }
+  return set;
 }
