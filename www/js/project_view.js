@@ -7,13 +7,14 @@
  *  - Ian Watts
  */
 
-import ASTDiff from './ast-diff.js';
+
 import JavaType from './java-type.js';
 import TimeSlice from './time-slice.js';
 
+import assert from './assert.js';
+import preprocessData from './preprocess-data.js';
 import { first, last } from './utils.js';
 
-import assert from './assert.js';
 
 var VALID_STEP_SIZES = d3.set(['hour', 'day', 'month', 'week']);
 
@@ -63,57 +64,6 @@ function createTable2(filter) {
 
 /*=== Core functions ====*/
 
-/**
- * Modifies original data.
- */
-function preprocessData(data) {
-  assert(data.types instanceof Array);
-  assert(data.commits instanceof Array);
-  assert(data.dates instanceof Array);
-
-  /* A set of types. */
-  var types = new Set(data.types);
-  /* Mapping GitSha -> Commit Metadata. */
-  var commits = createCommitMap(data.commits);
-
-  return {
-    types,
-    commits,
-    /* A copy of AST Diff data, in asscending order of date. */
-    astDiffs: createASTDiffsInAscendingOrder(data.dates, commits)
-  };
-}
-
-/* Maps Git SHA to the raw commit data. */
-function createCommitMap (commits) {
-  var commitMap = {};
-
-  commits.forEach(function (commit) {
-    var sha = commit.commitID;
-    assert(looksLikeAGitSha(sha));
-    commitMap[sha] = commit;
-  });
-
-  return commitMap;
-}
-
-/* Returns AST Diff data, in asscending order of date. */
-function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
-  /* Ensure each commit has a proper Date object. */
-  for (let sha in commits) {
-    if (!commits.hasOwnProperty(sha)) {
-      continue;
-    }
-    let commit = commits[sha];
-    commit.date = new Date(commit.date);
-  }
-
-  return astDiffsByType
-    .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
-    /* Note: unary + coerces to smallint using Date#valueOf() */
-    /* See explanation in Cell#isAcceptableDiff(). */
-    .sort((a, b) => d3.ascending(+a.date, +b.date));
-}
 
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
@@ -159,6 +109,7 @@ function filterTypes(data, filters) {
     .sort((a, b) => d3.descending(typesPresent[a], typesPresent[b]))
     .slice(0, numberOfTypesUpperBound);
 
+  /* TODO: This is actually okay! You've just got an empty selection! */
   assert(sortedTypeNames.length > 0);
 
   /* Create a list of each type. */
@@ -787,18 +738,6 @@ function cellWidthFromScale(cell, scale) {
   assert(bigger > smaller);
   /* Ensure it rounds up to remove horizontal gaps. */
   return Math.ceil(bigger - smaller) + 1;
-}
-
-
-
-/*=== Predicates used in assertions and checks ===*/
-
-function looksLikeAGitSha(thing) {
-  if (typeof thing !== 'string') {
-    return false;
-  }
-
-  return thing.match(/^[0-9a-f]{5,}$/i);
 }
 
 /**
