@@ -7,13 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="247.5"
+   width="315"
    height="135"
    class="viz code-frequency"
    version="1.1"
    id="svg2"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="viz code-frequency.svg">
+   sodipodi:docname="Antlr4-GH-Lines-ParserATNSimulator.svg">
   <metadata
      id="metadata106">
     <rdf:RDF>
@@ -53,15 +53,15 @@
      id="namedview102"
      showgrid="false"
      units="in"
-     inkscape:zoom="1.6693878"
-     inkscape:cx="143.13645"
-     inkscape:cy="39.209835"
+     inkscape:zoom="4"
+     inkscape:cx="53.075781"
+     inkscape:cy="64.956314"
      inkscape:window-x="3"
      inkscape:window-y="227"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="g4" />
   <g
-     transform="matrix(1.6317649,0,0,1.6317649,-301.45905,-350.68169)"
+     transform="matrix(2.0807074,0,0,2.0807074,-384.6955,-458.41517)"
      id="g4"
      clip-path="url(#clipPath3855)">
     <g
@@ -77,7 +77,7 @@
         <line
            y2="6"
            x2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line10"
            x1="0"
            y1="0" />
@@ -96,7 +96,7 @@
         <line
            y2="6"
            x2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line16"
            x1="0"
            y1="0" />
@@ -115,7 +115,7 @@
         <line
            y2="6"
            x2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line22"
            x1="0"
            y1="0" />
@@ -134,7 +134,7 @@
         <line
            y2="6"
            x2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line28"
            x1="0"
            y1="0" />
@@ -153,7 +153,7 @@
         <line
            y2="6"
            x2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line34"
            x1="0"
            y1="0" />
@@ -172,7 +172,7 @@
         <line
            y2="6"
            x2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line40"
            x1="0"
            y1="0" />
@@ -203,7 +203,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line50"
            x1="0"
            y1="0" />
@@ -222,7 +222,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line56"
            x1="0"
            y1="0" />
@@ -241,7 +241,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line62"
            x1="0"
            y1="0" />
@@ -260,7 +260,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line68"
            x1="0"
            y1="0" />
@@ -268,8 +268,9 @@
            x="-985"
            y="0"
            dy="1.5862176e-37"
-           style="font-size:10px;line-height:14px;text-anchor:end;fill:#aaaaaa;display:block"
-           id="text70">0</text>
+           style="font-size:4.80605779px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;line-height:140%;writing-mode:lr;text-anchor:end;fill:#aaaaaa;display:block;font-family:Sans;-inkscape-font-specification:Sans"
+           id="text70"
+           sodipodi:linespacing="140%">0</text>
       </g>
       <g
          class="tick"
@@ -279,7 +280,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line74"
            x1="0"
            y1="0" />
@@ -298,7 +299,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line80"
            x1="0"
            y1="0" />
@@ -317,7 +318,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line86"
            x1="0"
            y1="0" />
@@ -336,7 +337,7 @@
         <line
            x2="-980"
            y2="0"
-           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.61283344"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
            id="line92"
            x1="0"
            y1="0" />
@@ -353,6 +354,26 @@
          style="font-size:10px;line-height:14px;fill:#aaaaaa;display:none"
          id="path96"
          inkscape:connector-curvature="0" />
+      <g
+         id="g3041"
+         style="font-size:10px;line-height:14px;fill:#aaaaaa"
+         transform="translate(202.46944,229.29147)"
+         class="tick">
+        <line
+           y1="0"
+           x1="0"
+           id="line3043"
+           style="font-size:10px;line-height:14px;fill:#aaaaaa;stroke:#eeeeee;stroke-width:0.48060581"
+           y2="0"
+           x2="-980" />
+        <text
+           sodipodi:linespacing="140%"
+           id="text3045"
+           style="font-size:4.80605779px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;line-height:140%;writing-mode:lr;text-anchor:end;fill:#aaaaaa;display:block;font-family:Sans;-inkscape-font-specification:Sans"
+           dy="0 1.5862176e-37"
+           y="0"
+           x="-985">50k</text>
+      </g>
     </g>
     <path
        class="addition"
@@ -369,20 +390,18 @@
   </g>
   <text
      xml:space="preserve"
-     style="font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-     x="247.54297"
-     y="7.8740234"
+     style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:end;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+     x="315.03906"
+     y="7.9082031"
      id="text3859"
      sodipodi:linespacing="125%"><tspan
        sodipodi:role="line"
        id="tspan3861"
-       x="247.54297"
-       y="7.8740234"
-       style="fill:#666666"><tspan
-   style="font-weight:bold;fill:#6cc644;fill-opacity:1;-inkscape-font-specification:Arial Bold"
+       x="315.03906"
+       y="7.9082031"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:end;line-height:125%;writing-mode:lr;text-anchor:end;fill:#666666;font-family:Arial;-inkscape-font-specification:Arial"><tspan
+   style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:end;line-height:125%;writing-mode:lr;text-anchor:end;fill:#6cc644;fill-opacity:1;font-family:Arial;-inkscape-font-specification:Arial Bold"
    id="tspan3863">Additions</tspan> and <tspan
-   style="font-weight:bold;fill:#bd2c00;fill-opacity:1;-inkscape-font-specification:Arial Bold"
-   id="tspan3875">D</tspan><tspan
-   style="font-weight:bold;fill:#bd2c00;fill-opacity:1;-inkscape-font-specification:Arial Bold"
-   id="tspan3865">eletions</tspan> per week</tspan></text>
+   style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:end;line-height:125%;writing-mode:lr;text-anchor:end;fill:#bd2c00;fill-opacity:1;font-family:Arial;-inkscape-font-specification:Arial Bold"
+   id="tspan3875">Deletions</tspan> per week</tspan></text>
 </svg>
