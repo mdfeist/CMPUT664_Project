@@ -1,4 +1,5 @@
 DIAGRAMS = Antlr4-GH-Lines-ParserATNSimulator \
+		   antlr4-code-freq \
 		   antlr-density \
 		   commits_view \
 		   context \
