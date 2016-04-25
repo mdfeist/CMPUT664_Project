@@ -1,4 +1,14 @@
-all: $(subst .svg,.eps,$(wildcard *.svg))
+DIAGRAMS = Antlr4-GH-Lines-ParserATNSimulator \
+		   antlr-density \
+		   commits_view \
+		   context \
+		   bookkeeper_dep \
+		   tika-density
+
+
+
+all: $(addsuffix .eps,$(DIAGRAMS))
+
 
 # Inkscape, no GUI
 INKSCAPE = inkscape -z
