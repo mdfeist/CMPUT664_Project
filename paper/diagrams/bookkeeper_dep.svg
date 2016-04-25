@@ -7,10 +7,35 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.2"
    width="652"
    height="130"
-   id="svg2">
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="bookkeeper_dep.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1148"
+     inkscape:window-height="698"
+     id="namedview26"
+     showgrid="false"
+     units="in"
+     inkscape:zoom="0.62730061"
+     inkscape:cx="453.95599"
+     inkscape:cy="195.69858"
+     inkscape:window-x="0"
+     inkscape:window-y="224"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
   <metadata
      id="metadata320">
     <rdf:RDF>
@@ -19,14 +44,14 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs318" />
   <g
-     transform="translate(-263.09589,2.19178)"
+     transform="translate(-263.09589,2.192)"
      id="g82">
     <rect
        width="413.9726"
@@ -48,14 +73,14 @@
        x="529.60773"
        y="0"
        id="rect90"
-       style="fill:#67a9cf" />
+       style="fill:#72e0e0;fill-opacity:1" />
     <rect
        width="7"
        height="62"
        x="686.65234"
        y="0"
        id="rect94"
-       style="fill:#ef8a62" />
+       style="fill:#bb4466;fill-opacity:1" />
     <rect
        width="7"
        height="0"
@@ -73,68 +98,68 @@
      width="413.9726"
      height="62"
      x="236.90411"
-     y="66.191772"
+     y="66.191406"
      id="rect102"
      style="fill:#f4f4f4" />
   <rect
      width="7"
      height="0"
      x="611.55646"
-     y="66.191772"
+     y="66.191406"
      id="rect106"
      style="fill:#ef8a62" />
   <rect
      width="7"
      height="62"
      x="423.55646"
-     y="66.191772"
+     y="66.191406"
      id="rect108"
-     style="fill:#67a9cf" />
+     style="fill:#72e0e0;fill-opacity:1" />
   <rect
      width="7"
      height="0"
      x="660.30444"
-     y="115.79181"
+     y="115.79199"
      id="rect112"
      style="fill:#ef8a62" />
   <rect
      width="7"
      height="12.4"
      x="472.30444"
-     y="115.79181"
+     y="115.79199"
      id="rect114"
-     style="fill:#67a9cf" />
+     style="fill:#72e0e0;fill-opacity:1" />
   <rect
      width="7"
      height="0"
      x="665.72089"
-     y="90.99176"
+     y="90.992188"
      id="rect118"
      style="fill:#ef8a62" />
   <rect
      width="7"
      height="37.200001"
      x="477.72089"
-     y="90.99176"
+     y="90.992188"
      id="rect120"
-     style="fill:#67a9cf" />
+     style="fill:#72e0e0;fill-opacity:1" />
   <rect
      width="7"
      height="0"
      x="763.24908"
-     y="115.79181"
+     y="115.79199"
      id="rect124"
      style="fill:#ef8a62" />
   <rect
      width="7"
      height="12.4"
      x="575.24908"
-     y="115.79181"
+     y="115.79199"
      id="rect126"
-     style="fill:#67a9cf" />
+     style="fill:#72e0e0;fill-opacity:1" />
   <text
      x="226.90411"
-     y="98.191772"
+     y="98.191406"
      id="text128"
      style="font-weight:bold;text-anchor:end;display:block">getLedgerManagerFactoryClass()</text>
   <flowRoot
