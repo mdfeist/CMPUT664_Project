@@ -1,22 +1,14 @@
-% As a general rule, do not put math, special symbols or citations
-% in the abstract
+% === above this line ===
+% preamble
+% begin document
+% maketitle
+
 \begin{abstract}
-What is a developer's contribution to a repository? By only counting commits and number of lines changed, existing tools that analyze source code repositories fall short on showing the effective contributions made by each developer. When many commits are viewed as a group, the details are lost. Commit information can be misleading since lines of code give no indication of what was actually being worked on without careful examination of the changed code. Providing a semantic view of this information could provide deeper insights into how software projects evolve since changes to design and features are not clearly visible from line changes alone. We present TypeV: a method for visualizing Java source code repositories. Instead of counting line changes in a commit we extract detailed type information over time by using the differences between abstract syntax trees (ASTs). We are then able to track the additions and deletions of declarations and invocations for each type. Furthermore, we can track each author's type usage over time. Using this tool we examine specific cases in well-known repositories where our tool reveals interesting and useful information. We then compare type coverage information from the AST compared to file coverage to determine if unique information is provided by type information. 
+What is a developer's contribution to a repository? By only counting commits and number of lines changed, existing tools that analyze source code repositories fall short on showing the effective contributions made by each developer. When many commits are viewed as a group, the details are lost. Commit information can be misleading since lines of code give no indication of what was actually being worked on without careful examination of the changed code. Providing a semantic view of this information could provide deeper insights into how software projects evolve since changes to design and features are not clearly visible from line changes alone. We present TypeV: a method for visualizing Java source code repositories. Instead of counting line changes in a commit we extract detailed type information over time by using the differences between abstract syntax trees (ASTs). We are then able to track the additions and deletions of declarations and invocations for each type. Furthermore, we can track each author's type usage over time. Using TypeV, we examine specific cases in well-known repositories where our tool reveals interesting and useful information. We then compare type coverage information from the AST compared to file coverage to determine if unique information is provided by type information.
 \end{abstract}
 
 % no keywords
 
-
-
-
-% For peer review papers, you can put extra information on the cover
-% page as needed:
-% \ifCLASSOPTIONpeerreview
-% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
-% \fi
-%
-% For peerreview papers, this IEEEtran command inserts a page break and
-% creates the second title. It will be ignored for other modes.
 \IEEEpeerreviewmaketitle
 
 \begin{figure*}[!t]
@@ -93,9 +85,9 @@ The GitHub tools have the strength that they do not rely on what type of code is
 \label{fig:context}
 \end{figure}
 
-The core of our analysis is calculating the differences between abstract syntax trees of subsequent commits (Figure~\ref{fig:context}).
+Given a Git repository, we want to extract per-author type evolution over time. We accomplished this by computing the differences between abstract syntax trees of subsequent commits (Figure~\ref{fig:context}).
 
-An \emph{abstract syntax tree} (AST) is a data structure derived from source code by breaking its syntactic constructs into a tree. Each node in the tree represents a syntactically valid chunk of code. This captures the structure of the code in an abstract and tractable manner. Converting raw source text to an AST is often one of the first steps performed by compilers. When a programmer changes code in a file, the difference will appear in the AST. This means that the AST of revisions in code repositories can be compared to see what structures a programmer is modifying.
+An \emph{abstract syntax tree} (AST) is a data structure derived from source code that breaks its syntactic constructs into a tree. Each node in the tree represents a syntactically valid chunk of code. This captures the structure of the code in an abstract and tractable manner. Converting raw source text to an AST is often one of the first steps performed by compilers. When a programmer makes a non-trivial change in code in a file, that difference will be reflected in the AST. This means that the AST of revisions in code repositories can be compared to see what structures a programmer is modifying.
 
 The Java ASTs in our analysis were generated using Spoon~\cite{pawlak:hal-01169705}. Spoon is a tool for transforming and analyzing Java source code. It breaks code up into a meta-model including the AST itself. The model consists of three parts: structural elements, code elements and references to program elements. According to Spoon's authors: ''The structural part contains the declarations of the program elements, such as interface, class, variable, method, annotation, and enum declarations.  The code part contains the executable Java code, such as the one found in method bodies. The reference part models the references to program elements (for instance a reference to a type)''~\cite{pawlak:hal-01169705}. The Spoon model is convenient because it provides the infrastructure for performing AST differencing (described later) while retaining the code elements (such as type information) for analysis afterwards. Spoon also preserves all type and package (library) information, information vital to our semantic analysis.
 
@@ -155,6 +147,40 @@ One issue with analyzing individual authors is that authors can commit from a va
 
 To allow for a more detailed analysis of a specific component of the repository we added some basic filtering tools. First a user can filter by type name. Second the user can view changes that fall within a specific start and end date. Third the user can specify the time span represented by each bar: hour, day, week, or month. Finally, the user can choose to see only declarations of types, types used in declarations and invocations, or only invocations.
 
+\section{Evaluation}
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Comparison of Type Coverage and File Coverage in Projects}
+\label{tab:summary}
+\centering
+\begin{tabular}{c|ccc}
+\hline
+\bfseries Project & \bfseries Wilcoxon& \bfseries Pearson (linear) & \bfseries Spearman (rank) \\
+& $p$-value & Correlation & Correlation \\
+\hline
+antlr4 & $p\ll0.01$ & 0.943 & 0.907\\
+bookkeeper & $0.313$ & 0.984 & 0.972\\
+curator & $0.007$ & 0.975 & 0.980\\
+tika & $0.653$ & 0.955 & 0.998\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\columnwidth]{antlr-density}
+\caption{}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\columnwidth]{tika-density}
+\caption{}
+\end{figure}
+
+The information regarding which types are used in each change is unique to the AST diff method, so it will be useful to see how changes affect the types in a project rather than just the files involved in a diff. We define type coverage as the number of types that have been touched out of the total number of types during either a certain time period or the entire project. File coverage is the same measurement, but using the number of source files instead. To determine if type coverage gives different information than file coverage, we analyzed four popular Java projects: Antlr, Apache Bookkeeper, Apache Curator and Apache Tika. We counted the file coverage and type coverage on a commit-by-commit basis. That is, each datum represents a commit with three dimensions: file coverage and type coverage, and its commit date. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the data provided. In general, all measures are strongly correlated, both for Pearson (linear) correlation, and Spearman (rank) correlation. As type coverage and file coverage are both cumulative measures, positive correlation is expected. However, even when the distributions are significantly different (as with Antlr and Curator), the correlation is still strongly positive, but not 100\%. This means that when the coverage for types and files of a commit increase, the relationship is not necessarily 1-to-1. This is remarkable in a language like Java, a classes and files are generally in a 1-to-1 relationship.We conclude from this that type coverage yields related, yet different information than file coverage alone.
+
 \section{Case Study}
 
 In the following sections we present case studies demonstrating the extra insight that the TypeV method makes available.
@@ -196,45 +222,12 @@ For deprecation analysis, we chose Apache Bookkeeper. As an Apache Foundation pr
 
 Apache Bookkeeper deprecated the method AbstractConfiguration.getLedgerManagerType() in release 4.2.0\footnote{\url{https://bookkeeper.apache.org/docs/r4.2.0/apidocs/deprecated-list.html}} and replaced it with AbstractConfiguration.getLedgerManagerFactoryClass(). If we look at getLedgerManagerType() we can see at the time of the start of the deprecation all instances were removed and getLedgerManagerFactoryClass() was added (Figure~\ref{fig:bookkeeper-depr}). After the deprecation, we see no more changes to getLedgerManagerType() and only some additions of getLedgerManagerFactoryClass().
 
-\section{Evaluation}
-
-\begin{table}[!t]
-\renewcommand{\arraystretch}{1.3}
-\caption{Comparison of Type Coverage and File Coverage in Projects}
-\label{tab:summary}
-\centering
-\begin{tabular}{c|ccc}
-\hline
-\bfseries Project & \bfseries Wilcoxon& \bfseries Pearson (linear) & \bfseries Spearman (rank) \\
-& p-value & Correlation & Correlation \\
-\hline
-antlr4 & p$\ll$0.01 & 0.943 & 0.907\\
-bookkeeper & 0.313 & 0.984 & 0.972\\
-curator & 0.007 & 0.975 & 0.980\\
-tika & 0.653 & 0.955 & 0.998\\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=\columnwidth]{antlr-density}
-\caption{}
-\end{figure}
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=\columnwidth]{tika-density}
-\caption{}
-\end{figure}
-
-The information regarding which types are used in each change is unique to the AST diff method, so it will be useful to see how changes affect the types in a project rather than just the files involved in a diff. We define type coverage as the number of types that have been touched out of the total number of types during either a certain time period or the entire project. File coverage is the same measurement, but using the number of source files instead. To determine if type coverage gives different information than file coverage, we analyzed four popular Java projects: Antlr, Apache Bookkeeper, Apache Curator and Apache Tika. We counted the file coverage and type coverage on a commit-by-commit basis. That is, each datum represents a commit with three dimensions: file coverage and type coverage, and its commit date. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the data provided. In general, all measures are strongly correlated, both for Pearson (linear) correlation, and Spearman (rank) correlation. As type coverage and file coverage are both cumulative measures, positive correlation is expected. However, even when the distributions are significantly different (as with Antlr and Curator), the correlation is still strongly positive, but not 100\%. This means that when the coverage for types and files of a commit increase, the relationship is not necessarily 1-to-1. This is remarkable in a language like Java, a classes and files are generally in a 1-to-1 relationship.We conclude from this that type coverage yields related, yet different information than file coverage alone.
 
 \section{Discussion}
 
 When managing group projects in an introductory software engineering course, it is very important to be able to see the contributions that students are making to the group repository to judge learning, progress and collaboration. When supervising 4-5 groups of students, it becomes unfeasible to look through all of the commits of each student. Students may take the wrong approach in a certain piece of code which becomes ingrained in the project and very difficult to change. Many groups have problems with group members who do not complete their assigned work or make contributions which end up being meaningless. Issues like this can be difficult to detect and prevent. As a manager, having a tool like TypeV allows one to quickly summarize the work done by each group member, organized by the types they have been working on. This can show when intervention or guidance is required, without the large time commitment of looking through commits.
 
-The purpose of deprecated software features is to give developers time to change projects to follow a new or better standard without breaking the code. Deprecated features can be marked for removal from a project or have some flaw that would make a different feature the better option. Given the time at which a feature was deprecated, seeing the progress of replacement has some important implications. In the case of a security flaw, that time could indicated times at which systems or users were vulnerable. If a feature is marked for removal, a project using a deprecated type has a limited amount of time to make the changes. Removing all instances of deprecated features could also mean a project can be upgraded to use new tools or features that were not possible while the deprecated features were present.  Here we show examples where deprecated classes were removed f
+The purpose of deprecated software features is to give developers time to change projects to follow a new or better standard without breaking the code. Deprecated features can be marked for removal from a project or have some flaw that would make a different feature the better option. Given the time at which a feature was deprecated, seeing the progress of replacement has some important implications. In the case of a security flaw, that time could indicated times at which systems or users were vulnerable. If a feature is marked for removal, a project using a deprecated type has a limited amount of time to make the changes. Removing all instances of deprecated features could also mean a project can be upgraded to use new tools or features that were not possible while the deprecated features were present.  Here we show examples where deprecated classes were removed.
 
 Bug triaging for large open source projects is a very time consuming task, with hundreds  of bugs being reported daily. Each bug must be processed and assigned to a developer that has the experience required to fix the bug. In order to be effective, the triager has to have knowledge of what each developer has worked on as well as the parts of the code may be affected by the bugs. Being able to directly see what types a developer has worked with over time is important information for triaging. If the type causing the bug is known, the developers which have recently used that type can be assigned the bug. The commit messages for the affected types are also visible, providing greater context about how the type has been used. The developer who is assigned the bug can also use type information to locate other affected pieces of code and know which developers have been using the affected types.
 
@@ -252,7 +245,7 @@ Currently, we treat every instance of a generic type as a different type. For ex
 
 Currently we are only looking at declaration of types and invocation of methods; it would be useful to also view what classes changes are being made to. Enabling this ability would also enable analysis of self-invocations.
 
-The methodology used in TypeV is only well-defined for statically-typed languages such as Haskell and Java. Dynamically-typed languages like Erlang and JavaScript. However, type annotation systems such as TypEr for Erlang~\cite{typer} or statically-typed language dialects such as TypeScript for JavaScript may prove to be sufficient to enable type analysis as we have demonstrated for Java. 
+The methodology used in TypeV is only well-defined for statically-typed languages such as Haskell or Java; it is not well defined for dynamically-typed languages such as Erlang or JavaScript. However, type annotation systems such as TypEr for Erlang~\cite{typer} or statically-typed language dialects such as TypeScript for JavaScript may prove to be sufficient to enable type analysis as we have demonstrated for Java.
 
 \section{Conclusion}
 
@@ -265,10 +258,6 @@ RQ2: The evolution of a project and developer activity can be seen through the c
 RQ3: Type coverage and file coverage are found to be highly correlated but do not always have the same distribution or a one to one ratio as might be expected in Java.
 
 
-
-% conference papers do not normally have an appendix
-
-
-% use section* for acknowledgment
-%\section*{Acknowledgment}
-%The authors would like to thank...
+% === Below this line ===
+% bibliography
+% end document
