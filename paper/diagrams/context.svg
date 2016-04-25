@@ -304,13 +304,13 @@
      id="namedview36"
      showgrid="false"
      units="in"
-     inkscape:zoom="2"
-     inkscape:cx="127.79318"
-     inkscape:cy="355.93855"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="125.14462"
+     inkscape:cy="184.17819"
      inkscape:window-x="3"
-     inkscape:window-y="0"
+     inkscape:window-y="224"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="g4075" />
   <style
      type="text/css"
      id="style4">
@@ -822,11 +822,11 @@ svg.time-axis {
          sodipodi:cy="193.76529"
          sodipodi:cx="87.286064"
          id="path3923"
-         style="color:#000000;fill:#998ec3;fill-opacity:1;stroke:none;stroke-width:1.77165353000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         style="color:#000000;fill:#72e0e0;fill-opacity:1;stroke:none;stroke-width:1.77165353000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          sodipodi:type="arc" />
       <text
          xml:space="preserve"
-         style="font-size:6.31912850999999964px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+         style="font-size:6.31912850999999964px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#1a1a1a;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
          x="29.089003"
          y="262.34125"
          id="text3925"
@@ -835,7 +835,7 @@ svg.time-axis {
            x="29.089003"
            id="tspan3927"
            sodipodi:role="line">Declare: <tspan
-   style="font-weight:normal;fill:#ffffff;-inkscape-font-specification:Arial"
+   style="font-weight:normal;fill:#1a1a1a;-inkscape-font-specification:Arial"
    id="tspan3939">String</tspan></tspan></text>
     </g>
     <g
@@ -867,7 +867,7 @@ svg.time-axis {
        id="text4123"
        y="256.86499"
        x="6.014122"
-       style="font-size:20.21703720000000004px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#998ec3;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+       style="font-size:20.21703720000000004px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#72e0e0;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          y="256.86499"
          x="6.014122"
@@ -932,7 +932,7 @@ svg.time-axis {
        id="g4126">
       <path
          sodipodi:type="arc"
-         style="color:#000000;fill:#f1a340;fill-opacity:1;stroke:none;stroke-width:1.77165353000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         style="color:#000000;fill:#bb4466;fill-opacity:1;stroke:none;stroke-width:1.77165353000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="path3982"
          sodipodi:cx="87.286064"
          sodipodi:cy="193.76529"
@@ -984,7 +984,7 @@ svg.time-axis {
          id="g4120">
         <path
            sodipodi:type="arc"
-           style="color:#000000;fill:#998ec3;fill-opacity:1;stroke:none;stroke-width:1.77165353000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           style="color:#000000;fill:#72e0e0;fill-opacity:1;stroke:none;stroke-width:1.77165353000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
            id="path3996"
            sodipodi:cx="87.286064"
            sodipodi:cy="193.76529"
@@ -997,19 +997,19 @@ svg.time-axis {
            id="text3998"
            y="262.34125"
            x="235.10939"
-           style="font-size:6.31912850999999964px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+           style="font-size:6.31912850999999964px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#1a1a1a;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
            xml:space="preserve"><tspan
              sodipodi:role="line"
              id="tspan4000"
              x="235.10939"
              y="262.34125">Declare: <tspan
-   style="font-weight:normal;-inkscape-font-specification:Arial;fill:#ffffff"
+   style="font-weight:normal;-inkscape-font-specification:Arial;fill:#1a1a1a"
    id="tspan4004">URI</tspan></tspan></text>
       </g>
     </g>
     <text
        xml:space="preserve"
-       style="font-size:20.21703720000000004px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#998ec3;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+       style="font-size:20.21703720000000004px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#72e0e0;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        x="211.83607"
        y="256.86499"
        id="text4127"
@@ -1023,7 +1023,7 @@ svg.time-axis {
        id="text4131"
        y="256.86499"
        x="150.47018"
-       style="font-size:20.21703720000000004px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#f1a340;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+       style="font-size:20.21703720000000004px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#bb4466;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          y="256.86499"
          x="150.47018"
@@ -1054,7 +1054,7 @@ svg.time-axis {
          id="rect32"
          x="162.75768"
          y="403.34631"
-         style="fill:#998ec3;fill-opacity:1" />
+         style="fill:#72e0e0;fill-opacity:1" />
       <text
          style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:end;line-height:125%;writing-mode:lr-tb;text-anchor:end;font-family:Arial Unicode MS;-inkscape-font-specification:Arial Unicode MS Bold"
          id="text34"
@@ -1091,7 +1091,7 @@ svg.time-axis {
          id="rect12"
          x="162.75768"
          y="355.18765"
-         style="fill:#f1a340;fill-opacity:1" />
+         style="fill:#bb4466;fill-opacity:1" />
       <rect
          class="ast-additions"
          height="46.653694"
@@ -1099,7 +1099,7 @@ svg.time-axis {
          id="rect20"
          x="135.42357"
          y="355.18765"
-         style="fill:#998ec3;fill-opacity:1" />
+         style="fill:#72e0e0;fill-opacity:1" />
       <text
          style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:end;line-height:125%;writing-mode:lr-tb;text-anchor:end;font-family:Arial Unicode MS;-inkscape-font-specification:Arial Unicode MS Bold"
          id="text22"
