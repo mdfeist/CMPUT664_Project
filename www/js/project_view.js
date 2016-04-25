@@ -39,9 +39,10 @@ export function createTable(data, filter) {
   return createTable2(filter);
 }
 
-window.createTable = createTable;
-
-function createTable2(filter) {
+/**
+ * Draw table given filter.
+ */
+export function createTable2(filter) {
   /* Plop this in dna-table div */
   var dnaTable = document.getElementById('dna-table');
 

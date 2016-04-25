@@ -19,12 +19,13 @@ module.exports = {
         ],
         /* Prefer single quotes, but forgive double quotes. */
         "quotes": [
-            "warn",
-            "single",
-            {
-                "avoidEscape": true,
-                "allowTemplateLiterals": true
-            }
+            0,
+            //"warn",
+            //"single",
+            //{
+            //    "avoidEscape": true,
+            //    "allowTemplateLiterals": true
+            //}
         ],
         /* ALWAYS use semicolons! */
         "semi": [
