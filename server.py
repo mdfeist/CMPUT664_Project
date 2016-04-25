@@ -461,15 +461,14 @@ def root():
 def dashboard():
     return render_template('projects.html', projects=projects)
 
-@app.route('/projects/<path:path>')
-def show_project(path):
-    name = path.replace('/','')
+@app.route('/projects/<name>/')
+def show_project(name):
     for project in projects:
         if (project.getDir() == name):
            return render_template('project_view.html', authors=list(project.getAuthors()))
-    return name
+    return 'Project not found', 404
 
-@app.route('/projects/<path:path>/get_project')
+@app.route('/projects/<path>/get_project')
 def get_project(path):
     #query_string = request.query_string
     query_type = request.args.get('type')
@@ -483,7 +482,25 @@ def get_project(path):
             options.ignore_large_commits = False
             return project.getJSON(options)
 
-    return ""
+    # Could not find project :/
+    return 'Project not found', 404
+
+
+@app.route('/projects/<path>/fdg')
+def force_directed_graph(path):
+    query_type = 'Types'
+
+    for project in projects:
+        if (project.getDir() == path):
+            options = attrdict()
+            options.get = "Project"
+            options.types = query_type
+            options.ignore_large_commits = False
+            data = project.getJSON(options)
+            return render_template('temporary_fdg.html', data=data)
+
+    return 'Project not found', 404
+
 
 @app.before_first_request
 def _run_on_start():

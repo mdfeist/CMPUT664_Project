@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- Temporary demo of force directed graph. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>[Experiment] Force Directed Graph</title>
+  <link rel="stylesheet" href="/css/graph-styles.css" rel="stylesheet" media="all">
+
+<!-- HTML styles -->
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: sans-serif;
+}
+#loading-indicator {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  z-index: 10;
+  background-color: #eee;
+  align-items: center;
+  justify-content: center;
+}
+#loading-indicator > span {
+  font-size: 144pt;
+  color: #333;
+}
+</style>
+
+<!-- SVG styles -->
+<style>
+.node {
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+</style>
+
+  <script src="/js/lib/d3.v3.min.js"></script>
+  <script src="/js/lib/moment.min.js"></script>
+  <script src="/js/lib/traceur.js"></script>
+  <script src="/js/lib/es6-module-loader-dev.js"></script>
+</head>
+<body>
+  <div id="loading-indicator">
+    <span>Loading...</span>
+  </div>
+
+  <div id="figure">
+  </div>
+
+  <p><a href="javascript:(function () { var e = document.createElement('script'); e.setAttribute('src', 'https://nytimes.github.io/svg-crowbar/svg-crowbar-2.js'); e.setAttribute('class', 'svg-crowbar'); document.body.appendChild(e); })();"> Extract SVG </a></p>
+
+  <script>
+    window.DATA = {{ data | safe }};
+  </script>
+  <script type="module">
+    import fdg from "/js/fdg.js";
+    setTimeout(fdg, 0);
+  </script>
+</body>
+</html>
