@@ -8,11 +8,12 @@ const VALID_STEP_SIZES = ['hour', 'day', 'month', 'week'];
 
 export default class DataView {
   constructor({types, timeslices, typesPresent, authorStats, astDiffs,
-              typesOverall, filesOverall}) {
+              typesOverall, filesOverall, commits}) {
     this.types = types;
     this.timeslices = timeslices;
     this.typesPresent = typesPresent;
     this.authorStats = authorStats;
+    this.commits = commits;
     this.astDiffs = astDiffs;
     this.typesOverall = typesOverall;
     this.filesOverall = filesOverall;
@@ -74,6 +75,10 @@ export default class DataView {
 
   get numberOfColumns() {
     return this.timeslices.length;
+  }
+
+  get numberOfCommits() {
+    return Object.keys(this.commits).length;
   }
 }
 
@@ -212,6 +217,7 @@ function filterTypes(data, filters) {
   return {
     /* Filtered types. */
     types,
+    commits: data.commits,
     typesPresent,
     timeslices,
     authorStats: authorMap,

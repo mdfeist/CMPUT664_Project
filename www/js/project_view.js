@@ -72,6 +72,11 @@ function drawGraph(data, width) {
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
 
+  /* XXX: Sneak in a little info about the project. */
+  d3.select('body').append('pre')
+    .text(summary(data))
+    .style('display', 'none');
+
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
     .domain(data.types.map(type => type.fullyQualifiedName ))
@@ -509,6 +514,10 @@ function ensureAxisIsAtGraphBottom(graph, axis) {
   } else {
     axis.classList.add('axis-floating');
   }
+}
+
+function summary({numberOfCommits, authors, numberOfFiles, numberOfTypes, astDiffs}) {
+  return `project & ${numberOfCommits} & ${authors.length} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
 }
 
 /**
