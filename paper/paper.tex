@@ -16,7 +16,23 @@
 \usepackage[hyphenbreaks]{breakurl}
 \def\UrlBreaks{\do\/\do-}
 
+% For source code listings.
 \usepackage{listings}
+\lstset{language=Java}
+
+% For the Hassanbox
+%\usepackage{framed}
+
+% For colours
+\usepackage{xcolor}
+\definecolor{additionscol}{HTML}{72E0E0}
+\definecolor{deletionscol}{HTML}{BB4466}
+
+\newcommand\crule[3][black]{\textcolor{#1}{\rule{#2}{#3}}}
+
+\newcommand\additionsbox[1]{\crule[additionscol]{#1}{#1}}
+\newcommand\deletionsbox[1]{\crule[deletionscol]{#1}{#1}}
+
 
 
 % Some very useful LaTeX packages include:
