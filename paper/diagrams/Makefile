@@ -1,9 +1,10 @@
 DIAGRAMS = Antlr4-GH-Lines-ParserATNSimulator \
 		   antlr4-code-freq \
 		   antlr-density \
+		   bookkeeper_dep \
 		   commits_view \
 		   context \
-		   bookkeeper_dep \
+		   ParserATNSimulator \
 		   tika-density
 
 

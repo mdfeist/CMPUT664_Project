@@ -7,26 +7,26 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.48.4 r9939"
+   class="main-figure"
    width="450"
    height="65.699997"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="ParserATNSimulator.svg">
   <metadata
-     id="metadata14">
+     id="metadata368">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs12" />
+     id="defs366" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -36,406 +36,542 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1247"
-     inkscape:window-height="1388"
-     id="namedview10"
+     inkscape:window-width="1255"
+     inkscape:window-height="758"
+     id="namedview364"
      showgrid="false"
      units="in"
-     inkscape:zoom="0.90509668"
-     inkscape:cx="189.40834"
-     inkscape:cy="158.3804"
-     inkscape:window-x="65"
-     inkscape:window-y="24"
+     inkscape:zoom="2.55625"
+     inkscape:cx="178.81327"
+     inkscape:cy="41.477139"
+     inkscape:window-x="0"
+     inkscape:window-y="224"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer2" />
-  <text
-     xml:space="preserve"
-     style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-     x="17.279251"
-     y="94.68438"
-     id="text3002"
-     sodipodi:linespacing="125%"><tspan
-       sodipodi:role="line"
-       id="tspan3004"
-       x="17.279251"
-       y="94.68438" /></text>
+     inkscape:current-layer="svg2" />
   <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer#1"
-     style="display:inline"
-     transform="translate(0,-986.65975)">
+     class="row"
+     id="g4"
+     transform="matrix(1.0139092,0,0,1.0139092,-4.8794381,2.8376284)">
     <g
-       class="row"
-       transform="translate(-20.89071,989.46383)"
-       id="g4660">
+       id="g3345"
+       transform="matrix(0.26428249,0,0,1,110.35763,0)">
       <rect
          y="0"
-         x="157.03125"
-         width="309.57562"
+         id="rect6"
+         style="fill:#fafafa"
          height="62"
-         style="fill:#f4f4f4"
-         id="rect4662" />
-      <rect
-         style="fill:#67a9cf;fill-opacity:1"
-         id="rect4666"
-         height="0"
-         width="5"
-         class="ast-deletions"
-         x="262.90375"
-         y="50.591999" />
-      <rect
-         style="fill:#67a9cf;fill-opacity:1"
-         id="rect4668"
-         height="11.408"
-         width="5"
-         class="ast-additions"
-         x="262.90375"
-         y="50.591999" />
-      <rect
-         id="rect4672"
-         height="3.9679999"
-         width="5"
-         class="ast-deletions"
-         x="266.31067"
-         y="54.063999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         style="fill:#67a9cf;fill-opacity:1"
-         id="rect4674"
-         height="3.9679999"
-         width="5"
-         class="ast-additions"
-         x="266.31067"
-         y="58.032001" />
-      <rect
-         style="fill:#67a9cf;fill-opacity:1"
-         id="rect4678"
-         height="0.99199998"
-         width="5"
-         class="ast-deletions"
-         x="269.71756"
-         y="57.040001" />
-      <rect
-         style="fill:#67a9cf;fill-opacity:1"
-         id="rect4680"
-         height="3.9679999"
-         width="5"
-         class="ast-additions"
-         x="269.71756"
-         y="58.032001" />
-      <rect
-         id="rect4684"
-         height="1.984"
-         width="5"
-         class="ast-deletions"
-         x="276.53134"
-         y="56.543999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         style="fill:#67a9cf;fill-opacity:1"
-         id="rect4686"
-         height="3.4719999"
-         width="5"
-         class="ast-additions"
-         x="276.53134"
-         y="58.528" />
-      <rect
-         id="rect4690"
-         height="3.9679999"
-         width="5"
-         class="ast-deletions"
-         x="286.75204"
-         y="54.063999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4692"
-         height="3.9679999"
-         width="5"
-         class="ast-additions"
-         x="286.75204"
-         y="58.032001"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4696"
-         height="3.9679999"
-         width="5"
-         class="ast-deletions"
-         x="296.97272"
-         y="52.080002"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4698"
-         height="5.9520001"
-         width="5"
-         class="ast-additions"
-         x="296.97272"
-         y="56.048"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4702"
-         height="2.9760001"
-         width="5"
-         class="ast-deletions"
-         x="300.37961"
-         y="55.551998"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4704"
-         height="3.4719999"
-         width="5"
-         class="ast-additions"
-         x="300.37961"
-         y="58.528"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4708"
-         height="4.4640002"
-         width="5"
-         class="ast-deletions"
-         x="303.7865"
-         y="53.071999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4710"
-         height="4.4640002"
-         width="5"
-         class="ast-additions"
-         x="303.7865"
-         y="57.535999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4714"
-         height="4.96"
-         width="5"
-         class="ast-deletions"
-         x="310.60031"
-         y="51.584"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4716"
-         height="5.4559999"
-         width="5"
-         class="ast-additions"
-         x="310.60031"
-         y="56.543999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4720"
-         height="4.4640002"
-         width="5"
-         class="ast-deletions"
-         x="324.24817"
-         y="52.576"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4722"
-         height="4.96"
-         width="5"
-         class="ast-additions"
-         x="324.24817"
-         y="57.040001"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4726"
-         height="27.775999"
-         width="5"
-         class="ast-deletions"
-         x="327.65506"
-         y="0.49599999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4728"
-         height="33.728001"
-         width="5"
-         class="ast-additions"
-         x="327.65506"
-         y="28.271999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4732"
-         height="4.96"
-         width="5"
-         class="ast-deletions"
-         x="331.06195"
-         y="50.096001"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4734"
-         height="6.9439998"
-         width="5"
-         class="ast-additions"
-         x="331.06195"
-         y="55.056"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4738"
-         height="28.271999"
-         width="5"
-         class="ast-deletions"
-         x="334.46884"
-         y="0"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4740"
-         height="33.728001"
-         width="5"
-         class="ast-additions"
-         x="334.46884"
-         y="28.271999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4744"
-         height="1.488"
-         width="5"
-         class="ast-deletions"
-         x="337.87573"
-         y="59.023998"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4746"
-         height="1.488"
-         width="5"
-         class="ast-additions"
-         x="337.87573"
-         y="60.512001"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4750"
-         height="0.49599999"
-         width="5"
-         class="ast-deletions"
-         x="341.28262"
-         y="61.504002"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4752"
-         height="0"
-         width="5"
-         class="ast-additions"
-         x="341.28262"
-         y="62" />
-      <rect
-         id="rect4756"
-         height="0"
-         width="5"
-         class="ast-deletions"
-         x="361.724"
-         y="44.639999" />
-      <rect
-         id="rect4758"
-         height="17.360001"
-         width="5"
-         class="ast-additions"
-         x="361.724"
-         y="44.639999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4762"
-         height="4.96"
-         width="5"
-         class="ast-deletions"
-         x="365.13089"
-         y="50.591999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4764"
-         height="6.448"
-         width="5"
-         class="ast-additions"
-         x="365.13089"
-         y="55.551998"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4768"
-         height="0.49599999"
-         width="5"
-         class="ast-deletions"
-         x="368.53778"
-         y="61.504002"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4770"
-         height="0"
-         width="5"
-         class="ast-additions"
-         x="368.53778"
-         y="62" />
-      <rect
-         id="rect4774"
-         height="4.4640002"
-         width="5"
-         class="ast-deletions"
-         x="378.75848"
-         y="53.071999"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4776"
-         height="4.4640002"
-         width="5"
-         class="ast-additions"
-         x="378.75848"
-         y="57.535999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4780"
-         height="0.99199998"
-         width="5"
-         class="ast-deletions"
-         x="382.14511"
-         y="59.023998"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4782"
-         height="1.984"
-         width="5"
-         class="ast-additions"
-         x="382.14511"
-         y="60.015999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4786"
-         height="1.488"
-         width="5"
-         class="ast-deletions"
-         x="385.552"
-         y="59.52"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4788"
-         height="0.99199998"
-         width="5"
-         class="ast-additions"
-         x="385.552"
-         y="61.007999"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <rect
-         id="rect4792"
-         height="2.9760001"
-         width="5"
-         class="ast-deletions"
-         x="388.95889"
-         y="56.048"
-         style="fill:#ef8a62;fill-opacity:1" />
-      <rect
-         id="rect4794"
-         height="2.9760001"
-         width="5"
-         class="ast-additions"
-         x="388.95889"
-         y="59.023998"
-         style="fill:#67a9cf;fill-opacity:1" />
-      <text
-         style="text-anchor:end"
-         class="type-title"
-         y="32"
-         dy="0"
-         x="146"
-         id="text4886">
-        <tspan
-           style="font-weight:bold;letter-spacing:-0.69px;-inkscape-font-specification:Sans Bold"
-           id="tspan3470">ParserATNSimulator</tspan>
-      </text>
+         width="1130"
+         x="150" />
+      <g
+         id="g8"
+         transform="translate(601.94234,50.859375)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect10"
+           style="fill:#bb4466"
+           height="0"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect12"
+           style="fill:#72e0e0"
+           height="11.140625"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g14"
+         transform="translate(618.08657,58.125)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect16"
+           style="fill:#bb4466"
+           height="1.9375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect18"
+           style="fill:#72e0e0"
+           height="1.9375"
+           transform="translate(0,1.9375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g20"
+         transform="translate(634.2308,53.765625)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect22"
+           style="fill:#bb4466"
+           height="2.90625"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect24"
+           style="fill:#72e0e0"
+           height="5.328125"
+           transform="translate(0,2.90625)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g26"
+         transform="translate(650.37503,61.515625)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect28"
+           style="fill:#bb4466"
+           height="0"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect30"
+           style="fill:#72e0e0"
+           height="0.484375"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g32"
+         transform="translate(666.51926,56.671875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect34"
+           style="fill:#bb4466"
+           height="1.9375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect36"
+           style="fill:#72e0e0"
+           height="3.390625"
+           transform="translate(0,1.9375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g38"
+         transform="translate(714.95195,54.25)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect40"
+           style="fill:#bb4466"
+           height="3.875"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect42"
+           style="fill:#72e0e0"
+           height="3.875"
+           transform="translate(0,3.875)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g44"
+         transform="translate(763.38464,52.3125)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect46"
+           style="fill:#bb4466"
+           height="3.875"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect48"
+           style="fill:#72e0e0"
+           height="5.8125"
+           transform="translate(0,3.875)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g50"
+         transform="translate(779.52887,55.703125)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect52"
+           style="fill:#bb4466"
+           height="2.90625"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect54"
+           style="fill:#72e0e0"
+           height="3.390625"
+           transform="translate(0,2.90625)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g56"
+         transform="translate(795.6731,53.28125)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect58"
+           style="fill:#bb4466"
+           height="4.359375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect60"
+           style="fill:#72e0e0"
+           height="4.359375"
+           transform="translate(0,4.359375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g62"
+         transform="translate(827.96156,51.828125)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect64"
+           style="fill:#bb4466"
+           height="4.84375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect66"
+           style="fill:#72e0e0"
+           height="5.328125"
+           transform="translate(0,4.84375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g68"
+         transform="translate(892.63458,52.796875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect70"
+           style="fill:#bb4466"
+           height="4.359375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect72"
+           style="fill:#72e0e0"
+           height="4.84375"
+           transform="translate(0,4.359375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g74"
+         transform="translate(908.77881,16.46875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect76"
+           style="fill:#bb4466"
+           height="22.765625"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect78"
+           style="fill:#72e0e0"
+           height="22.765625"
+           transform="translate(0,22.765625)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g80"
+         transform="translate(924.92304,37.296875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect82"
+           style="fill:#bb4466"
+           height="8.71875"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect84"
+           style="fill:#72e0e0"
+           height="15.984375"
+           transform="translate(0,8.71875)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g86"
+         transform="translate(941.06727,0)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect88"
+           style="fill:#bb4466"
+           height="28.09375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect90"
+           style="fill:#72e0e0"
+           height="33.90625"
+           transform="translate(0,28.09375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g92"
+         transform="translate(957.2115,59.09375)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect94"
+           style="fill:#bb4466"
+           height="1.453125"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect96"
+           style="fill:#72e0e0"
+           height="1.453125"
+           transform="translate(0,1.453125)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g98"
+         transform="translate(973.35573,61.515625)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect100"
+           style="fill:#bb4466"
+           height="0.484375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect102"
+           style="fill:#72e0e0"
+           height="0"
+           transform="translate(0,0.484375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g104"
+         transform="translate(1070.2211,45.046875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect106"
+           style="fill:#bb4466"
+           height="0"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect108"
+           style="fill:#72e0e0"
+           height="16.953125"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g110"
+         transform="translate(1086.3653,50.859375)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect112"
+           style="fill:#bb4466"
+           height="4.84375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect114"
+           style="fill:#72e0e0"
+           height="6.296875"
+           transform="translate(0,4.84375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g116"
+         transform="translate(1118.6538,61.515625)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect118"
+           style="fill:#bb4466"
+           height="0.484375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect120"
+           style="fill:#72e0e0"
+           height="0"
+           transform="translate(0,0.484375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g122"
+         transform="translate(1150.9423,57.15625)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect124"
+           style="fill:#bb4466"
+           height="2.421875"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect126"
+           style="fill:#72e0e0"
+           height="2.421875"
+           transform="translate(0,2.421875)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g128"
+         transform="translate(1166.9904,56.671875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect130"
+           style="fill:#bb4466"
+           height="2.421875"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect132"
+           style="fill:#72e0e0"
+           height="2.90625"
+           transform="translate(0,2.421875)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g134"
+         transform="translate(1183.1346,58.125)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect136"
+           style="fill:#bb4466"
+           height="1.9375"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect138"
+           style="fill:#72e0e0"
+           height="1.9375"
+           transform="translate(0,1.9375)"
+           width="18"
+           class="ast-additions" />
+      </g>
+      <g
+         id="g140"
+         transform="translate(1215.4231,56.1875)"
+         class="cell">
+        <rect
+           y="0"
+           x="0"
+           id="rect142"
+           style="fill:#bb4466"
+           height="2.90625"
+           width="18"
+           class="ast-deletions" />
+        <rect
+           y="0"
+           x="0"
+           id="rect144"
+           style="fill:#72e0e0"
+           height="2.90625"
+           transform="translate(0,2.90625)"
+           width="18"
+           class="ast-additions" />
+      </g>
     </g>
+    <text
+       class="type-title"
+       y="32"
+       dy="1.5862176e-37"
+       x="140"
+       style="font-weight:bold;text-anchor:end;display:block"
+       id="text146">ParserATNSimulator</text>
   </g>
 </svg>
