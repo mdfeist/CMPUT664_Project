@@ -4,6 +4,7 @@ DIAGRAMS = Antlr4-GH-Lines-ParserATNSimulator \
 		   bookkeeper_dep \
 		   commits_view \
 		   context \
+		   data-extracted \
 		   ParserATNSimulator \
 		   tika-density
 
