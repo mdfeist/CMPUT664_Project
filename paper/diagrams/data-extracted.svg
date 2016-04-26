@@ -44,7 +44,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -103,7 +103,7 @@
          sodipodi:role="line"
          x="31.964581"
          y="809.63544"
-         id="tspan3779">SHA (revision ID):  <tspan
+         id="tspan3779">Commit ID (SHA):  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
    id="tspan3817">cd127f1c2...</tspan></tspan></text>
     <text
