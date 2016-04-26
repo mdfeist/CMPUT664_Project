@@ -170,16 +170,16 @@ Knowing type and author information enables other kinds of visualizations. For e
 \centering
 \caption{Summary of projects used in the evaluation.}
 \label{tab:project-summary}
-\begin{tabular}{c|lllll}
+\begin{tabular}{c|ccccc}
 \hline
-\bfseries Project & \bfseries Commits & \bfseries Authors* & \bfseries Files &   \bfseries Types &  \bfseries  Changes\\
+\bfseries Project & \bfseries Commits & \bfseries Authors & \bfseries Files &   \bfseries Types &  \bfseries  Changes\\
 \hline
 ANTLR4 & 3930 & 27 & 1793 & 2635 & 58425\\
 BookKeeper & 660 & 12 & 758 & 1872 & 31817\\
 Curator & 1524 & 43 & 1211 & 1269 & 27957\\
 Tika & 860 & 10 & 604 & 757 & 20764\\
 \hline
-\multicolumn{6}{p{\linewidth}}{\footnotesize Totals for the four projects we analyzed. ``Changes'' refers to the total number of invocation or declaration changes observed from the AST. Note that the number given for authors may be larger than the actual number of collaborators on the project, due to some collaborators using multiple email address, and thus appearing as more than one author.}
+\multicolumn{6}{p{3.25in}}{\footnotesize Totals for the four projects we analyzed. ``Changes'' refers to the total number of invocation or declaration changes observed from the AST diffs. Note that the number given for authors may be larger than the actual number of collaborators on the project, due to some collaborators using multiple email address, thus appearing as more than one author.}
 \end{tabular}
 \end{table}
 
@@ -271,7 +271,7 @@ Having tools for analyzing repositories based on type usage and method invocatio
 When managing group projects in an introductory software engineering course, it is very important to be able to see the contributions that students are making to the group repository to judge learning, progress, and collaboration. When one of the authors was supervising 4-5 groups of students, it became infeasible to look through all of the commits of each student. Students may take the wrong approach in a certain piece of code that can become ingrained in the project and very difficult to change. Some groups had problems with group members who did not complete their assigned work or made meaningless contributions. Issues like this can be difficult to detect and prevent. TypeV was used by the author to quickly summarize the work done by each group member, organized by the types they had been working on. This can show when intervention or guidance is required, without the large time commitment of pouring through commits.
 
 
-Bug triaging for large open source projects is a very time consuming task \cite{badashian2015}, with hundreds  of bugs being reported daily. Each bug must be processed and assigned to a developer that has the experience required to fix the bug. In order to be effective, the triager has to have knowledge of what each developer has worked on as well as the parts of the code may be affected by the bugs. Being able to directly see what types a developer has worked with over time is important information for triaging. If the type causing the bug is known, the developers which have recently used that type can be assigned the bug. The commit messages for the affected types are also visible, providing greater context about how the type has been used. The developer who is assigned the bug can also use type information to locate other affected pieces of code and know which developers have been using the affected types.
+Bug triaging for large open source projects is a very time consuming task \cite{badashian2015}, with hundreds  of bugs being reported daily. Each bug must be processed and assigned to a developer that has the experience required to fix the bug. In order to be effective, the triager has to have knowledge of what each developer has worked on as well as the parts of the code may be affected by the bugs. With TypeV, the triager is able to directly see what types a developer has worked with over time. This is important information for triaging since the type causing the bug, if known, will have a list of associated developers who have recently used that type and can be assigned the bug. The commit messages for the affected types are also visible, providing greater context about how the type has been used. The assigned developer can also use type information to locate other pieces of code affected by a bug and know which developers have been using the affected types.
 
 \subsection{Threats to Validity}
 
