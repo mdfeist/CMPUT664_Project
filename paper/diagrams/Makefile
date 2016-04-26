@@ -2,6 +2,7 @@ DIAGRAMS = Antlr4-GH-Lines-ParserATNSimulator \
 		   antlr4-code-freq \
 		   antlr-density \
 		   bookkeeper_dep \
+		   chord \
 		   commits_view \
 		   context \
 		   data-extracted \
