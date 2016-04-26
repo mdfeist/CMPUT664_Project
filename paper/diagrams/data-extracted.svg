@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="313.20001"
-   height="302.39999"
+   width="315"
+   height="315"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.5 r10040"
@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="273.20756"
-     inkscape:cy="169.29243"
+     inkscape:cx="129.47497"
+     inkscape:cy="218.24738"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -44,6 +44,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -51,69 +52,69 @@
      inkscape:label="Capa 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-749.95975)">
+     transform="translate(0,-737.35974)">
     <text
        xml:space="preserve"
        style="font-size:11px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        x="10.848633"
-       y="771.7923"
+       y="755.2923"
        id="text2985"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="10.848633"
-         y="771.7923"
+         y="755.2923"
          id="tspan2993">Git Repository</tspan></text>
     <rect
        style="color:#000000;fill:none;stroke:#333333;stroke-width:0.88582677;stroke-opacity:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="rect2997"
-       width="312.31418"
-       height="301.51416"
+       width="314.11417"
+       height="314.11417"
        x="0.44291338"
-       y="750.40265"
+       y="737.80267"
        rx="3.5433068"
-       ry="3.5433071" />
+       ry="3.5433073" />
     <rect
-       ry="3.5433073"
+       ry="3.5433071"
        rx="3.5433068"
-       y="782.07831"
-       x="11.752729"
-       height="258.25275"
-       width="289.69452"
+       y="769.07825"
+       x="11.817912"
+       height="271.25275"
+       width="291.36414"
        id="rect3767"
-       style="color:#000000;fill:none;stroke:#333333;stroke-width:0.88582677;stroke-opacity:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+       style="color:#000000;fill:none;stroke:#333333;stroke-width:0.88582665;stroke-opacity:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     <text
        sodipodi:linespacing="125%"
        id="text3773"
-       y="800.63544"
+       y="790.63544"
        x="21.987337"
        style="font-size:11px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          id="tspan3775"
-         y="800.63544"
+         y="790.63544"
          x="21.987337"
          sodipodi:role="line">Commit</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        x="31.964581"
-       y="819.63544"
+       y="809.63544"
        id="text3777"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="31.964581"
-         y="819.63544"
+         y="809.63544"
          id="tspan3779">SHA (revision ID):  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
    id="tspan3817">cd127f1c2...</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text3781"
-       y="838.63544"
+       y="829.56934"
        x="32.325909"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          id="tspan3783"
-         y="838.63544"
+         y="829.56934"
          x="32.325909"
          sodipodi:role="line">Author:  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
@@ -122,33 +123,33 @@
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        x="31.617901"
-       y="858.63544"
+       y="847.64294"
        id="text3785"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="31.617901"
-         y="858.63544"
+         y="847.64294"
          id="tspan3787">Message:  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
    id="tspan3821">Use StringBuilder </tspan></tspan></text>
     <rect
        style="color:#000000;fill:none;stroke:#333333;stroke-width:0.88582677;stroke-opacity:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="rect3789"
-       width="267.55545"
-       height="135.04562"
-       x="22.822266"
-       y="892.57831"
+       width="269.09747"
+       height="148.04562"
+       x="22.951246"
+       y="879.57831"
        rx="3.5433068"
-       ry="3.5433071" />
+       ry="3.5433068" />
     <text
        sodipodi:linespacing="125%"
        id="text3799"
-       y="877.63544"
+       y="867.63544"
        x="31.603252"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          id="tspan3801"
-         y="877.63544"
+         y="867.63544"
          x="31.603252"
          sodipodi:role="line">Date:  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
@@ -157,56 +158,56 @@
        xml:space="preserve"
        style="font-size:11px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        x="31.514874"
-       y="913.13544"
+       y="896.63544"
        id="text3803"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          x="31.514874"
-         y="913.13544"
+         y="896.63544"
          id="tspan3805">Changed File</tspan></text>
     <rect
        ry="3.5433071"
        rx="3.5433068"
        y="928.57831"
-       x="32.58358"
+       x="32.768818"
        height="89.924301"
-       width="248.03284"
+       width="249.46236"
        id="rect3811"
        style="color:#000000;fill:none;stroke:#333333;stroke-width:0.88582677;stroke-opacity:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     <text
        sodipodi:linespacing="125%"
        id="text3813"
        y="947.13544"
-       x="44.398926"
+       x="43.727352"
        style="font-size:11px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          id="tspan3815"
          y="947.13544"
-         x="44.398926"
+         x="43.727352"
          sodipodi:role="line">Change</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text3825"
        y="967.13544"
-       x="50.020206"
+       x="53.55574"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          id="tspan3827"
          y="967.13544"
-         x="50.020206"
+         x="53.55574"
          sodipodi:role="line">Modification:  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
    id="tspan3847">Addition </tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
-       x="50.381535"
-       y="986.13544"
+       x="53.917068"
+       y="987.07117"
        id="text3831"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
-         x="50.381535"
-         y="986.13544"
+         x="53.917068"
+         y="987.07117"
          id="tspan3833">Kind:  <tspan
    style="font-weight:normal;-inkscape-font-specification:Arial"
    id="tspan3849">Declaration</tspan></tspan></text>
@@ -214,14 +215,27 @@
        sodipodi:linespacing="125%"
        id="text3837"
        y="1006.1354"
-       x="49.673527"
+       x="53.209061"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
        xml:space="preserve"><tspan
          id="tspan3839"
          y="1006.1354"
-         x="49.673527"
+         x="53.209061"
          sodipodi:role="line">Artifact:  <tspan
    id="tspan3841"
    style="font-weight:normal;-inkscape-font-specification:Arial">StringBuilder </tspan></tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text3021"
+       y="916.13544"
+       x="43.511044"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold"
+       xml:space="preserve"><tspan
+         id="tspan3023"
+         y="916.13544"
+         x="43.511044"
+         sodipodi:role="line">File path:  <tspan
+   style="font-weight:normal;-inkscape-font-specification:Arial"
+   id="tspan3027">src/java/org/example/Main.java</tspan></tspan></text>
   </g>
 </svg>
