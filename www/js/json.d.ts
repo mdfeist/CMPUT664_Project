@@ -22,7 +22,7 @@ interface Commit {
    * Date, formatted as an ISO 8601 string.
    * @type {string}
    */
-  date: string;
+  date: string | Date;
 
   /**
    * The log message.
@@ -32,6 +32,10 @@ interface Commit {
 
   files: any[];
   all_files: any[];
+}
+
+interface CommitMap {
+  [commitID: string]: Commit;
 }
 
 declare interface Project {

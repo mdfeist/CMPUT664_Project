@@ -4,7 +4,7 @@ import assert from './assert';
 
 export interface PreprocessedData {
   types: Set<string>;
-  commits: { [id: string]: Commit };
+  commits: CommitMap;
   astDiffs: ASTDiff[];
 };
 
@@ -34,7 +34,7 @@ export default function preprocessData(data: Project): PreprocessedData {
 
 /* Maps Git SHA to the raw commit data. */
 function createCommitMap(commits: Commit[]) {
-  var commitMap: { [id: string]: Commit } = {};
+  var commitMap: CommitMap = {};
 
   commits.forEach(function (commit) {
     var sha = commit.commitID;
@@ -46,26 +46,26 @@ function createCommitMap(commits: Commit[]) {
 }
 
 /* Returns AST Diff data, in asscending order of date. */
-function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
+function createASTDiffsInAscendingOrder(astDiffsByType: Edit[], commits: CommitMap) {
   /* Ensure each commit has a proper Date object. */
   for (let sha in commits) {
     if (!commits.hasOwnProperty(sha)) {
       continue;
     }
     let commit = commits[sha];
-    commit.date = new Date(commit.date);
+    commit.date = new Date(<string> commit.date);
   }
 
-  return astDiffsByType
+  return <ASTDiff[]> astDiffsByType
     .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
     /* Note: unary + coerces to smallint using Date#valueOf() */
     /* See explanation in Cell#isAcceptableDiff(). */
-    .sort((a, b) => d3.ascending(+a.date, +b.date));
+    .sort((a: ASTDiff, b: ASTDiff) => d3.ascending(+a.date, +b.date));
 }
 
 /*=== Predicates used in assertions and checks ===*/
 
-function looksLikeAGitSha(thing): boolean {
+function looksLikeAGitSha(thing: any): boolean {
   if (typeof thing !== 'string') {
     return false;
   }

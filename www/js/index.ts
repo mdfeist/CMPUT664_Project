@@ -460,6 +460,7 @@ function drawStats(data: DataView, width) {
 
   /* Add the header. */
   addRow('Metric', 'Author', 'Date', 'Coverage');
+  type Metric = 'file' | 'type';
 
   for (var authorName of Object.keys(data.authorStats)) {
     for (var stats of data.authorStats[authorName]) {
@@ -478,12 +479,11 @@ function drawStats(data: DataView, width) {
     }
   }
 
-  function addRow(...cols: Array<string>);
-  function addRow(name: String, author: String, date: number, total: number);
+  function addRow(...cols: Array<string>): void;
+  function addRow(name: Metric, author: String, date: number, total: number): void;
 
   function addRow() {
-    var i;
-    for (i = 0; i < arguments.length; i++) {
+    for (let i = 0; i < arguments.length; i++) {
       if (/[,"]/.exec(arguments[i]))
         throw new Error('Invalid char in:' + arguments[i]);
     }

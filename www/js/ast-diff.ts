@@ -26,7 +26,7 @@ export default class ASTDiff {
    * Create an ASTDiff using the information in the commit map.
    * A commit map maps the Git SHA to the commit contents themselves.
    */
-  static withCommitMap(commits, diff) {
+  static withCommitMap(commits: CommitMap, diff: Edit) {
     return new ASTDiff(diff, commits[diff.commitID]);
   }
 

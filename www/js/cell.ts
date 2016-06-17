@@ -28,7 +28,7 @@ export default class Cell {
   /**
    * Adds a single diff.
    */
-  addDiff(diff) {
+  addDiff(diff: ASTDiff) {
     assert(diff instanceof ASTDiff);
     assert(this.isAcceptableDiff(diff));
     assert(diff.type === this.type);
@@ -36,18 +36,18 @@ export default class Cell {
     return this;
   }
 
-  isAcceptableDiff (diff) {
-    if (!(diff instanceof ASTDiff)) {
+  isAcceptableDiff (diff: any) {
+    if (diff instanceof ASTDiff) {
+      /* Chrome V8 will bail-out of optimizing this function if you compare
+       * the dates directly (non-primitive compare);
+       * instead, compare the valueOf()s, since this ends up being a Number
+       * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
+       * generate native code for.  */
+      return this.startDate.valueOf() <= diff.date.valueOf() &&
+        diff.date.valueOf() <= this.endDate.valueOf();
+    } else {
       return false;
     }
-
-    /* Chrome V8 will bail-out of optimizing this function if you compare
-     * the dates directly (non-primitive compare);
-     * instead, compare the valueOf()s, since this ends up being a Number
-     * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
-     * generate native code for.  */
-    return this.startDate.valueOf() <= diff.date.valueOf() &&
-      diff.date.valueOf() <= this.endDate.valueOf();
   }
 
   /** True if the cell contains at least one AST diff.  */

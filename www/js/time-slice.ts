@@ -26,8 +26,7 @@ export default class TimeSlice {
    *  - a commit
    *  - files
    */
-  addDiff (diff) {
-    assert(diff instanceof ASTDiff);
+  addDiff (diff: ASTDiff) {
     this._diffs.push(diff);
   }
 
@@ -54,12 +53,11 @@ export default class TimeSlice {
    * date.
    */
   static createRange(start: Date, end: Date, step: StepSize) {
-    var currentStart;
     var currentEnd = end;
-    var array = [];
+    var array: TimeSlice[] = [];
 
     while (start < currentEnd) {
-      currentStart = moment(currentEnd);
+      let currentStart = moment(currentEnd);
 
       switch (step) {
         case 'hour':
@@ -76,9 +74,9 @@ export default class TimeSlice {
           currentStart.subtract(1, 'month');
       }
 
-      currentStart = currentStart.toDate();
-      array.push(new TimeSlice(currentStart, currentEnd));
-      currentEnd = currentStart;
+      let lowerBound = currentStart.toDate();
+      array.push(new TimeSlice(lowerBound, currentEnd));
+      currentEnd = lowerBound;
     }
 
     /* Such that the timeslices are in ascending chronological order. */
