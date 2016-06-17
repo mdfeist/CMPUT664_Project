@@ -59,14 +59,6 @@ export function createTable2(filter: Filter) {
   return data;
 }
 
-/**
- * TODO:
- *  - Calculate type and file coverage PER COMMIT.
- *  - Per each author, get their type/file coverage.
- *  - Put it in a CSV
- */
-
-
 /*=== Graph ===*/
 
 function drawGraph(data: DataView, width) {
@@ -105,7 +97,7 @@ function drawGraph(data: DataView, width) {
       .data(data.types)
     .enter().append('g')
       .classed('row', true)
-      .attr('transform', (type: JavaType) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
+      .attr('transform', (type) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
 
   /* The background. */
   row.append('rect')
@@ -125,7 +117,7 @@ function drawGraph(data: DataView, width) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text((type: JavaType) => type.shortName );
+      .text((type) => type.shortName );
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
@@ -159,7 +151,7 @@ function drawGraph(data: DataView, width) {
     throw new TypeError('value is not an SVGElement.');
   }
 
-  function createCellsForType(type) {
+  function createCellsForType(type: JavaType) {
     /* Create all the cells. */
     var cell = d3.select(this).selectAll('.cell')
       .data(type.cells)
@@ -167,7 +159,7 @@ function drawGraph(data: DataView, width) {
         /* Only do cool things with cells that *HAVE* data! */
         .filter(function (cell: Cell) { return cell.hasData; })
         .classed('cell', true)
-        .attr('transform', function (cell: Cell) {
+        .attr('transform', function (cell) {
           var yOffset = maxCellHeight * (1  - cell.numberOfObservations / type.numberOfObservationsInLargestCell);
           return 'translate(' + xScale(cell.startDate) + ', ' + yOffset + ')';
         });
@@ -178,7 +170,7 @@ function drawGraph(data: DataView, width) {
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('height', function (cell: Cell) {
+      .attr('height', function (cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         return proportion * maxCellHeight * height;
@@ -343,7 +335,7 @@ function drawGraph(data: DataView, width) {
 /**
  * Draws type coverage stats and things.
  */
-function drawStats(data: DataView, width) {
+function drawStats(data: DataView, width: number) {
   var marginLeft = 64;
   var overviewHeight = 480;
   var rowHeight = 64;
@@ -466,8 +458,8 @@ function drawStats(data: DataView, width) {
  * Returns the download link for a CSV file (with header)
  * for per-author type and file coverage statistics.
  */
-export function makeCSVLink(data) {
-  var lines = [];
+export function makeCSVLink(data: DataView) {
+  var lines: string[] = [];
   var filesTotal = data.numberOfFiles;
   var typesTotal = data.numberOfTypes;
 
@@ -492,8 +484,8 @@ export function makeCSVLink(data) {
     }
   }
 
-  function addRow(...cols: Array<string>): void;
-  function addRow(name: Metric, author: String, date: number, total: number): void;
+  function addRow(...headers: Array<string>): void;
+  function addRow(name: Metric, author: string, date: number, total: number): void;
 
   function addRow() {
     for (let i = 0; i < arguments.length; i++) {
@@ -514,11 +506,11 @@ export function makeCSVLink(data) {
  * screen is too big.
  */
 function ensureAxisIsAtGraphBottom(graph: SVGElement, axis: SVGElement) {
-
   var paddingBottom = 60;
   var bottomOfGraph = graph.getBoundingClientRect().bottom;
 
-  /* when the screen*/
+  /* When the screen can accomodate the graph and its padding at the bottom,
+   * do not reposition. */
   var shouldReposition = bottomOfGraph + paddingBottom < viewportHeight();
 
   if (shouldReposition) {
@@ -543,7 +535,7 @@ function viewportHeight() {
 
 /*=== Utilties ===*/
 
-function cellWidthFromScale(cell, scale) {
+function cellWidthFromScale(cell: Cell, scale: (Date) => number) {
   var bigger = scale(cell.endDate);
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);

@@ -1,5 +1,6 @@
 ///<reference path="index.d.ts" />
 import { createTable, createTable2, makeCSVLink } from "./project-view";
+import DataView from './data-filter';
 
 /* Add date picker widgets on platforms that don't have them. */
 if (!hasDatePicker()) {
@@ -34,10 +35,11 @@ function loadProject(type: 'Declarations' | 'Types' | 'Invocations') {
   xhttp.onreadystatechange = function () {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       var filter = getFilters();
-      var results = createTable(JSON.parse(xhttp.responseText), filter);
+      var project: Project = JSON.parse(xhttp.responseText);
+      var results = createTable(project, filter);
       patchInputs(results);
 
-      var link = makeCSVLink(window.filteredData);
+      var link = makeCSVLink(results);
       $('#csv-link').attr('href', link);
     }
   };
@@ -87,7 +89,7 @@ function getFilters(): Filter {
 
 /* Given the fully processed and filtered results, patches the inputs on
  * the page (specifically, the date inputs) with the correct dates. */
-function patchInputs(results) {
+function patchInputs(results: DataView) {
   var maxDate = toISODate(results.absoluteMaxDate);
   var minDate = toISODate(results.absoluteMinDate);
 
