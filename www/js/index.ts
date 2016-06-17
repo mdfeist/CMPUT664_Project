@@ -8,7 +8,7 @@
  */
 
 
-import assert from './assert.js';
+import assert from './assert';
 import preprocessData from './preprocess-data.js';
 import DataView, {AuthorStatistics} from './data-filter';
 import JavaType from './java-type';

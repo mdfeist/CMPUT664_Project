@@ -2,7 +2,7 @@ import JavaType from './java-type';
 import TimeSlice, {StepSize} from './time-slice';
 import ASTDiff from './ast-diff';
 
-import assert from './assert.js';
+import assert from './assert';
 import { first, last, union } from './utils';
 
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);

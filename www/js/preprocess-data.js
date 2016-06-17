@@ -1,6 +1,6 @@
 import ASTDiff from './ast-diff.js';
 
-import assert from './assert.js';
+import assert from './assert';
 
 /**
  * Converts the raw data delivered by the JSON endpoint to something more

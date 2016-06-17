@@ -1,4 +1,4 @@
-import assert from './assert.js';
+import assert from './assert';
 
 /**
  * A bunch of random utilities I had no idea what to do with.

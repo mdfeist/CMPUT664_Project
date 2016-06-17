@@ -1,4 +1,4 @@
-import assert from './assert.js';
+import assert from './assert';
 import ASTDiff from './ast-diff';
 
 export type StepSize = 'hour' | 'day' | 'month' | 'week';
