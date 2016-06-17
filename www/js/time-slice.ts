@@ -1,6 +1,8 @@
 import assert from './assert.js';
 import ASTDiff from './ast-diff.js';
 
+export type StepSize = 'hour' | 'day' | 'month' | 'week';
+
 /**
  * Class: TimeSlice
  * A slice of time, with a start date and an end date.
@@ -51,7 +53,7 @@ export default class TimeSlice {
    * Given start and end dates, calls the given callback with the start and end
    * date.
    */
-  static createRange(start, end, step) {
+  static createRange(start: Date, end: Date, step: StepSize) {
     var currentStart;
     var currentEnd = end;
     var array = [];

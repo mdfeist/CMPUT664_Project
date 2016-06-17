@@ -1,11 +1,10 @@
 import JavaType from './java-type.js';
-import TimeSlice from './time-slice';
+import TimeSlice, {StepSize} from './time-slice';
 import ASTDiff from './ast-diff';
 
 import assert from './assert.js';
 import { first, last, union } from './utils.js';
 
-type StepSize = 'hour' | 'day' | 'month' | 'week';
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
 
 interface AuthorSummary {
@@ -117,11 +116,11 @@ function filterTypes(data, filters) {
   filters = filters ? filters : {};
 
   /* Either the date provided, or the first date attested. */
-  var startDate = filters.start || first(data.astDiffs).date;
+  var startDate: Date = filters.start || first(data.astDiffs).date;
   /* Either the date provided or the last date attested. */
-  var endDate = filters.end || last(data.astDiffs).date;
+  var endDate: Date = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
-  var stepSize = filters.stepSize || 'month';
+  var stepSize: StepSize = filters.stepSize || 'month';
   var authors = filters.authors || [];
   var typeFilter = filters.typeFilter ? filters.typeFilter : null;
 
