@@ -10,7 +10,7 @@
 
 import assert from './assert';
 import preprocessData from './preprocess-data';
-import DataView, {AuthorStatistics} from './data-filter';
+import DataView, {CommitStatistics} from './data-filter';
 import JavaType from './java-type';
 import Cell from './cell';
 import TimeSlice from './time-slice';
@@ -391,7 +391,7 @@ function drawStats(data: DataView, width) {
     .call(verticalAxis);
 
   /* It gets ugly here... */
-  var lineFunctionSmallFiles = d3.svg.line<AuthorStatistics>()
+  var lineFunctionSmallFiles = d3.svg.line<CommitStatistics>()
     .x(author => xScale(author.date))
     .y(author => {
       var proportion = author.file.cumulative / numberOfTypesTotal;
@@ -399,7 +399,7 @@ function drawStats(data: DataView, width) {
     })
     .interpolate('linear');
 
-  var lineFunctionSmallTypes = d3.svg.line<AuthorStatistics>()
+  var lineFunctionSmallTypes = d3.svg.line<CommitStatistics>()
     .x(author => xScale(author.date))
     .y(author => {
       var proportion = author.type.cumulative / numberOfTypesTotal;
@@ -420,11 +420,11 @@ function drawStats(data: DataView, width) {
 
   authorCoverage.append('path')
     .classed('file-coverage', true)
-    .attr('d', (authorName) => lineFunctionSmallFiles([data.authorStats[authorName]]));
+    .attr('d', (authorName) => lineFunctionSmallFiles(data.authorStats[authorName]));
 
   authorCoverage.append('path')
     .classed('type-coverage', true)
-    .attr('d', (authorName) => lineFunctionSmallTypes([data.authorStats[authorName]]));
+    .attr('d', (authorName) => lineFunctionSmallTypes(data.authorStats[authorName]));
 
   /* Axes. */
   authorCoverage.append('g')

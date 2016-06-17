@@ -7,15 +7,15 @@ import { first, last, union } from './utils';
 
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
 
-interface AuthorSummary {
+interface EntitySummary {
   observed: number;
   cumulative: number;
   total: number;
 }
 
-export interface AuthorStatistics {
-  type: AuthorSummary;
-  file: AuthorSummary;
+export interface CommitStatistics {
+  type: EntitySummary;
+  file: EntitySummary;
   date: Date
 }
 
@@ -23,7 +23,7 @@ export default class DataView {
   public types: Array<JavaType>;
   public timeslices: Array<TimeSlice>;
   public typesPresent: Array<JavaType>;
-  public authorStats: { [name: string] : AuthorStatistics};
+  public authorStats: { [name: string] : CommitStatistics[]};
   public commits: Array<Object>;
   public astDiffs: Array<ASTDiff>;
   public typesOverall: Set<String>;
