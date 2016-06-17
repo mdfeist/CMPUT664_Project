@@ -9,22 +9,22 @@ type StepSize = 'hour' | 'day' | 'month' | 'week';
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
 
 interface AuthorSummary {
-    observed: number;
-    cumulative: number;
-    total: number;
+  observed: number;
+  cumulative: number;
+  total: number;
 }
 
 export interface AuthorStatistics {
-    type: AuthorSummary;
-    file: AuthorSummary;
-    date: Date
+  type: AuthorSummary;
+  file: AuthorSummary;
+  date: Date
 }
 
 export default class DataView {
   public types: Array<JavaType>;
   public timeslices: Array<TimeSlice>;
   public typesPresent: Array<JavaType>;
-  public authorStats: Array<AuthorStatistics>;
+  public authorStats: { [name: string] : AuthorStatistics};
   public commits: Array<Object>;
   public astDiffs: Array<ASTDiff>;
   public typesOverall: Set<String>;
@@ -196,7 +196,6 @@ function filterTypes(data, filters) {
         type.addDiff(diff, startDate, endDate);
         timeslice.addDiff(diff);
       }
-
     }
 
     /* Finally, commit the count to the timeslice. */

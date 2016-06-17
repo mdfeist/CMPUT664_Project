@@ -420,11 +420,11 @@ function drawStats(data: DataView, width) {
 
   authorCoverage.append('path')
     .classed('file-coverage', true)
-    .attr('d', (authorName) => lineFunctionSmallFiles(data.authorStats[authorName]));
+    .attr('d', (authorName) => lineFunctionSmallFiles([data.authorStats[authorName]]));
 
   authorCoverage.append('path')
     .classed('type-coverage', true)
-    .attr('d', (authorName) => lineFunctionSmallTypes(data.authorStats[authorName]));
+    .attr('d', (authorName) => lineFunctionSmallTypes([data.authorStats[authorName]]));
 
   /* Axes. */
   authorCoverage.append('g')
