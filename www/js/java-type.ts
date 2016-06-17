@@ -1,7 +1,7 @@
 import assert from './assert.js';
 import ASTDiff from './ast-diff';
 import Cell from './cell';
-import { last } from './utils.js';
+import { last } from './utils';
 
 /**
  * Class: JavaType

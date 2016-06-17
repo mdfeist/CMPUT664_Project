@@ -3,7 +3,7 @@ import TimeSlice, {StepSize} from './time-slice';
 import ASTDiff from './ast-diff';
 
 import assert from './assert.js';
-import { first, last, union } from './utils.js';
+import { first, last, union } from './utils';
 
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
 
@@ -116,9 +116,9 @@ function filterTypes(data, filters) {
   filters = filters ? filters : {};
 
   /* Either the date provided, or the first date attested. */
-  var startDate: Date = filters.start || first(data.astDiffs).date;
+  var startDate: Date = filters.start || first(<ASTDiff[]>data.astDiffs).date;
   /* Either the date provided or the last date attested. */
-  var endDate: Date = filters.end || last(data.astDiffs).date;
+  var endDate: Date = filters.end || last(<ASTDiff[]>data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var stepSize: StepSize = filters.stepSize || 'month';
   var authors = filters.authors || [];
