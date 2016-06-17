@@ -1,4 +1,4 @@
-import JavaType from './java-type.js';
+import JavaType from './java-type';
 import TimeSlice, {StepSize} from './time-slice';
 import ASTDiff from './ast-diff';
 

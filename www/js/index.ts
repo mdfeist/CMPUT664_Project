@@ -11,7 +11,7 @@
 import assert from './assert.js';
 import preprocessData from './preprocess-data.js';
 import DataView, {AuthorStatistics} from './data-filter';
-import JavaType from './java-type.js';
+import JavaType from './java-type';
 import Cell from './cell';
 import TimeSlice from './time-slice';
 
