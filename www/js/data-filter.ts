@@ -1,6 +1,7 @@
 import JavaType from './java-type';
-import TimeSlice, {StepSize} from './time-slice';
+import TimeSlice from './time-slice';
 import ASTDiff from './ast-diff';
+import {PreprocessedData} from './preprocess-data';
 
 import assert from './assert';
 import { first, last, union } from './utils';
@@ -46,14 +47,14 @@ export default class DataView {
   /**
    * Returns a new DataView with the given filters applied:
    *
-   * # startDate
-   * # endDate
+   * # start
+   * # end
    * # limit -- maximum number of types
    * # stepSize -- What size to group ASTDiffs
    * # authors -- Filter only to the given authors.
    * # typeFilter -- only types matching this pattern are selected.
    */
-  static filter(data, filters) {
+  static filter(data, filters: Filter) {
     const rawFilteredData = filterTypes(data, filters);
     return new DataView(rawFilteredData);
   }
@@ -111,14 +112,14 @@ export default class DataView {
  *
  * Each type has its Cells, with ASTDiffs.
  */
-function filterTypes(data, filters) {
+function filterTypes(data: PreprocessedData, filters: Filter) {
   /* Let filters be undefined or null. */
   filters = filters ? filters : {};
 
   /* Either the date provided, or the first date attested. */
-  var startDate: Date = filters.start || first(<ASTDiff[]>data.astDiffs).date;
+  var startDate: Date = filters.start || <Date>first(<ASTDiff[]>data.astDiffs).date;
   /* Either the date provided or the last date attested. */
-  var endDate: Date = filters.end || last(<ASTDiff[]>data.astDiffs).date;
+  var endDate: Date = filters.end || <Date>last(<ASTDiff[]>data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var stepSize: StepSize = filters.stepSize || 'month';
   var authors = filters.authors || [];
@@ -132,8 +133,8 @@ function filterTypes(data, filters) {
   assert(authors instanceof Array);
 
   /* Find the range of diffs to use. */
-  var lowerIndex = d3.bisectLeft(data.astDiffs, startDate);
-  var upperIndex = d3.bisectRight(data.astDiffs, endDate);
+  var lowerIndex = d3.bisectLeft<Valuable>(data.astDiffs, startDate);
+  var upperIndex = d3.bisectRight<Valuable>(data.astDiffs, endDate);
 
   var applicableDiffs = data.astDiffs.slice(lowerIndex, upperIndex);
   /* Filter types, first by the types that are ACTUALLY present in the
@@ -173,8 +174,8 @@ function filterTypes(data, filters) {
     var endDate = timeslice.endDate;
 
     /* This will filter out only the applicable diffs. */
-    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
-    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
+    var lowerIndex = d3.bisectLeft<Valuable>(applicableDiffs, startDate);
+    var upperIndex = d3.bisectRight<Valuable>(applicableDiffs, endDate);
     var i, diff, type;
 
     /* For each applicable diff in the time range... */

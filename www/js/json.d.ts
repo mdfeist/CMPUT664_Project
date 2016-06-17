@@ -11,13 +11,14 @@ interface Edit {
   type: string;
 }
 
-interface Commit {
+interface CommitFromJSON {
   author: string;
   /**
    * The Git SHA. Should be unique per project.
    * @type {string}
    */
   commitID: CommitID;
+
   /**
    * Date, formatted as an ISO 8601 string.
    * @type {string}
@@ -32,6 +33,14 @@ interface Commit {
 
   files: any[];
   all_files: any[];
+}
+
+interface Commit extends CommitFromJSON {
+  /**
+   * The commit date in UTC.
+   * @type {Date}
+   */
+  date: Date;
 }
 
 interface CommitMap {

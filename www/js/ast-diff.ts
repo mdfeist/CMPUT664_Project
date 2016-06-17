@@ -40,7 +40,7 @@ export default class ASTDiff {
    * Coercing this to a primitive (such as when comparing or sorting ASTDiffs)
    * will result in a number representing the time of the ASTDiff.
    */
-  valueOf() {
+  valueOf(): number {
     return this.date.valueOf();
   }
 
@@ -65,7 +65,7 @@ export default class ASTDiff {
   /**
    * The commit's date.
    */
-  get date() {
+  get date(): Date {
     return this._commit.date;
   }
 

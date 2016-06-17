@@ -52,7 +52,7 @@ function createASTDiffsInAscendingOrder(astDiffsByType: Edit[], commits: CommitM
     if (!commits.hasOwnProperty(sha)) {
       continue;
     }
-    let commit = commits[sha];
+    let commit: CommitFromJSON = commits[sha];
     commit.date = new Date(<string> commit.date);
   }
 

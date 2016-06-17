@@ -1,8 +1,6 @@
 import assert from './assert';
 import ASTDiff from './ast-diff';
 
-export type StepSize = 'hour' | 'day' | 'month' | 'week';
-
 /**
  * Class: TimeSlice
  * A slice of time, with a start date and an end date.

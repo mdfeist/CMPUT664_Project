@@ -56,7 +56,7 @@ window.redrawTable = function () {
   createTable2(filter);
 }
 
-function getFilters() {
+function getFilters(): Filter {
   var start_date = null;
   var end_date = null;
 

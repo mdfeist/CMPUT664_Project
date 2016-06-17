@@ -32,9 +32,9 @@ cellInfo.append('div')
   .text('Info');
 
 /* Draw table given JSON */
-export function createTable(data, filter) {
-  (<any>window).DATA = data;
-  (<any>window).preprocessedData = preprocessData((<any>window).DATA);
+export function createTable(data: Project, filter: Filter) {
+  window.DATA = data;
+  window.preprocessedData = preprocessData(data);
 
   return createTable2(filter);
 }
@@ -42,15 +42,17 @@ export function createTable(data, filter) {
 /**
  * Draw table given filter.
  */
-export function createTable2(filter) {
+export function createTable2(filter: Filter) {
   /* Plop this in dna-table div */
   var dnaTable = document.getElementById('dna-table');
 
   /* Clear previous table */
   dnaTable.innerHTML = "";
 
-  var processed = (<any> window).preprocessedData;
-  var data = (<any> window).filteredData = DataView.filter(processed, filter);
+  // TODO: get rid of window
+  var processed = window.preprocessedData;
+  // TODO: get rid of window
+  var data = window.filteredData = DataView.filter(processed, filter);
   drawGraph(data, dnaTable.offsetWidth);
   drawStats(data, dnaTable.offsetWidth);
 
