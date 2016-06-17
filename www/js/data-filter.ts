@@ -1,12 +1,35 @@
 import JavaType from './java-type.js';
-import TimeSlice from './time-slice.js';
+import TimeSlice from './time-slice';
+import ASTDiff from './ast-diff';
 
 import assert from './assert.js';
 import { first, last, union } from './utils.js';
 
-const VALID_STEP_SIZES = ['hour', 'day', 'month', 'week'];
+type StepSize = 'hour' | 'day' | 'month' | 'week';
+const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
+
+interface AuthorSummary {
+    observed: number;
+    cumulative: number;
+    total: number;
+}
+
+export interface AuthorStatistics {
+    type: AuthorSummary;
+    file: AuthorSummary;
+    date: Date
+}
 
 export default class DataView {
+  public types: Array<JavaType>;
+  public timeslices: Array<TimeSlice>;
+  public typesPresent: Array<JavaType>;
+  public authorStats: Array<AuthorStatistics>;
+  public commits: Array<Object>;
+  public astDiffs: Array<ASTDiff>;
+  public typesOverall: Set<String>;
+  public filesOverall: Set<String>;
+
   constructor({types, timeslices, typesPresent, authorStats, astDiffs,
               typesOverall, filesOverall, commits}) {
     this.types = types;
@@ -82,6 +105,7 @@ export default class DataView {
   }
 }
 
+
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
  * of popularity.
@@ -105,7 +129,7 @@ function filterTypes(data, filters) {
   assert(endDate instanceof Date);
   assert(startDate < endDate);
   assert(typeof numberOfTypesUpperBound === 'number');
-  assert(VALID_STEP_SIZES.includes(stepSize));
+  assert(VALID_STEP_SIZES.has(stepSize));
   assert(authors instanceof Array);
 
   /* Find the range of diffs to use. */
@@ -130,7 +154,7 @@ function filterTypes(data, filters) {
   assert(sortedTypeNames.length > 0);
 
   /* Create a list of each type. */
-  var types = sortedTypeNames.map(JavaType);
+  var types = sortedTypeNames.map(type => new JavaType(type));
   var typeMap = {};
   /* Map full type names to their type. */
   types.forEach(function (type) {

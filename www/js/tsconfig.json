@@ -7,6 +7,12 @@
         "outFile": "index.js"
     },
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "typings",
+        "lib"
+    ],
+    "files": [
+        "index.ts",
+        "typings/index.d.ts"
     ]
 }

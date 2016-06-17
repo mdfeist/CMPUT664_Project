@@ -9,12 +9,10 @@ import ASTDiff from './ast-diff.js';
  * Create an array of these and you get an x-axis!
  */
 export default class TimeSlice {
-  constructor(start, end) {
-    assert(start instanceof Date);
-    assert(end instanceof Date);
-    this.startDate = start;
-    this.endDate = end;
+  private _typeCount: number;
+  private _diffs: Array<ASTDiff>;
 
+  constructor(public startDate: Date, public endDate: Date) {
     this._typeCount = null;
 
     this._diffs = [];
@@ -42,14 +40,11 @@ export default class TimeSlice {
    * Only permits the cumulative type count to be set as a number, as well as
    * ensuring it's a number.
    */
-  set cumulativeTypeCount (value) {
+  set cumulativeTypeCount (value: number) {
     if (this._typeCount !== null) {
       throw new Error('cumulativeTypeCount can only be set once!');
     }
-    if (typeof value !== 'number') {
-      throw new Error('cumulativeTypeCount must be a number!');
-    }
-    return this._typeCount = value;
+    this._typeCount = value;
   }
 
   /**

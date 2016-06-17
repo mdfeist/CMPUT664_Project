@@ -1,5 +1,6 @@
 import assert from './assert.js';
 import ASTDiff from './ast-diff.js';
+import JavaType from './java-type';
 
 /**
  * Class: Cell
@@ -8,15 +9,15 @@ import ASTDiff from './ast-diff.js';
  * of observations, which are either additions or deletions.
  */
 export default class Cell {
-  constructor(start, until, type) {
+  startDate: Date;
+  endDate: Date;
+  diffs: Array<ASTDiff>;
+
+  constructor(start: Date, until: Date, public type: string) {
     /* Instantiate a new Cell object if called without `new`. */
     if (!(this instanceof Cell)) {
       return new Cell(start, until, type);
     }
-
-    assert(start instanceof Date);
-    assert(until instanceof Date);
-    assert(typeof type === 'string');
 
     this.diffs = [];
     this.startDate = start;

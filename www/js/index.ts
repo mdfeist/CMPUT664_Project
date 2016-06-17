@@ -10,9 +10,10 @@
 
 import assert from './assert.js';
 import preprocessData from './preprocess-data.js';
-import DataView from './data-filter.js';
-
-/* Shim the assert function in there! */
+import DataView, {AuthorStatistics} from './data-filter';
+import JavaType from './java-type.js';
+import Cell from './cell';
+import TimeSlice from './time-slice';
 
 var CELL_INFO_WIDTH = 500;
 
@@ -30,11 +31,10 @@ cellInfo.append('div')
   .style("font-weight", "bold")
   .text('Info');
 
-
 /* Draw table given JSON */
 export function createTable(data, filter) {
-  window.DATA = data;
-  window.preprocessedData = preprocessData(window.DATA);
+  (<any>window).DATA = data;
+  (<any>window).preprocessedData = preprocessData((<any>window).DATA);
 
   return createTable2(filter);
 }
@@ -49,8 +49,8 @@ export function createTable2(filter) {
   /* Clear previous table */
   dnaTable.innerHTML = "";
 
-  var processed = window.preprocessedData;
-  var data = window.filteredData = DataView.filter(processed, filter);
+  var processed = (<any> window).preprocessedData;
+  var data = (<any> window).filteredData = DataView.filter(processed, filter);
   drawGraph(data, dnaTable.offsetWidth);
   drawStats(data, dnaTable.offsetWidth);
 
@@ -67,7 +67,7 @@ export function createTable2(filter) {
 
 /*=== Graph ===*/
 
-function drawGraph(data, width) {
+function drawGraph(data: DataView, width) {
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
@@ -103,7 +103,7 @@ function drawGraph(data, width) {
       .data(data.types)
     .enter().append('g')
       .classed('row', true)
-      .attr('transform', (type) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
+      .attr('transform', (type: JavaType) => `translate(0, ${yScale(type.fullyQualifiedName)})`);
 
   /* The background. */
   row.append('rect')
@@ -123,7 +123,7 @@ function drawGraph(data, width) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(type => type.shortName );
+      .text((type: JavaType) => type.shortName );
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
@@ -152,9 +152,9 @@ function drawGraph(data, width) {
       .data(type.cells)
       .enter().append('g')
         /* Only do cool things with cells that *HAVE* data! */
-        .filter(function (cell) { return cell.hasData; })
+        .filter(function (cell: Cell) { return cell.hasData; })
         .classed('cell', true)
-        .attr('transform', function (cell) {
+        .attr('transform', function (cell: Cell) {
           var yOffset = maxCellHeight * (1  - cell.numberOfObservations / type.numberOfObservationsInLargestCell);
           return 'translate(' + xScale(cell.startDate) + ', ' + yOffset + ')';
         });
@@ -165,7 +165,7 @@ function drawGraph(data, width) {
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('height', function (cell) {
+      .attr('height', function (cell: Cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         return proportion * maxCellHeight * height;
@@ -177,21 +177,21 @@ function drawGraph(data, width) {
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('transform', function (cell) {
+      .attr('transform', function (cell: Cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         var topHalf = proportion * maxCellHeight * height;
 
         return `translate(0, ${topHalf})`;
       })
-      .attr('height', function (cell) {
+      .attr('height', function (cell: Cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         return proportion * maxCellHeight * height;
       });
 
     /* Mouse Click: Show Cell stats */
-    cell.on("click", function(cell_data) {
+    cell.on("click", function(cell_data: Cell) {
       var stats = d3.select("#stats-body");
       stats.selectAll('.content').remove();
 
@@ -222,7 +222,7 @@ function drawGraph(data, width) {
 
       info.append('br');
 
-      var commit_map = window.preprocessedData.commits;
+      var commit_map = (<any> window).preprocessedData.commits;
 
       info.append('b')
         .text("Commits:");
@@ -254,7 +254,7 @@ function drawGraph(data, width) {
     });
 
     /* Mouse over: Show and update cell info */
-    cell.on("mouseover", function(cell_data) {
+    cell.on("mouseover", function(cell_data: Cell) {
       cellInfo.selectAll('ul').remove();
       var info = cellInfo.append('ul')
         .classed('list-group', true);
@@ -330,7 +330,7 @@ function drawGraph(data, width) {
 /**
  * Draws type coverage stats and things.
  */
-function drawStats(data, width) {
+function drawStats(data: DataView, width) {
   var marginLeft = 64;
   var overviewHeight = 480;
   var rowHeight = 64;
@@ -370,9 +370,9 @@ function drawStats(data, width) {
       .attr("height", overviewHeight);
 
   var numberOfTypesTotal = data.numberOfTypes;
-  var lineFunction = d3.svg.line()
-    .x(timeslice => xScale(timeslice.startDate))
-    .y(timeslice => yScale(timeslice.cumulativeTypeCount / numberOfTypesTotal))
+  var lineFunction = d3.svg.line<TimeSlice>()
+    .x((timeslice: TimeSlice) => xScale(timeslice.startDate))
+    .y((timeslice: TimeSlice) => yScale(timeslice.cumulativeTypeCount / numberOfTypesTotal))
     .interpolate('linear');
 
   /* Make the line chart. */
@@ -391,7 +391,7 @@ function drawStats(data, width) {
     .call(verticalAxis);
 
   /* It gets ugly here... */
-  var lineFunctionSmallFiles = d3.svg.line()
+  var lineFunctionSmallFiles = d3.svg.line<AuthorStatistics>()
     .x(author => xScale(author.date))
     .y(author => {
       var proportion = author.file.cumulative / numberOfTypesTotal;
@@ -399,7 +399,7 @@ function drawStats(data, width) {
     })
     .interpolate('linear');
 
-  var lineFunctionSmallTypes = d3.svg.line()
+  var lineFunctionSmallTypes = d3.svg.line<AuthorStatistics>()
     .x(author => xScale(author.date))
     .y(author => {
       var proportion = author.type.cumulative / numberOfTypesTotal;
@@ -433,7 +433,7 @@ function drawStats(data, width) {
 
   authorCoverage.append('text')
     .attr('transform', `translate(${marginLeft}, 16)`)
-    .text(authorName => authorName);
+    .text(authorName => authorName.toString());
 
   /* TODO: Make independent axis for each author... */
   /*
@@ -453,7 +453,7 @@ function drawStats(data, width) {
  * Returns the download link for a CSV file (with header)
  * for per-author type and file coverage statistics.
  */
-window.makeCSVLink = function makeCSVLink(data) {
+(<any> window).makeCSVLink = function makeCSVLink(data) {
   var lines = [];
   var filesTotal = data.numberOfFiles;
   var typesTotal = data.numberOfTypes;
@@ -477,6 +477,9 @@ window.makeCSVLink = function makeCSVLink(data) {
       );
     }
   }
+
+  function addRow(...cols: Array<string>);
+  function addRow(name: String, author: String, date: number, total: number);
 
   function addRow() {
     var i;

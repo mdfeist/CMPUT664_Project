@@ -1,6 +1,9 @@
 {
   "dependencies": {},
   "globalDependencies": {
-    "d3": "registry:dt/d3#0.0.0+20160614091820"
+    "d3": "registry:dt/d3#0.0.0+20160614091820",
+    "es2015": "registry:env/es2015#1.0.0+20160526151700",
+    "moment": "registry:dt/moment#2.8.0+20160316155526",
+    "moment-node": "registry:dt/moment-node#2.11.1+20160511043338"
   }
 }
