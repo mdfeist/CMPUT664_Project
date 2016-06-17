@@ -453,7 +453,7 @@ function drawStats(data: DataView, width) {
  * Returns the download link for a CSV file (with header)
  * for per-author type and file coverage statistics.
  */
-(<any> window).makeCSVLink = function makeCSVLink(data) {
+export function makeCSVLink(data) {
   var lines = [];
   var filesTotal = data.numberOfFiles;
   var typesTotal = data.numberOfTypes;
