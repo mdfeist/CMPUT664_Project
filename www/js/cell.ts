@@ -1,5 +1,5 @@
 import assert from './assert.js';
-import ASTDiff from './ast-diff.js';
+import ASTDiff from './ast-diff';
 import JavaType from './java-type';
 
 /**

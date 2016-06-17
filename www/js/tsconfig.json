@@ -13,6 +13,7 @@
     ],
     "files": [
         "index.ts",
+        "json.d.ts",
         "typings/index.d.ts"
     ]
 }

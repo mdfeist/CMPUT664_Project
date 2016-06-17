@@ -1,6 +1,6 @@
 import assert from './assert.js';
 
-const EDIT_KIND = ['+', '-'];
+const EDIT_KIND = new Set(['+', '-']);
 
 /**
  * Class: ASTDiff
@@ -8,10 +8,14 @@ const EDIT_KIND = ['+', '-'];
  * Instantiated with an original data object.
  */
 export default class ASTDiff {
-  constructor(original, commit) {
+  private _commit: Commit;
+  public type: string;
+  public edit: EditKind;
+
+  constructor(original: Edit, commit: Commit) {
     assert(commit.commitID === original.commitID);
     assert(typeof original.type === 'string');
-    assert(EDIT_KIND.includes(original.edit));
+    assert(EDIT_KIND.has(original.edit));
 
     this.type = original.type;
     this.edit = original.edit;
