@@ -37,4 +37,5 @@ interface Commit {
 declare interface Project {
   commits: Commit[];
   dates: Edit[];
+  types: string[];
 }

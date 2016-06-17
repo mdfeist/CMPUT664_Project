@@ -1,6 +1,12 @@
-import ASTDiff from './ast-diff.js';
+import ASTDiff from './ast-diff';
 
 import assert from './assert';
+
+export interface PreprocessedData {
+  types: Set<string>;
+  commits: { [id: string]: Commit };
+  astDiffs: ASTDiff[];
+};
 
 /**
  * Converts the raw data delivered by the JSON endpoint to something more
@@ -8,7 +14,7 @@ import assert from './assert';
  *
  * This includes return ASTDiffs.
  */
-export default function preprocessData(data) {
+export default function preprocessData(data: Project): PreprocessedData {
   assert(data.types instanceof Array);
   assert(data.commits instanceof Array);
   assert(data.dates instanceof Array);
@@ -27,8 +33,8 @@ export default function preprocessData(data) {
 }
 
 /* Maps Git SHA to the raw commit data. */
-function createCommitMap (commits) {
-  var commitMap = {};
+function createCommitMap(commits: Commit[]) {
+  var commitMap: { [id: string]: Commit } = {};
 
   commits.forEach(function (commit) {
     var sha = commit.commitID;
@@ -59,11 +65,11 @@ function createASTDiffsInAscendingOrder(astDiffsByType, commits) {
 
 /*=== Predicates used in assertions and checks ===*/
 
-function looksLikeAGitSha(thing) {
+function looksLikeAGitSha(thing): boolean {
   if (typeof thing !== 'string') {
     return false;
   }
 
-  return thing.match(/^[0-9a-f]{5,}$/i);
+  return !!thing.match(/^[0-9a-f]{5,}$/i);
 }
 /*global d3*/

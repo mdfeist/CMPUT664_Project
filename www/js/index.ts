@@ -9,7 +9,7 @@
 
 
 import assert from './assert';
-import preprocessData from './preprocess-data.js';
+import preprocessData from './preprocess-data';
 import DataView, {AuthorStatistics} from './data-filter';
 import JavaType from './java-type';
 import Cell from './cell';
