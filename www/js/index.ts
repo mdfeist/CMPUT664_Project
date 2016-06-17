@@ -29,7 +29,7 @@ function hasDatePicker() {
   return (input.value !== notADateValue);
 }
 
-function loadProject(type) {
+function loadProject(type: 'Declarations' | 'Types' | 'Invocations') {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -42,10 +42,7 @@ function loadProject(type) {
     }
   };
 
-  var arg = "get_project";
-  arg += "?type=" + type;
-
-  xhttp.open("GET", arg, true);
+  xhttp.open('GET', `get_project?type=${type}`, true);
   xhttp.send();
 }
 
