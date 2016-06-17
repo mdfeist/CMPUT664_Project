@@ -117,20 +117,16 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   filters = filters ? filters : {};
 
   /* Either the date provided, or the first date attested. */
-  var startDate: Date = filters.start || <Date>first(<ASTDiff[]>data.astDiffs).date;
+  var startDate: Date = filters.start || first(data.astDiffs).date;
   /* Either the date provided or the last date attested. */
-  var endDate: Date = filters.end || <Date>last(<ASTDiff[]>data.astDiffs).date;
+  var endDate: Date = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var stepSize: StepSize = filters.stepSize || 'month';
-  var authors = filters.authors || [];
+  var authors: string[] = filters.authors || [];
   var typeFilter = filters.typeFilter ? filters.typeFilter : null;
 
-  assert(startDate instanceof Date);
-  assert(endDate instanceof Date);
   assert(startDate < endDate);
-  assert(typeof numberOfTypesUpperBound === 'number');
   assert(VALID_STEP_SIZES.has(stepSize));
-  assert(authors instanceof Array);
 
   /* Find the range of diffs to use. */
   var lowerIndex = d3.bisectLeft<Valuable>(data.astDiffs, startDate);

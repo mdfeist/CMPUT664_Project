@@ -45,6 +45,10 @@ interface Filter {
   typeFilter?: string;
 }
 
+/**
+ * Two different types can be compared if their .valueOf() always returns a
+ * number.
+ */
 interface Valuable {
   valueOf(): number;
 }

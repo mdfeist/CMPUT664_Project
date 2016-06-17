@@ -15,6 +15,7 @@ export interface PreprocessedData {
  * This includes return ASTDiffs.
  */
 export default function preprocessData(data: Project): PreprocessedData {
+  /* Leaving these type assertions here so that we can validate the JSON. */
   assert(data.types instanceof Array);
   assert(data.commits instanceof Array);
   assert(data.dates instanceof Array);

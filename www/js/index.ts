@@ -1,7 +1,5 @@
 ///<reference path="index.d.ts" />
 import { createTable, createTable2, makeCSVLink } from "./project-view";
-import assert from "./assert";
-
 
 /* Add date picker widgets on platforms that don't have them. */
 if (!hasDatePicker()) {
@@ -106,8 +104,7 @@ function patchInputs(results) {
   $('#min-datepicker').val(minDate);
   $('#max-datepicker').val(maxDate);
 
-  function toISODate(date) {
-    assert(date instanceof Date);
+  function toISODate(date: Date) {
     return date
       .toISOString()
       .split('T')[0];

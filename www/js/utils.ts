@@ -1,5 +1,3 @@
-import assert from './assert';
-
 /**
  * A bunch of random utilities I had no idea what to do with.
  */
@@ -9,7 +7,6 @@ import assert from './assert';
  * empty.
  */
 export function first<T>(array: T[]): T {
-  assert(array instanceof Array);
   if (array.length < 1) {
     throw new Error('Cannot get the first item of an empty array; is the project empty?');
   }
@@ -21,7 +18,6 @@ export function first<T>(array: T[]): T {
  * empty.
  */
 export function last<T>(array: T[]): T {
-  assert(array instanceof Array);
   if (array.length < 1) {
     throw new Error('Cannot get the first item of an empty array; is the project empty?');
   }
@@ -29,7 +25,7 @@ export function last<T>(array: T[]): T {
 }
 
 /**
- * Union of two sets.
+ * Add all items from the iterable to the set.
  */
 export function union<T>(set: Set<T>, iterable: Iterable<T>): Set<T> {
   for (var item of iterable) {

@@ -1,4 +1,3 @@
-import assert from './assert';
 import ASTDiff from './ast-diff';
 
 /**

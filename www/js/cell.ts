@@ -29,7 +29,6 @@ export default class Cell {
    * Adds a single diff.
    */
   addDiff(diff: ASTDiff) {
-    assert(diff instanceof ASTDiff);
     assert(this.isAcceptableDiff(diff));
     assert(diff.type === this.type);
     this.diffs.push(diff);

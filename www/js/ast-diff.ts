@@ -14,7 +14,6 @@ export default class ASTDiff {
 
   constructor(original: Edit, commit: Commit) {
     assert(commit.commitID === original.commitID);
-    assert(typeof original.type === 'string');
     assert(EDIT_KIND.has(original.edit));
 
     this.type = original.type;
@@ -65,7 +64,7 @@ export default class ASTDiff {
   /**
    * The commit's date.
    */
-  get date(): Date {
+  get date() {
     return this._commit.date;
   }
 

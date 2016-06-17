@@ -146,7 +146,18 @@ function drawGraph(data: DataView, width) {
         return text.match(/^\d{4,}$/);
       });
 
-  ensureAxisIsAtGraphBottom(svg.node(), floatingAxis.node());
+  ensureAxisIsAtGraphBottom(
+    asSVGElement(svg.node()),
+    asSVGElement(floatingAxis.node())
+  );
+
+  /* Dynamic type assertion for SVGElement. */
+  function asSVGElement(value: any): SVGElement {
+    if (value instanceof SVGElement) {
+      return value;
+    }
+    throw new TypeError('value is not an SVGElement.');
+  }
 
   function createCellsForType(type) {
     /* Create all the cells. */
@@ -502,9 +513,7 @@ export function makeCSVLink(data) {
  * Places the axis on the bottom of the graph on initial render, when the
  * screen is too big.
  */
-function ensureAxisIsAtGraphBottom(graph, axis) {
-  assert(graph instanceof SVGElement);
-  assert(axis instanceof SVGElement);
+function ensureAxisIsAtGraphBottom(graph: SVGElement, axis: SVGElement) {
 
   var paddingBottom = 60;
   var bottomOfGraph = graph.getBoundingClientRect().bottom;
