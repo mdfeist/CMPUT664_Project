@@ -174,14 +174,19 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
 
   /* Create a list of each type. */
   var types = sortedTypeNames.map(type => new JavaType(type));
-  var typeMap = {};
+  var typeMap: { [name: string]: JavaType } = {};
   /* Map full type names to their type. */
   types.forEach(function (type) {
     typeMap[type.name] = type;
   });
 
-  var authorMap = {};
-  var authorSets = {};
+  var authorMap: AuthorStatistics = {};
+  var authorSets: {
+    [name: string]: {
+      files: Set<string>;
+      types: Set<string>;
+    }
+  } = {};
   var typesOverall = new Set<string>();
   var filesOverall = new Set<string>();
 
@@ -199,7 +204,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     /* For each applicable diff in the time range... */
     for (let i = lowerIndex; i < upperIndex; i++) {
       let diff = applicableDiffs[i];
-      /* Count the type, regardless if it's filtered. */
+      /* Count the type name, regardless if it's filtered. */
       typesOverall.add(diff.type);
 
       let type = typeMap[diff.type];
@@ -228,8 +233,8 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     if (!(author in authorMap)) {
       authorMap[author] = [];
       authorSets[author] = {
-        files: new Set(),
-        types: new Set()
+        files: new Set<string>(),
+        types: new Set<string>()
       };
     }
 
