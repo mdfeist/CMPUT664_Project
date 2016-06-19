@@ -23,11 +23,11 @@ following:
 Type `make` in the repository root. Test with `make test`.
 
 Export `$TYPEV_PATH` as the directory where this repository is located.
-If you're using Bash, you can simply do this to export the environment
-variable when your shell starts up:
+If you're using Bash on OS X, you can simply do this to export the
+environment variable when you open up a new terminal:
 
 ```sh
-echo "export TYPEV_PATH=$(pwd)" >> .bashrc
+echo "export TYPEV_PATH=$(pwd)" >> ~/.bash_profile
 ```
 
 To let Git know how to use the AST Diff, add this to `~/.gitconfig`:
