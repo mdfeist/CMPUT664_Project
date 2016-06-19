@@ -23,7 +23,7 @@ var cellInfo = d3.select("body")
   .style("position", "absolute")
   .style("z-index", "10")
   .style("visibility", "hidden")
-  .style("width", String(CELL_INFO_WIDTH) + "px")
+  .style("width", `${CELL_INFO_WIDTH}px`)
   .classed('panel panel-default', true);
 
 cellInfo.append('div')
@@ -104,9 +104,9 @@ function drawGraph(data: DataView, width: number) {
       .attr('x', marginLeft)
       .attr('width', width - marginLeft)
       .attr('height', maxCellHeight)
-      .style('fill', function (d, i) {
+      .style('fill', function (_, i) {
         /* Make alternating colour bands. */
-        return i&1 ? '#f4f4f4' : '#fafafa';
+        return i & 1 ? '#f4f4f4' : '#fafafa';
       });
 
   row.each(createCellsForType);
