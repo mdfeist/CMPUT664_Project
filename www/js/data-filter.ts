@@ -4,14 +4,14 @@ import ASTDiff from './ast-diff';
 import {PreprocessedData} from './preprocess-data';
 
 import assert from './assert';
-import { first, last, union } from './utils';
+import { first, last, addAll } from './utils';
 
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
 
 /**
  * Maps type names to their absolute freqeuncy.
  */
-interface TypeFrequency {
+export interface TypeFrequency {
   [typeName: string]: number;
 };
 
@@ -36,7 +36,7 @@ export interface CommitStatistics {
   date: Date;
 }
 
-interface EntitySummary {
+export interface EntitySummary {
   observed: number;
   cumulative: number;
   total: number;
@@ -234,10 +234,10 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     }
 
     /* Add all observed files and types to their respective sets. */
-    union(filesOverall, files);
-    union(authorSets[author].files, files);
-    union(typesOverall, types);
-    union(authorSets[author].types, types);
+    addAll(filesOverall, files);
+    addAll(authorSets[author].files, files);
+    addAll(typesOverall, types);
+    addAll(authorSets[author].types, types);
 
     /* Record stats! */
     authorMap[author].push({
@@ -314,7 +314,7 @@ function forEachCommit(diffs: ASTDiff[], fn: EachCommmitCallback) {
     /* Update the types. */
     typesOverall.add(diff.type);
     /* Update the files. */
-    union(filesOverall, diff.filesModified);
+    addAll(filesOverall, diff.filesModified);
   }
 }
 

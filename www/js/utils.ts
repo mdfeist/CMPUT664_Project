@@ -27,7 +27,7 @@ export function last<T>(array: T[]): T {
 /**
  * Add all items from the iterable to the set.
  */
-export function union<T>(set: Set<T>, iterable: Iterable<T>): Set<T> {
+export function addAll<T>(set: Set<T>, iterable: Iterable<T>): Set<T> {
   for (var item of iterable) {
     set.add(item);
   }
