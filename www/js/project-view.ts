@@ -9,7 +9,7 @@
 
 
 import assert from './assert';
-import preprocessData from './preprocess-data';
+import preprocessData, {PreprocessedData} from './preprocess-data';
 import DataView, {CommitStatistics} from './data-filter';
 import JavaType from './java-type';
 import Cell from './cell';
@@ -61,7 +61,7 @@ export function createTable2(filter: Filter) {
 
 /*=== Graph ===*/
 
-function drawGraph(data: DataView, width) {
+function drawGraph(data: DataView, width: number) {
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
@@ -227,7 +227,7 @@ function drawGraph(data: DataView, width) {
 
       info.append('br');
 
-      var commit_map = (<any> window).preprocessedData.commits;
+      var commit_map = (<PreprocessedData>window.preprocessedData).commits;
 
       info.append('b')
         .text("Commits:");
@@ -522,7 +522,7 @@ function ensureAxisIsAtGraphBottom(graph: SVGElement, axis: SVGElement) {
   }
 }
 
-function summary({numberOfCommits, authors, numberOfFiles, numberOfTypes, astDiffs}) {
+function summary({numberOfCommits, authors, numberOfFiles, numberOfTypes, astDiffs}: DataView) {
   return `project & ${numberOfCommits} & ${authors.length} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
 }
 
@@ -535,7 +535,7 @@ function viewportHeight() {
 
 /*=== Utilties ===*/
 
-function cellWidthFromScale(cell: Cell, scale: (Date) => number) {
+function cellWidthFromScale(cell: Cell, scale: (_: Date) => number) {
   var bigger = scale(cell.endDate);
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);
