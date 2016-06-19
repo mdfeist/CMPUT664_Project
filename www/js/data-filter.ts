@@ -8,30 +8,52 @@ import { first, last, union } from './utils';
 
 const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
 
+/**
+ * Maps type names to their absolute freqeuncy.
+ */
+interface TypeFrequency {
+  [typeName: string]: number;
+};
+
+interface RawFilteringResult {
+  types: JavaType[];
+  commits: CommitMap;
+  typesPresent: TypeFrequency;
+  timeslices: TimeSlice[];
+  authorStats: AuthorStatistics;
+  typesOverall: Set<string>;
+  filesOverall: Set<string>;
+  astDiffs: ASTDiff[];
+}
+
+export interface AuthorStatistics {
+  [authorID: string]: CommitStatistics[];
+}
+
+export interface CommitStatistics {
+  type: EntitySummary;
+  file: EntitySummary;
+  date: Date;
+}
+
 interface EntitySummary {
   observed: number;
   cumulative: number;
   total: number;
 }
 
-export interface CommitStatistics {
-  type: EntitySummary;
-  file: EntitySummary;
-  date: Date
-}
-
 export default class DataView {
-  public types: Array<JavaType>;
-  public timeslices: Array<TimeSlice>;
-  public typesPresent: Array<JavaType>;
-  public authorStats: { [name: string] : CommitStatistics[]};
-  public commits: Array<Object>;
-  public astDiffs: Array<ASTDiff>;
+  public types: JavaType[];
+  public timeslices: TimeSlice[];
+  public typesPresent: TypeFrequency;
+  public authorStats: AuthorStatistics;
+  public commits: CommitMap;
+  public astDiffs: ASTDiff[];
   public typesOverall: Set<String>;
   public filesOverall: Set<String>;
 
   constructor({types, timeslices, typesPresent, authorStats, astDiffs,
-              typesOverall, filesOverall, commits}) {
+              typesOverall, filesOverall, commits}: RawFilteringResult) {
     this.types = types;
     this.timeslices = timeslices;
     this.typesPresent = typesPresent;
@@ -54,10 +76,11 @@ export default class DataView {
    * # authors -- Filter only to the given authors.
    * # typeFilter -- only types matching this pattern are selected.
    */
-  static filter(data, filters: Filter) {
+  static filter(data: PreprocessedData, filters: Filter) {
     const rawFilteredData = filterTypes(data, filters);
     return new DataView(rawFilteredData);
   }
+
 
   /* TODO: Rename to allTypeNames */
   /** All types name, without arbitrary filtering or sorting. **/
@@ -159,8 +182,8 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
 
   var authorMap = {};
   var authorSets = {};
-  var typesOverall = new Set();
-  var filesOverall = new Set();
+  var typesOverall = new Set<string>();
+  var filesOverall = new Set<string>();
 
   /* Create all cells applicable for display.  */
   var timeslices = TimeSlice.createRange(startDate, endDate, stepSize);
@@ -172,15 +195,14 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     /* This will filter out only the applicable diffs. */
     var lowerIndex = d3.bisectLeft<Valuable>(applicableDiffs, startDate);
     var upperIndex = d3.bisectRight<Valuable>(applicableDiffs, endDate);
-    var i, diff, type;
 
     /* For each applicable diff in the time range... */
-    for (i = lowerIndex; i < upperIndex; i++) {
-      diff = applicableDiffs[i];
+    for (let i = lowerIndex; i < upperIndex; i++) {
+      let diff = applicableDiffs[i];
       /* Count the type, regardless if it's filtered. */
       typesOverall.add(diff.type);
 
-      type = typeMap[diff.type];
+      let type = typeMap[diff.type];
 
       /* The type must exist! */
       if (type === undefined) {
@@ -202,7 +224,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
     var author = commit.author;
-    var date = new Date(commit.date);
+    var date = new Date(commit.date.valueOf());
     if (!(author in authorMap)) {
       authorMap[author] = [];
       authorSets[author] = {
@@ -243,14 +265,14 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     typesOverall,
     filesOverall,
     astDiffs: data.astDiffs
-  };
+  } as RawFilteringResult;
 }
 
 /**
  * Count all types in the given ASTDiff objects.
  */
-function countTypeAbsoluteFrequency(astDiffs) {
-  var typesFrequency = {};
+function countTypeAbsoluteFrequency(astDiffs: ASTDiff[]) {
+  var typesFrequency: TypeFrequency = {};
   astDiffs.forEach(function (diff) {
     var freq = typesFrequency[diff.type] || 0;
     typesFrequency[diff.type] = freq + 1;
@@ -259,15 +281,23 @@ function countTypeAbsoluteFrequency(astDiffs) {
   return typesFrequency;
 }
 
+type EachCommmitCallback = (
+  current: Commit,
+  files: Set<string>,
+  types: Set<string>
+) => void
+
 /**
  * Given diffs, calls the callback for each commit.
  * The callback is called with the raw commit, a set of files touched, and a
  * set of types type
  */
-function forEachCommit(diffs, fn) {
-  var currentCommit, filesOverall, typesOverall;
+function forEachCommit(diffs: ASTDiff[], fn: EachCommmitCallback) {
+  var currentCommit: Commit,
+      filesOverall: Set<string>,
+      typesOverall: Set<string>;
 
-  for (var diff of diffs) {
+  for (let diff of diffs) {
     /* When encoutering a new commit... */
     if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
       /* Do the callback. */
@@ -277,16 +307,14 @@ function forEachCommit(diffs, fn) {
 
       /* Reset the current commit. */
       currentCommit = diff.commit;
-      typesOverall = new Set();
       filesOverall = new Set();
+      typesOverall = new Set();
     }
 
     /* Update the types. */
     typesOverall.add(diff.type);
-
-    for (var filename of diff.filesModified) {
-      filesOverall.add(filename);
-    }
+    /* Update the files. */
+    union(filesOverall, diff.filesModified);
   }
 }
 

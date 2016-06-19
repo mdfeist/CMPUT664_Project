@@ -54,20 +54,20 @@ window.redrawTable = function () {
 }
 
 function getFilters(): Filter {
-  var start_date = null;
-  var end_date = null;
+  var startDate: Date = null;
+  var endDate: Date = null;
 
   var timestamp = Date.parse($("#min-datepicker").val())
   if (isNaN(timestamp) == false) {
-    start_date = new Date(timestamp);
+    startDate = new Date(timestamp);
   }
 
   timestamp = Date.parse($("#max-datepicker").val())
   if (isNaN(timestamp) == false) {
-    end_date = new Date(timestamp);
+    endDate = new Date(timestamp);
   }
 
-  var _authors = [];
+  var _authors: string[] = [];
 
   $('.author-check-box').each(function() {
     if($(this).prop('checked')) {
@@ -78,8 +78,8 @@ function getFilters(): Filter {
   var typeFilter = $('#type-filter').val();
 
   return {
-    start: start_date,
-    end: end_date,
+    start: startDate,
+    end: endDate,
     stepSize: $("#step").val(),
     limit: +$("#filter").val(),
     authors: _authors,

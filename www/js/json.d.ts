@@ -31,8 +31,8 @@ interface CommitFromJSON {
    */
   message: string;
 
-  files: any[];
-  all_files: any[];
+  files: string[];
+  all_files: string[];
 }
 
 interface Commit extends CommitFromJSON {

@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es6",
         "module": "system",
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "sourceMap": true,
         "outFile": "index.js"
     },
