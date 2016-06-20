@@ -1,8 +1,9 @@
 AST_OUTDIR = ast-output
 GUMTREE = gumtree-spoon-ast-diff/target/gumtree-spoon-ast-diff-0.0.3-SNAPSHOT-jar-with-dependencies.jar
 OUTPUTS = $(AST_OUTDIR)/antlr4.out
+WEBAPP = www/js/index.js
 
-all: $(OUTPUTS) $(GUMTREE)
+all: $(OUTPUTS) $(GUMTREE) $(WEBAPP)
 	@printf '\033[1;35m'
 	@echo 'Type `make get-deps` to install Flask system-wide.'
 	@echo 'virutalenv recommended: https://virtualenv.pypa.io/en/latest/'
@@ -25,6 +26,12 @@ update-archive:
 # Compile GumTree
 $(GUMTREE):
 	cd gumtree-spoon-ast-diff && mvn install -DskipTests
+
+# Compile the webapp:
+$(WEBAPP):
+	@which tsc > /dev/null || printf "Must install typescript\n\tnpm install -g typescript"
+	@which typings > /dev/null || printf "Must install typings\n\tnpm install -g typings"
+	$(MAKE) -C $(dir $(word 1,$(WEBAPP)))
 
 #### Pattern rules ####
 
