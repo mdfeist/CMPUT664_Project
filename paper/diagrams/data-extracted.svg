@@ -26,7 +26,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
      inkscape:cx="129.47497"
-     inkscape:cy="218.24738"
+     inkscape:cy="161.67884"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -223,7 +223,7 @@
          x="53.209061"
          sodipodi:role="line">Artifact:  <tspan
    id="tspan3841"
-   style="font-weight:normal;-inkscape-font-specification:Arial">StringBuilder </tspan></tspan></text>
+   style="font-weight:normal;-inkscape-font-specification:Arial">java.lang.StringBuilder </tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text3021"
