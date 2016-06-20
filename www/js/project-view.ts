@@ -182,21 +182,21 @@ function drawGraph(data: DataView, width: number) {
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('transform', function (cell: Cell) {
+      .attr('transform', function (cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         var topHalf = proportion * maxCellHeight * height;
 
         return `translate(0, ${topHalf})`;
       })
-      .attr('height', function (cell: Cell) {
+      .attr('height', function (cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         return proportion * maxCellHeight * height;
       });
 
     /* Mouse Click: Show Cell stats */
-    cell.on("click", function(cell_data: Cell) {
+    cell.on("click", function(cellData: Cell) {
       var stats = d3.select("#stats-body");
       stats.selectAll('.content').remove();
 
@@ -206,21 +206,21 @@ function drawGraph(data: DataView, width: number) {
       info.append('b')
         .text("Info:");
       info.append('p')
-        .text("Additions: " + cell_data.numberOfAdds);
+        .text("Additions: " + cellData.numberOfAdds);
       info.append('p')
-        .text("Deletions: " + cell_data.numberOfDeletions);
+        .text("Deletions: " + cellData.numberOfDeletions);
       /* TODO: Graphs here! */
       info.append('p')
-        .text("Authors: " + cell_data.authors.length);
+        .text("Authors: " + cellData.authors.length);
       info.append('p')
-        .text("Commits: " + cell_data.commits.length);
+        .text("Commits: " + cellData.commits.length);
 
       info.append('br');
 
       info.append('b')
         .text("Authors:");
 
-      cell_data.authors.forEach(function (author) {
+      cellData.authors.forEach(function (author) {
         info.append('p')
           .text(author);
       });
@@ -232,7 +232,7 @@ function drawGraph(data: DataView, width: number) {
       info.append('b')
         .text("Commits:");
 
-      cell_data.commits.forEach(function (commitID) {
+      cellData.commits.forEach(function (commitID) {
         var commit = commit_map[commitID];
         info.append('p')
           .text("Commit ID: " + commit.commitID);
