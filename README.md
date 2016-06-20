@@ -80,7 +80,16 @@ virtualenv) and simply type:
 
 This will start the web server listening on <http://localhost:5000/>.
 
-# License
+## Developing
+
+### Web Application
+
+Either use `make watch` in `www/js` or use an editor such as
+[atom-typescript][] to automatically build `index.js` on save.
+
+[atom-typescript]: https://atom.io/packages/atom-typescript
+
+## License
 
 The Python server, the web frontend, the modifications made to
 Spoon-GumTree, and all associated scripts are under the following

@@ -3,3 +3,7 @@ index.js: $(wildcard *.ts) tsconfig.json typings
 
 typings: typings.json
 	typings install
+
+.PHONY: watch
+watch:
+	tsc --watch
