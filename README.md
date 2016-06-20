@@ -55,16 +55,15 @@ or:
 ### Building the web application
 
 With [TypeScript][] and [Typings][] installed, go in to the `www/js/`
-directory and simply install the typings and compile as so:
-
-```sh
-typings install && tsc
-```
+directory and simply type `make`. This will create `typings/` and
+compile the application to a single JavaScript file called `index.js` in
+the `www/js/` directory.
 
 [typescript]: https://www.typescriptlang.org/
 [typings]: https://github.com/typings/typings
 
-# Usage
+
+## Usage
 
 ### AST Diff
 
