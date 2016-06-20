@@ -18,13 +18,18 @@ following:
  * Python 3.x
      - pip
 
+### Web Application
+
+ * Node 4.0+ 
+     - `typescript` and `typings` (`npm install -g typescript typings`)
+
 ### Installing the AST Diff
 
 Type `make` in the repository root. Test with `make test`.
 
-Export `$TYPEV_PATH` as the directory where this repository is located.
-If you're using Bash on OS X, you can simply do this to export the
-environment variable when you open up a new terminal:
+You will need to export `$TYPEV_PATH` as the directory where this
+repository is located. If you're using Bash on OS X, you can simply do
+this to export the environment variable when you open up a new terminal:
 
 ```sh
 echo "export TYPEV_PATH=$(pwd)" >> ~/.bash_profile
@@ -46,6 +51,18 @@ install Flask globally as well:
 or:
 
     pip install -r requirements.txt
+
+### Building the web application
+
+With [TypeScript][] and [Typings][] installed, go in to the `www/js/`
+directory and simply install the typings and compile as so:
+
+```sh
+typings install && tsc
+```
+
+[typescript]: https://www.typescriptlang.org/
+[typings]: https://github.com/typings/typings
 
 # Usage
 
