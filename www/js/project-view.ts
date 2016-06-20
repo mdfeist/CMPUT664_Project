@@ -8,11 +8,12 @@
  */
 
 
-import assert from './assert.js';
-import preprocessData from './preprocess-data.js';
-import DataView from './data-filter.js';
-
-/* Shim the assert function in there! */
+import assert from './assert';
+import preprocessData, {PreprocessedData} from './preprocess-data';
+import DataView, {CommitStatistics} from './data-filter';
+import JavaType from './java-type';
+import Cell from './cell';
+import TimeSlice from './time-slice';
 
 var CELL_INFO_WIDTH = 500;
 
@@ -22,7 +23,7 @@ var cellInfo = d3.select("body")
   .style("position", "absolute")
   .style("z-index", "10")
   .style("visibility", "hidden")
-  .style("width", String(CELL_INFO_WIDTH) + "px")
+  .style("width", `${CELL_INFO_WIDTH}px`)
   .classed('panel panel-default', true);
 
 cellInfo.append('div')
@@ -30,11 +31,10 @@ cellInfo.append('div')
   .style("font-weight", "bold")
   .text('Info');
 
-
 /* Draw table given JSON */
-export function createTable(data, filter) {
+export function createTable(data: Project, filter: Filter) {
   window.DATA = data;
-  window.preprocessedData = preprocessData(window.DATA);
+  window.preprocessedData = preprocessData(data);
 
   return createTable2(filter);
 }
@@ -42,14 +42,16 @@ export function createTable(data, filter) {
 /**
  * Draw table given filter.
  */
-export function createTable2(filter) {
+export function createTable2(filter: Filter) {
   /* Plop this in dna-table div */
   var dnaTable = document.getElementById('dna-table');
 
   /* Clear previous table */
   dnaTable.innerHTML = "";
 
+  // TODO: get rid of window
   var processed = window.preprocessedData;
+  // TODO: get rid of window
   var data = window.filteredData = DataView.filter(processed, filter);
   drawGraph(data, dnaTable.offsetWidth);
   drawStats(data, dnaTable.offsetWidth);
@@ -57,17 +59,9 @@ export function createTable2(filter) {
   return data;
 }
 
-/**
- * TODO:
- *  - Calculate type and file coverage PER COMMIT.
- *  - Per each author, get their type/file coverage.
- *  - Put it in a CSV
- */
-
-
 /*=== Graph ===*/
 
-function drawGraph(data, width) {
+function drawGraph(data: DataView, width: number) {
   var marginLeft = 150;
   var cellHeight = 64;
   var height = cellHeight * data.types.length;
@@ -110,9 +104,9 @@ function drawGraph(data, width) {
       .attr('x', marginLeft)
       .attr('width', width - marginLeft)
       .attr('height', maxCellHeight)
-      .style('fill', function (d, i) {
+      .style('fill', function (_, i) {
         /* Make alternating colour bands. */
-        return i&1 ? '#f4f4f4' : '#fafafa';
+        return i & 1 ? '#f4f4f4' : '#fafafa';
       });
 
   row.each(createCellsForType);
@@ -123,7 +117,7 @@ function drawGraph(data, width) {
       .attr('dy', '.22em')
       .attr('x', `${marginLeft - 10}px`)
       .attr('text-anchor', 'end')
-      .text(type => type.shortName );
+      .text((type) => type.shortName );
 
   /* Add the time axis as a **new** SVG element, inserted BEFORE the main SVG
    * element.*/
@@ -144,15 +138,26 @@ function drawGraph(data, width) {
         return text.match(/^\d{4,}$/);
       });
 
-  ensureAxisIsAtGraphBottom(svg.node(), floatingAxis.node());
+  ensureAxisIsAtGraphBottom(
+    asSVGElement(svg.node()),
+    asSVGElement(floatingAxis.node())
+  );
 
-  function createCellsForType(type) {
+  /* Dynamic type assertion for SVGElement. */
+  function asSVGElement(value: any): SVGElement {
+    if (value instanceof SVGElement) {
+      return value;
+    }
+    throw new TypeError('value is not an SVGElement.');
+  }
+
+  function createCellsForType(type: JavaType) {
     /* Create all the cells. */
     var cell = d3.select(this).selectAll('.cell')
       .data(type.cells)
       .enter().append('g')
         /* Only do cool things with cells that *HAVE* data! */
-        .filter(function (cell) { return cell.hasData; })
+        .filter(function (cell: Cell) { return cell.hasData; })
         .classed('cell', true)
         .attr('transform', function (cell) {
           var yOffset = maxCellHeight * (1  - cell.numberOfObservations / type.numberOfObservationsInLargestCell);
@@ -177,21 +182,21 @@ function drawGraph(data, width) {
       .attr('width', function (cell) {
         return cellWidthFromScale(cell, xScale);
       })
-      .attr('transform', function (cell) {
+      .attr('transform', function (cell: Cell) {
         var proportion = cell.numberOfDeletions / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         var topHalf = proportion * maxCellHeight * height;
 
         return `translate(0, ${topHalf})`;
       })
-      .attr('height', function (cell) {
+      .attr('height', function (cell: Cell) {
         var proportion = cell.numberOfAdds / cell.numberOfObservations;
         var height = cell.numberOfObservations / type.numberOfObservationsInLargestCell;
         return proportion * maxCellHeight * height;
       });
 
     /* Mouse Click: Show Cell stats */
-    cell.on("click", function(cell_data) {
+    cell.on("click", function(cell_data: Cell) {
       var stats = d3.select("#stats-body");
       stats.selectAll('.content').remove();
 
@@ -222,7 +227,7 @@ function drawGraph(data, width) {
 
       info.append('br');
 
-      var commit_map = window.preprocessedData.commits;
+      var commit_map = (<PreprocessedData>window.preprocessedData).commits;
 
       info.append('b')
         .text("Commits:");
@@ -254,7 +259,7 @@ function drawGraph(data, width) {
     });
 
     /* Mouse over: Show and update cell info */
-    cell.on("mouseover", function(cell_data) {
+    cell.on("mouseover", function(cell_data: Cell) {
       cellInfo.selectAll('ul').remove();
       var info = cellInfo.append('ul')
         .classed('list-group', true);
@@ -330,7 +335,7 @@ function drawGraph(data, width) {
 /**
  * Draws type coverage stats and things.
  */
-function drawStats(data, width) {
+function drawStats(data: DataView, width: number) {
   var marginLeft = 64;
   var overviewHeight = 480;
   var rowHeight = 64;
@@ -370,9 +375,9 @@ function drawStats(data, width) {
       .attr("height", overviewHeight);
 
   var numberOfTypesTotal = data.numberOfTypes;
-  var lineFunction = d3.svg.line()
-    .x(timeslice => xScale(timeslice.startDate))
-    .y(timeslice => yScale(timeslice.cumulativeTypeCount / numberOfTypesTotal))
+  var lineFunction = d3.svg.line<TimeSlice>()
+    .x((timeslice: TimeSlice) => xScale(timeslice.startDate))
+    .y((timeslice: TimeSlice) => yScale(timeslice.cumulativeTypeCount / numberOfTypesTotal))
     .interpolate('linear');
 
   /* Make the line chart. */
@@ -391,7 +396,7 @@ function drawStats(data, width) {
     .call(verticalAxis);
 
   /* It gets ugly here... */
-  var lineFunctionSmallFiles = d3.svg.line()
+  var lineFunctionSmallFiles = d3.svg.line<CommitStatistics>()
     .x(author => xScale(author.date))
     .y(author => {
       var proportion = author.file.cumulative / numberOfTypesTotal;
@@ -399,7 +404,7 @@ function drawStats(data, width) {
     })
     .interpolate('linear');
 
-  var lineFunctionSmallTypes = d3.svg.line()
+  var lineFunctionSmallTypes = d3.svg.line<CommitStatistics>()
     .x(author => xScale(author.date))
     .y(author => {
       var proportion = author.type.cumulative / numberOfTypesTotal;
@@ -433,7 +438,7 @@ function drawStats(data, width) {
 
   authorCoverage.append('text')
     .attr('transform', `translate(${marginLeft}, 16)`)
-    .text(authorName => authorName);
+    .text(authorName => authorName.toString());
 
   /* TODO: Make independent axis for each author... */
   /*
@@ -453,13 +458,14 @@ function drawStats(data, width) {
  * Returns the download link for a CSV file (with header)
  * for per-author type and file coverage statistics.
  */
-window.makeCSVLink = function makeCSVLink(data) {
-  var lines = [];
+export function makeCSVLink(data: DataView) {
+  var lines: string[] = [];
   var filesTotal = data.numberOfFiles;
   var typesTotal = data.numberOfTypes;
 
   /* Add the header. */
   addRow('Metric', 'Author', 'Date', 'Coverage');
+  type Metric = 'file' | 'type';
 
   for (var authorName of Object.keys(data.authorStats)) {
     for (var stats of data.authorStats[authorName]) {
@@ -478,9 +484,11 @@ window.makeCSVLink = function makeCSVLink(data) {
     }
   }
 
+  function addRow(...headers: Array<string>): void;
+  function addRow(name: Metric, author: string, date: number, total: number): void;
+
   function addRow() {
-    var i;
-    for (i = 0; i < arguments.length; i++) {
+    for (let i = 0; i < arguments.length; i++) {
       if (/[,"]/.exec(arguments[i]))
         throw new Error('Invalid char in:' + arguments[i]);
     }
@@ -497,14 +505,12 @@ window.makeCSVLink = function makeCSVLink(data) {
  * Places the axis on the bottom of the graph on initial render, when the
  * screen is too big.
  */
-function ensureAxisIsAtGraphBottom(graph, axis) {
-  assert(graph instanceof SVGElement);
-  assert(axis instanceof SVGElement);
-
+function ensureAxisIsAtGraphBottom(graph: SVGElement, axis: SVGElement) {
   var paddingBottom = 60;
   var bottomOfGraph = graph.getBoundingClientRect().bottom;
 
-  /* when the screen*/
+  /* When the screen can accomodate the graph and its padding at the bottom,
+   * do not reposition. */
   var shouldReposition = bottomOfGraph + paddingBottom < viewportHeight();
 
   if (shouldReposition) {
@@ -516,7 +522,7 @@ function ensureAxisIsAtGraphBottom(graph, axis) {
   }
 }
 
-function summary({numberOfCommits, authors, numberOfFiles, numberOfTypes, astDiffs}) {
+function summary({numberOfCommits, authors, numberOfFiles, numberOfTypes, astDiffs}: DataView) {
   return `project & ${numberOfCommits} & ${authors.length} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
 }
 
@@ -529,7 +535,7 @@ function viewportHeight() {
 
 /*=== Utilties ===*/
 
-function cellWidthFromScale(cell, scale) {
+function cellWidthFromScale(cell: Cell, scale: (_: Date) => number) {
   var bigger = scale(cell.endDate);
   var smaller = scale(cell.startDate);
   assert(bigger > smaller);

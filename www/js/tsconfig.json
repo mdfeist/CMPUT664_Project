@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "system",
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "outFile": "index.js"
+    },
+    "exclude": [
+        "node_modules",
+        "typings",
+        "lib"
+    ],
+    "files": [
+        "index.ts",
+        "json.d.ts",
+        "typings/index.d.ts"
+    ]
+}

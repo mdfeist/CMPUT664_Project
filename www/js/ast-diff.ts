@@ -1,6 +1,6 @@
-import assert from './assert.js';
+import assert from './assert';
 
-const EDIT_KIND = ['+', '-'];
+const EDIT_KIND = new Set(['+', '-']);
 
 /**
  * Class: ASTDiff
@@ -8,10 +8,13 @@ const EDIT_KIND = ['+', '-'];
  * Instantiated with an original data object.
  */
 export default class ASTDiff {
-  constructor(original, commit) {
+  private _commit: Commit;
+  public type: string;
+  public edit: EditKind;
+
+  constructor(original: Edit, commit: Commit) {
     assert(commit.commitID === original.commitID);
-    assert(typeof original.type === 'string');
-    assert(EDIT_KIND.includes(original.edit));
+    assert(EDIT_KIND.has(original.edit));
 
     this.type = original.type;
     this.edit = original.edit;
@@ -22,7 +25,7 @@ export default class ASTDiff {
    * Create an ASTDiff using the information in the commit map.
    * A commit map maps the Git SHA to the commit contents themselves.
    */
-  static withCommitMap(commits, diff) {
+  static withCommitMap(commits: CommitMap, diff: Edit) {
     return new ASTDiff(diff, commits[diff.commitID]);
   }
 
@@ -36,7 +39,7 @@ export default class ASTDiff {
    * Coercing this to a primitive (such as when comparing or sorting ASTDiffs)
    * will result in a number representing the time of the ASTDiff.
    */
-  valueOf() {
+  valueOf(): number {
     return this.date.valueOf();
   }
 

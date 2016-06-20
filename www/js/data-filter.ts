@@ -1,14 +1,59 @@
-import JavaType from './java-type.js';
-import TimeSlice from './time-slice.js';
+import JavaType from './java-type';
+import TimeSlice from './time-slice';
+import ASTDiff from './ast-diff';
+import {PreprocessedData} from './preprocess-data';
 
-import assert from './assert.js';
-import { first, last, union } from './utils.js';
+import assert from './assert';
+import { first, last, addAll } from './utils';
 
-const VALID_STEP_SIZES = ['hour', 'day', 'month', 'week'];
+const VALID_STEP_SIZES = new Set(['hour', 'day', 'month', 'week']);
+
+/**
+ * Maps type names to their absolute freqeuncy.
+ */
+export interface TypeFrequency {
+  [typeName: string]: number;
+};
+
+interface RawFilteringResult {
+  types: JavaType[];
+  commits: CommitMap;
+  typesPresent: TypeFrequency;
+  timeslices: TimeSlice[];
+  authorStats: AuthorStatistics;
+  typesOverall: Set<string>;
+  filesOverall: Set<string>;
+  astDiffs: ASTDiff[];
+}
+
+export interface AuthorStatistics {
+  [authorID: string]: CommitStatistics[];
+}
+
+export interface CommitStatistics {
+  type: EntitySummary;
+  file: EntitySummary;
+  date: Date;
+}
+
+export interface EntitySummary {
+  observed: number;
+  cumulative: number;
+  total: number;
+}
 
 export default class DataView {
+  public types: JavaType[];
+  public timeslices: TimeSlice[];
+  public typesPresent: TypeFrequency;
+  public authorStats: AuthorStatistics;
+  public commits: CommitMap;
+  public astDiffs: ASTDiff[];
+  public typesOverall: Set<String>;
+  public filesOverall: Set<String>;
+
   constructor({types, timeslices, typesPresent, authorStats, astDiffs,
-              typesOverall, filesOverall, commits}) {
+              typesOverall, filesOverall, commits}: RawFilteringResult) {
     this.types = types;
     this.timeslices = timeslices;
     this.typesPresent = typesPresent;
@@ -24,17 +69,18 @@ export default class DataView {
   /**
    * Returns a new DataView with the given filters applied:
    *
-   * # startDate
-   * # endDate
+   * # start
+   * # end
    * # limit -- maximum number of types
    * # stepSize -- What size to group ASTDiffs
    * # authors -- Filter only to the given authors.
    * # typeFilter -- only types matching this pattern are selected.
    */
-  static filter(data, filters) {
+  static filter(data: PreprocessedData, filters: Filter) {
     const rawFilteredData = filterTypes(data, filters);
     return new DataView(rawFilteredData);
   }
+
 
   /* TODO: Rename to allTypeNames */
   /** All types name, without arbitrary filtering or sorting. **/
@@ -82,35 +128,32 @@ export default class DataView {
   }
 }
 
+
 /**
  * Takes preprocessed data, and returns an array of types, in ascending order
  * of popularity.
  *
  * Each type has its Cells, with ASTDiffs.
  */
-function filterTypes(data, filters) {
+function filterTypes(data: PreprocessedData, filters: Filter) {
   /* Let filters be undefined or null. */
   filters = filters ? filters : {};
 
   /* Either the date provided, or the first date attested. */
-  var startDate = filters.start || first(data.astDiffs).date;
+  var startDate: Date = filters.start || first(data.astDiffs).date;
   /* Either the date provided or the last date attested. */
-  var endDate = filters.end || last(data.astDiffs).date;
+  var endDate: Date = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
-  var stepSize = filters.stepSize || 'month';
-  var authors = filters.authors || [];
+  var stepSize: StepSize = filters.stepSize || 'month';
+  var authors: string[] = filters.authors || [];
   var typeFilter = filters.typeFilter ? filters.typeFilter : null;
 
-  assert(startDate instanceof Date);
-  assert(endDate instanceof Date);
   assert(startDate < endDate);
-  assert(typeof numberOfTypesUpperBound === 'number');
-  assert(VALID_STEP_SIZES.includes(stepSize));
-  assert(authors instanceof Array);
+  assert(VALID_STEP_SIZES.has(stepSize));
 
   /* Find the range of diffs to use. */
-  var lowerIndex = d3.bisectLeft(data.astDiffs, startDate);
-  var upperIndex = d3.bisectRight(data.astDiffs, endDate);
+  var lowerIndex = d3.bisectLeft<Valuable>(data.astDiffs, startDate);
+  var upperIndex = d3.bisectRight<Valuable>(data.astDiffs, endDate);
 
   var applicableDiffs = data.astDiffs.slice(lowerIndex, upperIndex);
   /* Filter types, first by the types that are ACTUALLY present in the
@@ -130,17 +173,22 @@ function filterTypes(data, filters) {
   assert(sortedTypeNames.length > 0);
 
   /* Create a list of each type. */
-  var types = sortedTypeNames.map(JavaType);
-  var typeMap = {};
+  var types = sortedTypeNames.map(type => new JavaType(type));
+  var typeMap: { [name: string]: JavaType } = {};
   /* Map full type names to their type. */
   types.forEach(function (type) {
     typeMap[type.name] = type;
   });
 
-  var authorMap = {};
-  var authorSets = {};
-  var typesOverall = new Set();
-  var filesOverall = new Set();
+  var authorMap: AuthorStatistics = {};
+  var authorSets: {
+    [name: string]: {
+      files: Set<string>;
+      types: Set<string>;
+    }
+  } = {};
+  var typesOverall = new Set<string>();
+  var filesOverall = new Set<string>();
 
   /* Create all cells applicable for display.  */
   var timeslices = TimeSlice.createRange(startDate, endDate, stepSize);
@@ -150,17 +198,16 @@ function filterTypes(data, filters) {
     var endDate = timeslice.endDate;
 
     /* This will filter out only the applicable diffs. */
-    var lowerIndex = d3.bisectLeft(applicableDiffs, startDate);
-    var upperIndex = d3.bisectRight(applicableDiffs, endDate);
-    var i, diff, type;
+    var lowerIndex = d3.bisectLeft<Valuable>(applicableDiffs, startDate);
+    var upperIndex = d3.bisectRight<Valuable>(applicableDiffs, endDate);
 
     /* For each applicable diff in the time range... */
-    for (i = lowerIndex; i < upperIndex; i++) {
-      diff = applicableDiffs[i];
-      /* Count the type, regardless if it's filtered. */
+    for (let i = lowerIndex; i < upperIndex; i++) {
+      let diff = applicableDiffs[i];
+      /* Count the type name, regardless if it's filtered. */
       typesOverall.add(diff.type);
 
-      type = typeMap[diff.type];
+      let type = typeMap[diff.type];
 
       /* The type must exist! */
       if (type === undefined) {
@@ -172,7 +219,6 @@ function filterTypes(data, filters) {
         type.addDiff(diff, startDate, endDate);
         timeslice.addDiff(diff);
       }
-
     }
 
     /* Finally, commit the count to the timeslice. */
@@ -183,20 +229,20 @@ function filterTypes(data, filters) {
   typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
     var author = commit.author;
-    var date = new Date(commit.date);
+    var date = new Date(commit.date.valueOf());
     if (!(author in authorMap)) {
       authorMap[author] = [];
       authorSets[author] = {
-        files: new Set(),
-        types: new Set()
+        files: new Set<string>(),
+        types: new Set<string>()
       };
     }
 
     /* Add all observed files and types to their respective sets. */
-    union(filesOverall, files);
-    union(authorSets[author].files, files);
-    union(typesOverall, types);
-    union(authorSets[author].types, types);
+    addAll(filesOverall, files);
+    addAll(authorSets[author].files, files);
+    addAll(typesOverall, types);
+    addAll(authorSets[author].types, types);
 
     /* Record stats! */
     authorMap[author].push({
@@ -224,14 +270,14 @@ function filterTypes(data, filters) {
     typesOverall,
     filesOverall,
     astDiffs: data.astDiffs
-  };
+  } as RawFilteringResult;
 }
 
 /**
  * Count all types in the given ASTDiff objects.
  */
-function countTypeAbsoluteFrequency(astDiffs) {
-  var typesFrequency = {};
+function countTypeAbsoluteFrequency(astDiffs: ASTDiff[]) {
+  var typesFrequency: TypeFrequency = {};
   astDiffs.forEach(function (diff) {
     var freq = typesFrequency[diff.type] || 0;
     typesFrequency[diff.type] = freq + 1;
@@ -240,15 +286,23 @@ function countTypeAbsoluteFrequency(astDiffs) {
   return typesFrequency;
 }
 
+type EachCommmitCallback = (
+  current: Commit,
+  files: Set<string>,
+  types: Set<string>
+) => void
+
 /**
  * Given diffs, calls the callback for each commit.
  * The callback is called with the raw commit, a set of files touched, and a
  * set of types type
  */
-function forEachCommit(diffs, fn) {
-  var currentCommit, filesOverall, typesOverall;
+function forEachCommit(diffs: ASTDiff[], fn: EachCommmitCallback) {
+  var currentCommit: Commit,
+      filesOverall: Set<string>,
+      typesOverall: Set<string>;
 
-  for (var diff of diffs) {
+  for (let diff of diffs) {
     /* When encoutering a new commit... */
     if (currentCommit === undefined || currentCommit.commitID !== diff.sha) {
       /* Do the callback. */
@@ -258,16 +312,14 @@ function forEachCommit(diffs, fn) {
 
       /* Reset the current commit. */
       currentCommit = diff.commit;
-      typesOverall = new Set();
       filesOverall = new Set();
+      typesOverall = new Set();
     }
 
     /* Update the types. */
     typesOverall.add(diff.type);
-
-    for (var filename of diff.filesModified) {
-      filesOverall.add(filename);
-    }
+    /* Update the files. */
+    addAll(filesOverall, diff.filesModified);
   }
 }
 

@@ -1,5 +1,4 @@
-import assert from './assert.js';
-import ASTDiff from './ast-diff.js';
+import ASTDiff from './ast-diff';
 
 /**
  * Class: TimeSlice
@@ -9,12 +8,10 @@ import ASTDiff from './ast-diff.js';
  * Create an array of these and you get an x-axis!
  */
 export default class TimeSlice {
-  constructor(start, end) {
-    assert(start instanceof Date);
-    assert(end instanceof Date);
-    this.startDate = start;
-    this.endDate = end;
+  private _typeCount: number;
+  private _diffs: Array<ASTDiff>;
 
+  constructor(public startDate: Date, public endDate: Date) {
     this._typeCount = null;
 
     this._diffs = [];
@@ -26,8 +23,7 @@ export default class TimeSlice {
    *  - a commit
    *  - files
    */
-  addDiff (diff) {
-    assert(diff instanceof ASTDiff);
+  addDiff (diff: ASTDiff) {
     this._diffs.push(diff);
   }
 
@@ -42,27 +38,23 @@ export default class TimeSlice {
    * Only permits the cumulative type count to be set as a number, as well as
    * ensuring it's a number.
    */
-  set cumulativeTypeCount (value) {
+  set cumulativeTypeCount (value: number) {
     if (this._typeCount !== null) {
       throw new Error('cumulativeTypeCount can only be set once!');
     }
-    if (typeof value !== 'number') {
-      throw new Error('cumulativeTypeCount must be a number!');
-    }
-    return this._typeCount = value;
+    this._typeCount = value;
   }
 
   /**
    * Given start and end dates, calls the given callback with the start and end
    * date.
    */
-  static createRange(start, end, step) {
-    var currentStart;
+  static createRange(start: Date, end: Date, step: StepSize) {
     var currentEnd = end;
-    var array = [];
+    var array: TimeSlice[] = [];
 
     while (start < currentEnd) {
-      currentStart = moment(currentEnd);
+      let currentStart = moment(currentEnd);
 
       switch (step) {
         case 'hour':
@@ -79,9 +71,9 @@ export default class TimeSlice {
           currentStart.subtract(1, 'month');
       }
 
-      currentStart = currentStart.toDate();
-      array.push(new TimeSlice(currentStart, currentEnd));
-      currentEnd = currentStart;
+      let lowerBound = currentStart.toDate();
+      array.push(new TimeSlice(lowerBound, currentEnd));
+      currentEnd = lowerBound;
     }
 
     /* Such that the timeslices are in ascending chronological order. */

@@ -1,6 +1,6 @@
-import assert from './assert.js';
-import Cell from './cell.js';
-import { last } from './utils.js';
+import ASTDiff from './ast-diff';
+import Cell from './cell';
+import { last } from './utils';
 
 /**
  * Class: JavaType
@@ -14,7 +14,14 @@ import { last } from './utils.js';
  * Create an array of these and you get a y-axis!
  */
 export default class JavaType {
-  constructor(name) {
+  private _largest: number;
+
+  public className: string;
+  public package: string;
+  public methodName: string;
+  public cells: Cell[];
+
+  constructor(name: string) {
     /* Instantiate a new Cell object if called without `new`. */
     if (!(this instanceof JavaType)) {
       return new JavaType(name);
@@ -43,15 +50,14 @@ export default class JavaType {
   /**
    * Adds a data cell.
    */
-  addCell (cell) {
-    assert(cell instanceof Cell);
+  addCell(cell: Cell) {
     return this.cells.push(cell);
   }
 
   /**
    * Adds an AST diff to the current type.
    */
-  addDiff (diff, startDate, endDate) {
+  addDiff(diff: ASTDiff, startDate: Date, endDate: Date) {
     if (!this.cells.length || !last(this.cells).isAcceptableDiff(diff)) {
       /* Automatically add a new cell, if needed. */
       this.addCell(new Cell(startDate, endDate, this.name));
@@ -62,14 +68,14 @@ export default class JavaType {
   /**
    * toString() will simply return the fully-qualified name.
    */
-  toString () {
+  toString() {
     return this.fullyQualifiedName;
   }
 
   /**
    * Returns the fully-qualified name (package + class name) of this type.
    */
-  get name () {
+  get name(): string {
     if (this.package) {
       return this.package + '.' + this.shortName;
     }
@@ -81,7 +87,7 @@ export default class JavaType {
    * The short name is simply the class name, plus its arguments, if they
    * exist.
    */
-  get shortName () {
+  get shortName(): string {
     if (this.methodName) {
       return this.className + '#' + this.methodName;
     }
@@ -91,16 +97,16 @@ export default class JavaType {
   /**
    * Alias for name.
    */
-  get fullyQualifiedName () {
+  get fullyQualifiedName(): string {
     return this.name;
   }
 
   /**
-   * Returns the number of commits in the largest cell.
+   * The number of commits in the largest cell.
    *
    * Used when rendering bars proportionally.
    */
-  get numberOfObservationsInLargestCell () {
+  get numberOfObservationsInLargestCell(): number {
     if (this._largest) {
       return this._largest;
     }

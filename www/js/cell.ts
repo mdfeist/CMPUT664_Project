@@ -1,5 +1,6 @@
-import assert from './assert.js';
-import ASTDiff from './ast-diff.js';
+import assert from './assert';
+import ASTDiff from './ast-diff';
+import JavaType from './java-type';
 
 /**
  * Class: Cell
@@ -8,15 +9,15 @@ import ASTDiff from './ast-diff.js';
  * of observations, which are either additions or deletions.
  */
 export default class Cell {
-  constructor(start, until, type) {
+  startDate: Date;
+  endDate: Date;
+  diffs: Array<ASTDiff>;
+
+  constructor(start: Date, until: Date, public type: string) {
     /* Instantiate a new Cell object if called without `new`. */
     if (!(this instanceof Cell)) {
       return new Cell(start, until, type);
     }
-
-    assert(start instanceof Date);
-    assert(until instanceof Date);
-    assert(typeof type === 'string');
 
     this.diffs = [];
     this.startDate = start;
@@ -27,26 +28,25 @@ export default class Cell {
   /**
    * Adds a single diff.
    */
-  addDiff(diff) {
-    assert(diff instanceof ASTDiff);
+  addDiff(diff: ASTDiff) {
     assert(this.isAcceptableDiff(diff));
     assert(diff.type === this.type);
     this.diffs.push(diff);
     return this;
   }
 
-  isAcceptableDiff (diff) {
-    if (!(diff instanceof ASTDiff)) {
+  isAcceptableDiff (diff: any) {
+    if (diff instanceof ASTDiff) {
+      /* Chrome V8 will bail-out of optimizing this function if you compare
+       * the dates directly (non-primitive compare);
+       * instead, compare the valueOf()s, since this ends up being a Number
+       * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
+       * generate native code for.  */
+      return this.startDate.valueOf() <= diff.date.valueOf() &&
+        diff.date.valueOf() <= this.endDate.valueOf();
+    } else {
       return false;
     }
-
-    /* Chrome V8 will bail-out of optimizing this function if you compare
-     * the dates directly (non-primitive compare);
-     * instead, compare the valueOf()s, since this ends up being a Number
-     * time value (see ECMA-262 5.1 §15.9.1.1), which it will gladly
-     * generate native code for.  */
-    return this.startDate.valueOf() <= diff.date.valueOf() &&
-      diff.date.valueOf() <= this.endDate.valueOf();
   }
 
   /** True if the cell contains at least one AST diff.  */
