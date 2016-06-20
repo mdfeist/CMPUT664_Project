@@ -281,7 +281,7 @@ The purpose of \emph{deprecating} software features is to give developers time t
 
 We searched for Apache foundation projects that featured an instance of deprecation and found Apache BookKeeper. As an Apache Foundation project it is a well-curated example of an open source software project.
 
-Apache Bookkeeper deprecated the method AbstractConfiguration.getLedgerManagerType() in release 4.2.0\footnote{\url{https://bookkeeper.apache.org/docs/r4.2.0/apidocs/deprecated-list.html}} and replaced it with AbstractConfiguration.getLedgerManagerFactoryClass(). If we look at getLedgerManagerType() we can see at the time of the start of the deprecation all instances were removed and getLedgerManagerFactoryClass() was added (Figure~\ref{fig:bookkeeper-depr}). After the deprecation, we see no more changes to getLedgerManagerType() and only some additions of getLedgerManagerFactoryClass().
+Apache Bookkeeper deprecated the method Abstract\-Configuration.\-get\-Ledger\-Manager\-Type() in release 4.2.0\footnote{\url{https://bookkeeper.apache.org/docs/r4.2.0/apidocs/deprecated-list.html}} and replaced it with Abstract\-Configuration.\-get\-Ledger\-Manager\-Factory\-Class(). If we look at get\-Ledger\-Manager\-Type() we can see at the time of the start of the deprecation all instances were removed and get\-Ledger\-Manager\-Factory\-Class() was added (Figure~\ref{fig:bookkeeper-depr}). After the deprecation, we see no more changes to get\-Ledger\-Manager\-Type() and only some additions of get\-Ledger\-Manager\-Factory\-Class().
 
 \section{Discussion}
 
