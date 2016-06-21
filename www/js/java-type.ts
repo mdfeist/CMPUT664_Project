@@ -22,7 +22,7 @@ export default class JavaType {
   public cells: Cell[];
 
   constructor(name: string) {
-    /* Instantiate a new Cell object if called without `new`. */
+    /* Instantiate a new JavaType object if called without `new`. */
     if (!(this instanceof JavaType)) {
       return new JavaType(name);
     }
@@ -107,7 +107,7 @@ export default class JavaType {
    * Used when rendering bars proportionally.
    */
   get numberOfObservationsInLargestCell(): number {
-    if (this._largest) {
+    if (this._largest !== null) {
       return this._largest;
     }
 

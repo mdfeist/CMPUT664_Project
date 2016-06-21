@@ -196,7 +196,7 @@ function drawGraph(data: DataView, width: number) {
       });
 
     /* Mouse Click: Show Cell stats */
-    cell.on("click", function(cellData: Cell) {
+    cell.on("click", function(cellData) {
       var stats = d3.select("#stats-body");
       stats.selectAll('.content').remove();
 

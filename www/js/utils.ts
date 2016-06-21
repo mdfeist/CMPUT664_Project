@@ -19,7 +19,7 @@ export function first<T>(array: T[]): T {
  */
 export function last<T>(array: T[]): T {
   if (array.length < 1) {
-    throw new Error('Cannot get the first item of an empty array; is the project empty?');
+    throw new Error('Cannot get the last item of an empty array; is the project empty?');
   }
   return array[array.length - 1];
 }
@@ -28,7 +28,7 @@ export function last<T>(array: T[]): T {
  * Add all items from the iterable to the set.
  */
 export function addAll<T>(set: Set<T>, iterable: Iterable<T>): Set<T> {
-  for (var item of iterable) {
+  for (let item of iterable) {
     set.add(item);
   }
   return set;
