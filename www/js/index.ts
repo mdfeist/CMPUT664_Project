@@ -31,7 +31,57 @@ function hasDatePicker() {
   return (input.value !== notADateValue);
 }
 
-function enableChosen() {
+/* From: http://stackoverflow.com/a/6234804 */
+function escapeHTML(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
+ * Renders the author panel.
+ * @return {string} HTML for the authors panel.
+ */
+function renderAuthorPanel(allAuthors: string[], authorUnsafe: string): string {
+  /* TODO: take in a data structure describing author configuration. */
+  let author = escapeHTML(authorUnsafe);
+
+  return (`
+    <li>
+    <div class="panel panel-default author-configuration">
+      <div class="panel-heading"> ${author} </div>
+      <div class="panel-body">
+        <label><input type="checkbox" checked
+                      class="author-check-box"
+                      value="${author}">
+          Show this author
+        </label>
+        <label> Author aliases <br>
+          <select multiple class="author-aliases">
+            ${allAuthors.filter(name => name != author).map(unsafe =>
+                `<option value="${unsafe}">${escapeHTML(unsafe)}</option>`
+            )}
+          </select>
+        </label>
+      </div>
+    </div>
+    </li>
+  `);
+}
+
+/**
+ * Rerenders the list inside #authors-list
+ * @return {[type]} [description]
+ */
+function renderAuthorPicker() {
+  let authors = window.authors;
+  let html = authors.map(renderAuthorPanel.bind(window, authors)).join('');
+  $('#authors-list').html(html);
+
+  /* Enable chosen: */
   $('select.author-aliases').chosen();
 }
 
@@ -127,7 +177,7 @@ window.toggleAuthors = function () {
 
   /* Chosen must be enabled while the panel is visible. */
   if (!$authors.hasClass('collapse')) {
-    enableChosen();
+    renderAuthorPicker();
   }
 }
 

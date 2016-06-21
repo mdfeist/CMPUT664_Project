@@ -28,7 +28,9 @@
       });
       System.import('index');
     </script>
-	
+    <script>
+      window.authors = {{ authors | tojson | safe }};
+    </script>
 
   </head>
   <body class="colorblind-safe">
@@ -145,37 +147,8 @@
           <div id="authors-selector" class="panel-body">
             <a href="#" onclick="uncheckAuthors()">Deselect All</a>
 
-            <ul class="authors-list list-unstyled">
-            {% for author in authors %}
-              <!--
-              <div class="checkbox">
-                <label><input class="author-check-box" type="checkbox" value="{{ author }}">{{ author }}</label>
-              </div>
-              -->
-              <li>
-                <!-- TODO: Add disabled class when selected as an alias for a
-                  different author -->
-                <div class="panel panel-default author-configuration">
-                  <div class="panel-heading">
-                    {{ author }}
-                  </div>
-                  <div class="panel-body">
-                    <label><input class="author-check-box"
-                                  type="checkbox" value="{{ author }}">
-                      Show this author
-                    </label>
-                    <label> Author aliases <br>
-                      <select multiple class="author-aliases">
-                        {% for author in authors %}
-                        <option value="{{ author }}">{{ author }}</option>
-                        {% endfor %}
-                      </select>
-                    </label>
-                  </div>
-                </div>
-              </li>
-
-            {% endfor %}
+            <ul id="authors-list" class="authors-list list-unstyled">
+              <!-- Will be populated by JavaScript -->
             </ul>
           </div>
         </div>
