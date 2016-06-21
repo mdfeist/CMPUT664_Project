@@ -32,23 +32,33 @@
     <div class="container-fluid wrapper">
       <nav class="row">
         <ul class="nav nav-pills">
-          <li role="presentation">
-            <a href="#" onclick="toggleView()">Toggle View</a>
+          <li class="active" role="presentation">
+            <a href="#">Overview</a>
+          </li>
+          <!-- This one isn't quite ready... -->
+          <li class="hidden" aria-hidden role="presentation">
+            <a href="#" onclick="toggleView()">
+              <span class="glyphicon glyphicon-filter" aria-hidden></span>
+              Toggle View
+            </a>
           </li>
           <li role="presentation">
-            <a href="#" onclick="toggleAuthors()">Author View</a>
+            <a href="#" onclick="toggleAuthors()">
+              <span class="glyphicon glyphicon-user" aria-hidden></span>
+              Filter Authors
+            </a>
           </li>
           <li role="presentation">
-            <a href="#" onclick="toggleStats()">Stats View</a>
+            <a href="#" onclick="toggleStats()">
+              <span class="glyphicon glyphicon-dashboard" aria-hidden></span>
+              Details
+            </a>
           </li>
           <li role="presentation">
-            <a href="#" onclick="toggleFilters()">Filters View</a>
-          </li>
-          <li role="presentation">
-            <a href="#" onclick="redrawTable()">Update Table</a>
-          </li>
-          <li role="presentation">
-            <a id="csv-link" href="">Download CSV</a>
+            <a href="#" onclick="toggleFilters()">
+              <span class="glyphicon glyphicon-filter" aria-hidden></span>
+              Data Filters
+            </a>
           </li>
         </ul>
       </nav>
@@ -98,6 +108,8 @@
                 <option value="Invocations">Invocations</option>
               </select>
             </label>
+
+            <a class="btn btn-primary" href="#" onclick="redrawTable()">Update Table</a>
           </div>
         </div>
       </nav>
@@ -108,7 +120,12 @@
             <b>Stats</b>
           </div>
           <div id="stats-body" class="panel-body">
-
+            <footer>
+              <a class="btn btn-link btn-sm" id="csv-link" href="">
+                <span class="glyphicon glyphicon-download" aria-hidden></span>
+                Download CSV
+              </a>
+            </footer>
           </div>
         </div>
       </nav>

@@ -4,6 +4,10 @@
  * The main styles for the entire site.
  */
 
+div.wrapper {
+  margin: .5em .75em;
+}
+
 
 /* Adds a cool greyed-out effect for inactive links. */
 a[href=''] {

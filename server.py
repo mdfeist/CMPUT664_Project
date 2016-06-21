@@ -453,6 +453,10 @@ def send_js(path):
 def send_css(path):
     return send_from_directory(app.static_folder + '/css', path)
 
+@app.route('/fonts/<path:path>')
+def send_fonts(path):
+    return send_from_directory(app.static_folder + '/fonts', path)
+
 @app.route('/')
 def root():
     return redirect('/projects/')
