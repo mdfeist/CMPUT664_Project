@@ -13,7 +13,8 @@ function start() {
   var type = $("#type-select").val();
   loadProject(type);
 
-  $("#type-select").on("change", function(){
+  // Automatically reload the project data when the type select is changed.
+  $("#type-select").on("change", function () {
     var type = $("#type-select").val();
     loadProject(type);
   });
@@ -30,6 +31,10 @@ function hasDatePicker() {
   return (input.value !== notADateValue);
 }
 
+function enableChosen() {
+  $('select.author-aliases').chosen();
+}
+
 function loadProject(type: 'Declarations' | 'Types' | 'Invocations') {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
@@ -38,6 +43,7 @@ function loadProject(type: 'Declarations' | 'Types' | 'Invocations') {
       var project: Project = JSON.parse(xhttp.responseText);
       var results = createTable(project, filter);
       patchInputs(results);
+
 
       var link = makeCSVLink(results);
       $('#csv-link').attr('href', link);
@@ -111,20 +117,26 @@ function patchInputs(results: DataView) {
 }
 
 window.toggleView = function () {
-  $("#dna-table").toggleClass("collapse");
-  $("#stats-table").toggleClass("collapse");
+  $("#dna-table").toggleClass('collapse');
+  $("#stats-table").toggleClass('collapse');
 }
 
 window.toggleAuthors = function () {
-  $("#authors").toggleClass( "collapse" );
+  let $authors = $("#authors");
+  $authors.toggleClass('collapse');
+
+  /* Chosen must be enabled while the panel is visible. */
+  if (!$authors.hasClass('collapse')) {
+    enableChosen();
+  }
 }
 
 window.toggleStats = function () {
-  $("#stats").toggleClass( "collapse" );
+  $("#stats").toggleClass('collapse');
 }
 
 window.toggleFilters = function () {
-  $("#filters").toggleClass( "collapse" );
+  $("#filters").toggleClass('collapse');
 }
 
 window.uncheckAuthors = function () {

@@ -8,6 +8,23 @@ div.wrapper {
   margin: .5em .75em;
 }
 
+/* Clearfix. */
+.author-configuration .panel-body:after {
+  clear: all;
+}
+
+.author-configuration .panel-body > label {
+  float: left;
+  margin-left: 1em;
+}
+
+.author-configuration .panel-body > label:first-of-type {
+  margin-left: 0;
+}
+
+select.author-aliases {
+  min-width: 350px;
+}
 
 /* Adds a cool greyed-out effect for inactive links. */
 a[href=''] {
