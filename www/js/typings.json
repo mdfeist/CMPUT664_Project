@@ -1,6 +1,7 @@
 {
   "dependencies": {},
   "globalDependencies": {
+    "chosen.jquery": "registry:dt/chosen.jquery#1.4.2+20160316155526",
     "d3": "registry:dt/d3#0.0.0+20160620220125",
     "jquery": "registry:dt/jquery#1.10.0+20160620094458",
     "moment": "registry:dt/moment#2.8.0+20160316155526",
