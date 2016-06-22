@@ -481,22 +481,6 @@ def get_project(path):
     return 'Project not found', 404
 
 
-@app.route('/projects/<path>/fdg')
-def force_directed_graph(path):
-    query_type = 'Types'
-
-    for project in projects:
-        if (project.getDir() == path):
-            options = attrdict()
-            options.get = "Project"
-            options.types = query_type
-            options.ignore_large_commits = False
-            data = project.getJSON(options)
-            return render_template('temporary_fdg.html', data=data)
-
-    return 'Project not found', 404
-
-
 @app.before_first_request
 def _run_on_start():
     print("Gathering Dump Data ...")
