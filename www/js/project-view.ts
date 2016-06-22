@@ -109,7 +109,12 @@ function drawGraph(data: DataView, width: number) {
         return i & 1 ? '#f4f4f4' : '#fafafa';
       });
 
-  row.each(createCellsForType);
+  /* Create a closure over data.commits. Function#bind() won't work
+   * since d3 wants to set up its own `this` to the callback! */
+  let createCell = function (type: JavaType) {
+    return createCellsForType.call(this, data.commits, type);
+  }
+  row.each(createCell);
 
   row.append('text')
       .classed('type-title', true)
@@ -151,7 +156,7 @@ function drawGraph(data: DataView, width: number) {
     throw new TypeError('value is not an SVGElement.');
   }
 
-  function createCellsForType(type: JavaType) {
+  function createCellsForType(commits: CommitMap, type: JavaType) {
     /* Create all the cells. */
     var cell = d3.select(this).selectAll('.cell')
       .data(type.cells)
@@ -227,13 +232,11 @@ function drawGraph(data: DataView, width: number) {
 
       info.append('br');
 
-      var commit_map = (<PreprocessedData>window.preprocessedData).commits;
-
       info.append('b')
         .text("Commits:");
 
       cellData.commits.forEach(function (commitID) {
-        var commit = commit_map[commitID];
+        var commit = commits[commitID];
         info.append('p')
           .text("Commit ID: " + commit.commitID);
         var block = info.append('div')
