@@ -412,13 +412,6 @@ def getStats(filename):
         projects.append(current_project)
 
 
-def mergeProjectCSV(csv):
-    title = csv.split('\n', 1)[0]
-    csv = csv.replace(title, "")
-    csv = title + csv
-    return os.linesep.join([s for s in csv.splitlines() if s])
-
-
 # set the project root directory as the static folder, you can set others.
 path = os.path.dirname(os.path.realpath(__file__))
 # Files = list of ast-output/*.out
@@ -465,9 +458,7 @@ def show_project(name):
 
 @app.route('/projects/<path>/get_project')
 def get_project(path):
-    #query_string = request.query_string
     query_type = request.args.get('type')
-    #print(query_type)
 
     for project in projects:
         if (project.getDir() == path):
