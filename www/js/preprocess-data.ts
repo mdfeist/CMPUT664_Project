@@ -23,7 +23,7 @@ export default function preprocessData(data: Project): PreprocessedData {
   /* A set of types. */
   var types = new Set(data.types);
   /* Mapping GitSha -> Commit Metadata. */
-  var commits = createCommitMap(data.commits);
+  var commits = createCommitMap(objectifyDates(data.commits));
 
   return {
     types,
@@ -31,6 +31,16 @@ export default function preprocessData(data: Project): PreprocessedData {
     /* A copy of AST Diff data, in asscending order of date. */
     astDiffs: createASTDiffsInAscendingOrder(data.dates, commits)
   };
+}
+
+/**
+ * Ensure each commit has a proper Date object.
+ */
+function objectifyDates(commits: CommitFromJSON[]): Commit[] {
+  for (let commit of commits) {
+    commit.date = new Date(commit.date as string);
+  }
+  return commits as Commit[];
 }
 
 /* Maps Git SHA to the raw commit data. */
@@ -48,15 +58,6 @@ function createCommitMap(commits: Commit[]) {
 
 /* Returns AST Diff data, in asscending order of date. */
 function createASTDiffsInAscendingOrder(astDiffsByType: Edit[], commits: CommitMap) {
-  /* Ensure each commit has a proper Date object. */
-  for (let sha in commits) {
-    if (!commits.hasOwnProperty(sha)) {
-      continue;
-    }
-    let commit: CommitFromJSON = commits[sha];
-    commit.date = new Date(<string> commit.date);
-  }
-
   return <ASTDiff[]> astDiffsByType
     .map(ASTDiff.withCommitMap.bind(ASTDiff, commits))
     /* Note: unary + coerces to smallint using Date#valueOf() */
