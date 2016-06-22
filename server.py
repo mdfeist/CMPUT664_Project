@@ -85,6 +85,7 @@ class Project:
 
         json_data["commits"] = list()
         json_data["dates"] = list()
+        json_data["authors"] = list(self.getAuthors())
 
         # Build JSON
         for commit in self._commits:
@@ -168,6 +169,7 @@ class Project:
     def __repr__(self):
         return self.__str__()
 
+
 class Commit:
     def __init__(self):
         self._author = ""
@@ -246,6 +248,7 @@ class Commit:
     def __repr__(self):
         return self.__str__()
 
+
 class File:
     def __init__(self):
         self._local = ""
@@ -285,6 +288,7 @@ class File:
 
     def __repr__(self):
         return self.__str__()
+
 
 class Histogram:
     def __init__(self, name):
