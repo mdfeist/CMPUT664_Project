@@ -420,7 +420,7 @@ function drawStats(data: DataView, width: number) {
    */
 
   var authorCoverage = d3.select('#coverage-by-author').selectAll('.author-coverage')
-      .data(data.authors)
+      .data(data.primaryAuthorAliases)
     .enter().append('svg')
       .attr('height', rowHeight + 32)
       .attr('width', width)
@@ -525,8 +525,11 @@ function ensureAxisIsAtGraphBottom(graph: SVGElement, axis: SVGElement) {
   }
 }
 
-function summary({numberOfCommits, authors, numberOfFiles, numberOfTypes, astDiffs}: DataView) {
-  return `project & ${numberOfCommits} & ${authors.length} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
+/**
+ * Returns LaTeX code for a table row summarizing the current project.
+ */
+function summary({numberOfCommits, primaryAuthorAliases, numberOfFiles, numberOfTypes, astDiffs}: DataView) {
+  return `project & ${numberOfCommits} & ${primaryAuthorAliases.length} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
 }
 
 /**

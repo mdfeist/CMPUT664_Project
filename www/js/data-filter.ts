@@ -82,15 +82,13 @@ export default class DataView {
   }
 
 
-  /* TODO: Rename to allTypeNames */
   /** All types name, without arbitrary filtering or sorting. **/
-  get allTypes() {
+  get allTypeNames() {
     return Object.keys(this.typesPresent);
   }
 
-  /* TODO: rename to authorNames. */
-  /** The name of every author selected in the view. */
-  get authors() {
+  /** The primary alias of every author selected in the view. */
+  get primaryAuthorAliases() {
     return Object.keys(this.authorStats);
   }
 
