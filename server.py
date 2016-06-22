@@ -32,6 +32,7 @@ class Add(Modification):
     def toJSON(self):
         return '+'
 
+
 @singleton
 class Remove(Modification):
     """
@@ -39,7 +40,6 @@ class Remove(Modification):
     """
     def toJSON(self):
         return '-'
-
 
 
 class Project:
@@ -70,10 +70,8 @@ class Project:
 
     def getEdit(self, commit, edit, t):
         date_json = {}
-        date_json["commitID"] = commit.getCommitID()
         # The client can determine the author from the commit SHA.
-        #date_json["author"] = commit.getAuthor()
-        #date_json["date"] = commit.getDate()
+        date_json["commitID"] = commit.getCommitID()
         date_json["type"] = t
         date_json["edit"] = edit.toJSON()
 
@@ -332,6 +330,7 @@ class Histogram:
     def __repr__(self):
         return self.__str__()
 
+
 def getStats(filename):
     project_start = False
     current_project = None
@@ -347,7 +346,6 @@ def getStats(filename):
                 current_project = Project()
                 project_start = True
             if ("#PROJECT_END" in line):
-                #print(current_project)
                 projects.append(current_project)
                 project_start = False
             if ("#PROJECT_NAME" in line):
@@ -356,7 +354,6 @@ def getStats(filename):
             if ("#COMMIT_START" in line):
                 current_commit = Commit()
             if ("#COMMIT_END" in line):
-                #print(current_commit)
                 current_project.addCommit(current_commit)
             if ("#AUTHOR" in line):
                 name = line.split("|")[1].replace('\n','').strip()
@@ -397,7 +394,6 @@ def getStats(filename):
             if ("#STATS_START" in line):
                 current_file = File()
             if ("#STATS_END" in line):
-                #print(current_file)
                 current_commit.addFile(current_file)
             if ("#DECLARE" in line):
                 split_str = line.split("|")
@@ -405,18 +401,6 @@ def getStats(filename):
                 name = split_str[2].strip()
                 value = int(split_str[3].strip())
                 current_file.getDeclarations().add(name, edit, value)
-#            if ("#GENERIC_DECLARE" in line):
-#                split_str = line.split("|")
-#                edit = split_str[1].strip()
-#                name = split_str[2].strip()
-#                value = int(split_str[3].strip())
-#                current_file.getGenericDeclarations().add(name, edit, value)
-#            if ("#USED_IN_GENERIC_DECLARE" in line):
-#                split_str = line.split("|")
-#                edit = split_str[1].strip()
-#                name = split_str[2].strip()
-#                value = int(split_str[3].strip())
-#                current_file.getUsedInGenericDeclarations().add(name, edit, value)
             if ("#INVOCATIONS" in line):
                 split_str = line.split("|")
                 edit = split_str[1].strip()
@@ -435,7 +419,6 @@ def mergeProjectCSV(csv):
     return os.linesep.join([s for s in csv.splitlines() if s])
 
 
-
 # set the project root directory as the static folder, you can set others.
 path = os.path.dirname(os.path.realpath(__file__))
 # Files = list of ast-output/*.out
@@ -445,25 +428,31 @@ template_folder = path + '/www/templates'
 app = Flask(__name__, static_folder=static_folder, static_url_path='/www', template_folder=template_folder)
 app.config['DEBUG'] = True
 
+
 @app.route('/js/<path:path>')
 def send_js(path):
     return send_from_directory(app.static_folder + '/js', path)
+
 
 @app.route('/css/<path:path>')
 def send_css(path):
     return send_from_directory(app.static_folder + '/css', path)
 
+
 @app.route('/fonts/<path:path>')
 def send_fonts(path):
     return send_from_directory(app.static_folder + '/fonts', path)
+
 
 @app.route('/')
 def root():
     return redirect('/projects/')
 
+
 @app.route('/projects/')
 def dashboard():
     return render_template('projects.html', projects=projects)
+
 
 @app.route('/projects/<name>/')
 def show_project(name):
@@ -472,6 +461,7 @@ def show_project(name):
            return render_template('project_view.html', name=name,
                                   authors=list(project.getAuthors()))
     return 'Project not found', 404
+
 
 @app.route('/projects/<path>/get_project')
 def get_project(path):
@@ -519,12 +509,3 @@ def _run_on_start():
 if __name__ == "__main__":
     port = int(os.getenv('PORT', '5000'))
     app.run(host='0.0.0.0', port=port)
-
-
-#dump_file = open('dump.out', 'w')
-#
-#for project in projects:
-#    #print(project.getStats()[2])
-#    stats = project.getJSON()
-#
-#    dump_file.write(stats)
