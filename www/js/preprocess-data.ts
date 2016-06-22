@@ -3,7 +3,7 @@ import ASTDiff from './ast-diff';
 import assert from './assert';
 
 export interface PreprocessedData {
-  types: Set<string>;
+  typeNames: Set<string>;
   commits: CommitMap;
   astDiffs: ASTDiff[];
 };
@@ -20,13 +20,13 @@ export default function preprocessData(data: Project): PreprocessedData {
   assert(data.commits instanceof Array);
   assert(data.dates instanceof Array);
 
-  /* A set of types. */
-  var types = new Set(data.types);
+  /* A set of type names */
+  var typeNames = new Set(data.types);
   /* Mapping GitSha -> Commit Metadata. */
   var commits = createCommitMap(objectifyDates(data.commits));
 
   return {
-    types,
+    typeNames,
     commits,
     /* A copy of AST Diff data, in asscending order of date. */
     astDiffs: createASTDiffsInAscendingOrder(data.dates, commits)
