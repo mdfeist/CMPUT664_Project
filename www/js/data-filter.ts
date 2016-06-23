@@ -191,16 +191,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   }
 
   /* XXX: TEMPORARY! */
-  function ensureDefined<T> (value: T): T {
-    if (value === null || value === undefined) {
-      debugger;
-      throw new Error('Got an undefined value')
-    }
-    return value;
-  }
-
-  /* XXX: TEMPORARY! */
-  let identityToAuthor = (id: AuthorIdentity) => ensureDefined(authors.get(id));
+  let identityToAuthor = (id: AuthorIdentity) => authors.get(id);
 
   type CoverageCounts = {
     files: Set<string>;
