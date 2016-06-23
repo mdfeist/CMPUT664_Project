@@ -3,6 +3,8 @@ import { createTable, createTable2, makeCSVLink } from "./project-view";
 import DataView from './data-filter';
 import Author, {AuthorIdentity, AuthorConfiguration} from './author';
 
+import assert from './assert';
+
 /* Add date picker widgets on platforms that don't have them. */
 if (!hasDatePicker()) {
   $('input[type="date"]').datepicker();
@@ -69,24 +71,30 @@ class ManageAuthorsPanel {
     let authorName = escapeHTML(id.shorthand);
     let author = this.config.get(id);
     let isPrimary = id === author.primaryIdentity;
-    let constrolDisabled = !isPrimary;
+    let controlDisabled = !isPrimary;
     let isEnabled = this.config.isEnabled(author);
     
     /* Poor man's React: */
     return (`
       <li>
-      <div class="panel panel-default author-configuration ${constrolDisabled ? 'disabled' : ''}">
+      <div class="panel panel-default author-configuration ${controlDisabled ? 'disabled' : ''}">
         <div class="panel-heading"> ${authorName} </div>
         <div class="panel-body">
           <label><input type="checkbox"
                         ${isEnabled ? 'checked' : ''}
                         class="author-check-box"
-                        ${constrolDisabled ? 'disabled' : ''}
-                        value="${id.shorthand}">
+                        ${controlDisabled ? 'disabled' : ''}
+                        value="${escapeHTML(id.shorthand)}">
             Show this author
           </label>
           <label> Author aliases <br>
-            <select ${constrolDisabled ? 'disabled' : ''} multiple class="author-aliases">
+            <select
+              multiple
+              class="author-aliases"
+              data-placeholder="No duplicates for this author"
+              ${controlDisabled ? 'disabled' : ''}
+              name="${escapeHTML(author.id)}"
+            >
               ${this.makeOptions(author)}
             </select>
           </label>
@@ -99,15 +107,49 @@ class ManageAuthorsPanel {
   protected makeOptions(author: Author): string {
     return this.aliases
       .filter(alias => alias !== author.primaryIdentity)
-      .map(alias => (
-        `<option
-            ${this.config.get(alias) === author ? 'selected' : ''}
-            value="${alias.shorthand}"
+      .map(alias => {
+        let isForThisAuthor = this.config.get(alias) === author;
+        let isPrimaryForOther = this.config.isPrimaryIdentity(alias);
+
+        return (
+          `<option
+            ${isForThisAuthor ? 'selected' : ''}
+            ${isPrimaryForOther || isForThisAuthor  ? '' : 'disabled'}
+            value="${escapeHTML(alias.shorthand)}"
           >
             ${escapeHTML(alias.shorthand)}
           </option>`
-      ))
+        );
+      })
       .join('');
+  }
+
+  render() {
+    let html = this.aliases
+      .map(this.renderAuthorPanel)
+      .join('');
+    this.$element.html(html);
+    this.configureInteraction();
+  }
+
+  configureInteraction(): void {
+    /* Enable chosen: */
+    this.$element.find('select.author-aliases').chosen()
+      .change((evt, {selected, deselected}) => {
+        let element = evt.target as HTMLSelectElement;
+        let author = this.config.getAuthorByName(element.name);
+        
+        if (selected) {
+          let alias = AuthorIdentity.get(selected);
+          this.config.addAlias(alias, author);
+        } else {
+          assert(deselected);
+          let alias = AuthorIdentity.get(deselected);
+          this.config.removeAlias(alias);
+        }
+
+        this.render();
+      })
   }
 
   /**
@@ -115,13 +157,7 @@ class ManageAuthorsPanel {
    * @return {[type]} [description]
    */
   renderAuthorPicker(): void {
-    let html = this.aliases
-      .map(this.renderAuthorPanel)
-      .join('');
-    this.$element.html(html);
-
-    /* Enable chosen: */
-    $('select.author-aliases').chosen();
+    this.render();
   }
 }
 

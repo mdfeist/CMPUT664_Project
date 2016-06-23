@@ -1,12 +1,13 @@
 import Author, {AuthorIdentity} from './';
 
+import assert from '../assert';
+
 /**
  * Configuration for authors.
  */
 export default class AuthorConfiguration {
   private _enabled = new WeakSet<Author>();
   private _aliases = new Map<AuthorIdentity, Author>();
-  private _known = new Set<Author>();
 
   constructor({aliases, enabled}: ConfigurationJSON) {
     /* Add all aliases. */
@@ -22,7 +23,7 @@ export default class AuthorConfiguration {
   }
 
   get authors(): Set<Author> {
-    return new Set(this._known);
+    return new Set(this._aliases.values());
   }
 
   get aliases(): Iterable<AuthorIdentity> {
@@ -71,6 +72,21 @@ export default class AuthorConfiguration {
     this._aliases.set(alias, author);
   }
 
+  removeAlias(id: AuthorIdentity): void {
+    let numberAuthorsBefore = this.authors.size;
+    let originalAuthor = this.get(id);
+    this._aliases.delete(id);
+
+    let newAuthor = this._vivifyAuthor(id);
+    this.addAlias(id, newAuthor);
+
+    if (this.isEnabled(originalAuthor)) {
+      this.enable(newAuthor);
+    }
+
+    assert(this.authors.size === 1 + numberAuthorsBefore);
+  }
+
   isEnabled(author: Author): boolean {
     return this._enabled.has(author);
   }
@@ -91,7 +107,6 @@ export default class AuthorConfiguration {
 
     if (!author) {
       author = new Author(id);
-      this._known.add(author);
       this.addAlias(id, author);
     }
 
