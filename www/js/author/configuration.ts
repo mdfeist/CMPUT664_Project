@@ -6,6 +6,7 @@ import Author, {AuthorIdentity} from './';
 export default class AuthorConfiguration {
   private _enabled = new WeakSet<Author>();
   private _aliases = new Map<AuthorIdentity, Author>();
+  private _known = new Set<Author>();
 
   constructor({aliases, enabled}: ConfigurationJSON) {
     /* Add all aliases. */
@@ -15,8 +16,17 @@ export default class AuthorConfiguration {
 
     /* Enable all authors explicitly. */
     for (let name of enabled) {
-      this.enableAuthorByName(name);
+      let author = this.getAuthorByName(name);
+      this.enable(author);
     }
+  }
+
+  get authors(): Set<Author> {
+    return new Set(this._known);
+  }
+
+  get aliases(): Iterable<AuthorIdentity> {
+    return this._aliases.keys();
   }
 
   getAuthorByName(name: string): Author {
@@ -34,14 +44,20 @@ export default class AuthorConfiguration {
     return author;
   }
 
-  enableAuthorByName(name: string): void {
-    let author = this.getAuthorByName(name);
+  enable(author: Author): void {
     this._enabled.add(author);
   }
 
-  disableAuthorByName(name: string): void {
-    let author = this.getAuthorByName(name);
+  disable(author: Author): void {
     this._enabled.delete(author);
+  }
+
+  /**
+   * True if the ID is a primary identity of some author.
+   */
+  isPrimaryIdentity(id: AuthorIdentity): boolean {
+    let author = this.get(id);
+    return author.primaryIdentity === id;
   }
 
   addAlias(alias: AuthorIdentity, author: Author) {
@@ -75,6 +91,7 @@ export default class AuthorConfiguration {
 
     if (!author) {
       author = new Author(id);
+      this._known.add(author);
       this.addAlias(id, author);
     }
 

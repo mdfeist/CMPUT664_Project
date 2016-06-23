@@ -1,6 +1,7 @@
 ///<reference path="index.d.ts" />
 import { createTable, createTable2, makeCSVLink } from "./project-view";
 import DataView from './data-filter';
+import Author, {AuthorIdentity, AuthorConfiguration} from './author';
 
 /* Add date picker widgets on platforms that don't have them. */
 if (!hasDatePicker()) {
@@ -41,52 +42,89 @@ function escapeHTML(unsafe: string): string {
     .replace(/'/g, "&#039;");
 }
 
-/**
- * Renders the author panel.
- * @return {string} HTML for the authors panel.
- */
-function renderAuthorPanel(allAuthors: string[], authorUnsafe: string): string {
-  /* TODO: take in a data structure describing author configuration. */
-  let author = escapeHTML(authorUnsafe);
+type Selector = string | Node | JQuery;
 
-  return (`
-    <li>
-    <div class="panel panel-default author-configuration">
-      <div class="panel-heading"> ${author} </div>
-      <div class="panel-body">
-        <label><input type="checkbox" checked
-                      class="author-check-box"
-                      value="${author}">
-          Show this author
-        </label>
-        <label> Author aliases <br>
-          <select multiple class="author-aliases">
-            ${allAuthors.filter(name => name != author).map(unsafe =>
-                `<option value="${unsafe}">${escapeHTML(unsafe)}</option>`
-            )}
-          </select>
-        </label>
+class ManageAuthorsPanel {
+  protected $element: JQuery;
+  protected aliases: AuthorIdentity[];
+
+  constructor(protected initialConfig: AuthorConfiguration, element: Selector) {
+    this.$element = $(element);
+    this.aliases = Array.from(initialConfig.aliases).sort(byShorthand);
+
+    function byShorthand(a: AuthorIdentity, b: AuthorIdentity) {
+      return a.shorthand.toLowerCase() < b.shorthand.toLowerCase() ? -1 : 1;
+    }
+  }
+
+  get config(): AuthorConfiguration {
+    return this.initialConfig;
+  }
+
+  /**
+   * Renders the author panel.
+   * @return {string} HTML for the authors panel.
+   */
+  protected renderAuthorPanel = (id: AuthorIdentity): string => {
+    let authorName = escapeHTML(id.shorthand);
+    let author = this.config.get(id);
+    let isPrimary = id === author.primaryIdentity;
+    let constrolDisabled = !isPrimary;
+    let isEnabled = this.config.isEnabled(author);
+    
+    /* Poor man's React: */
+    return (`
+      <li>
+      <div class="panel panel-default author-configuration ${constrolDisabled ? 'disabled' : ''}">
+        <div class="panel-heading"> ${authorName} </div>
+        <div class="panel-body">
+          <label><input type="checkbox"
+                        ${isEnabled ? 'checked' : ''}
+                        class="author-check-box"
+                        ${constrolDisabled ? 'disabled' : ''}
+                        value="${id.shorthand}">
+            Show this author
+          </label>
+          <label> Author aliases <br>
+            <select ${constrolDisabled ? 'disabled' : ''} multiple class="author-aliases">
+              ${this.makeOptions(author)}
+            </select>
+          </label>
+        </div>
       </div>
-    </div>
-    </li>
-  `);
+      </li>
+    `);
+  }
+
+  protected makeOptions(author: Author): string {
+    return this.aliases
+      .filter(alias => alias !== author.primaryIdentity)
+      .map(alias => (
+        `<option
+            ${this.config.get(alias) === author ? 'selected' : ''}
+            value="${alias.shorthand}"
+          >
+            ${escapeHTML(alias.shorthand)}
+          </option>`
+      ))
+      .join('');
+  }
+
+  /**
+   * Rerenders the list inside #authors-list
+   * @return {[type]} [description]
+   */
+  renderAuthorPicker(): void {
+    let html = this.aliases
+      .map(this.renderAuthorPanel)
+      .join('');
+    this.$element.html(html);
+
+    /* Enable chosen: */
+    $('select.author-aliases').chosen();
+  }
 }
 
-/**
- * Rerenders the list inside #authors-list
- * @return {[type]} [description]
- */
-function renderAuthorPicker() {
-  let authors = window.authors.sort((a, b) =>
-                                    a.trim().toLowerCase() < b.trim().toLowerCase() ?
-                                      -1 : 1
-                                   );
-  let html = authors.map(renderAuthorPanel.bind(window, authors)).join('');
-  $('#authors-list').html(html);
-
-  /* Enable chosen: */
-  $('select.author-aliases').chosen();
-}
 
 function loadProject(type: 'Declarations' | 'Types' | 'Invocations') {
   var xhttp = new XMLHttpRequest();
@@ -180,7 +218,8 @@ window.toggleAuthors = function () {
 
   /* Chosen must be enabled while the panel is visible. */
   if (!$authors.hasClass('collapse')) {
-    renderAuthorPicker();
+    new ManageAuthorsPanel((<any>window).CONFIG, $('#authors-list'))
+      .renderAuthorPicker();
   }
 }
 

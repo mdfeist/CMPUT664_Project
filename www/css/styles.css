@@ -33,3 +33,8 @@ a[href=''] {
   -webkit-filter: grayscale(50%);
   -moz-filter: grayscale(50%);
 }
+
+.author-configuration.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
