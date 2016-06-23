@@ -1,5 +1,5 @@
 import ASTDiff from './ast-diff';
-import AuthorAlias from './author-alias';
+import AuthorIdentity from './author-identity';
 import Commit, {CommitMap} from './commit';
 
 import assert from './assert';
@@ -43,7 +43,7 @@ function commitsFromJsonToInternalFormat(commits: CommitFromJSON[]): Commit[] {
   for (let commitJSON of commits) {
     let commit = <any> commitJSON as Commit;
     commit.date = new Date(commitJSON.date);
-    commit.author = new AuthorAlias(commitJSON.author);
+    commit.author = new AuthorIdentity(commitJSON.author);
   }
   return <any[]> commits as Commit[];
 }

@@ -1,4 +1,4 @@
-import AuthorAlias from './author-alias';
+import AuthorIdentity from './author-identity';
 
 export default Commit;
 
@@ -11,7 +11,7 @@ interface Commit extends CommitCommon {
    * @type {Date}
    */
   date: Date;
-  author: AuthorAlias;
+  author: AuthorIdentity;
 }
 
 /**

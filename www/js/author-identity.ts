@@ -1,6 +1,6 @@
 import assert from './assert';
 
-export default class AuthorAlias {
+export default class AuthorIdentity {
   public name: String;
   public email: String;
 
