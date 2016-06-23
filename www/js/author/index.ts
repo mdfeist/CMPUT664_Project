@@ -6,49 +6,39 @@ export { AuthorConfiguration, AuthorIdentity };
 /**
  * Represents one verified full author.
  */
- export default class Author {
-   private _aliases: Set<AuthorIdentity>;
+export default class Author {
+  constructor(public primaryIdentity: AuthorIdentity) {
+  }
 
-   constructor(
-     public primaryIdentity: AuthorIdentity,
-     aliases?: AuthorIdentity[]
-   ) {
-     this._aliases = new Set(aliases);
-   }
+  /**
+   * The author's name.
+   * @return {string} [description]
+   */
+  get name(): string {
+    return this.primaryIdentity.name;
+  }
 
-   /**
-    * The author's name.
-    * @return {string} [description]
-    */
-   get name(): string {
-     return this.primaryIdentity.name;
-   }
+  /**
+   * The author's email.
+   * @return {string} [description]
+   */
+  get email(): string {
+    return this.primaryIdentity.email;
+  }
 
-   /**
-    * The author's email.
-    * @return {string} [description]
-    */
-   get email(): string {
-     return this.primaryIdentity.email;
-   }
+  /**
+   * An idenitification string, suitable for mapping back to the author.
+   * @return {string} [description]
+   */
+  get id(): string {
+    return this.shorthand;
+  }
 
-   /**
-    * An idenitification string, suitable for mapping back to the author.
-    * @return {string} [description]
-    */
-   get id(): string {
-     return this.shorthand;
-   }
+  get shorthand(): string {
+    return this.primaryIdentity.shorthand;
+  }
 
-   /**
-    * A list of secondary aliases.
-    * @return {Set<AuthorIdentity>} [description]
-    */
-   get aliases(): Set<AuthorIdentity> {
-     return new Set(this._aliases);
-   }
-
-   get shorthand(): string {
-     return this.primaryIdentity.shorthand;
-   }
- }
+  toString(): string {
+    return `Author(${JSON.stringify(this.id)})`;
+  }
+}

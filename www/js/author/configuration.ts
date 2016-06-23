@@ -63,8 +63,9 @@ export default class AuthorConfiguration {
    * Maps an alias name to an author.
    */
   protected _mapTo(aliasName: string, authorName: string) {
-    let alias = AuthorIdentity.get(aliasName)
-    let author = this._vivifyAuthor(alias);
+    let alias = AuthorIdentity.get(aliasName);
+    let primaryIdentity = AuthorIdentity.get(authorName);
+    let author = this._vivifyAuthor(primaryIdentity);
 
     this.addAlias(alias, author);
   }
