@@ -3,6 +3,8 @@ import TimeSlice from './time-slice';
 import ASTDiff from './ast-diff';
 import Commit, {CommitMap} from './commit';
 import {PreprocessedData} from './preprocess-data';
+import AuthorIdentity from './author-identity';
+import Author from './author';
 
 import assert from './assert';
 import { first, last, addAll } from './utils';
@@ -27,9 +29,7 @@ interface RawFilteringResult {
   astDiffs: ASTDiff[];
 }
 
-export interface AuthorStatistics {
-  [authorID: string]: CommitStatistics[];
-}
+export type AuthorStatistics = Map<Author, CommitStatistics[]>;
 
 export interface CommitStatistics {
   type: EntitySummary;
@@ -144,7 +144,8 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   var endDate: Date = filters.end || last(data.astDiffs).date;
   var numberOfTypesUpperBound = filters.limit || Infinity;
   var stepSize: StepSize = filters.stepSize || 'month';
-  var authors: string[] = filters.authors || [];
+  var authorNames: string[] =
+    filters.authors.length > 0 ? filters.authors : data.authorNames;
   var typeFilter = filters.typeFilter ? filters.typeFilter : null;
 
   assert(startDate < endDate);
@@ -179,13 +180,35 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     typeMap[type.name] = type;
   });
 
-  var authorMap: AuthorStatistics = {};
-  var authorSets: {
-    [name: string]: {
-      files: Set<string>;
-      types: Set<string>;
+  /* XXX: TEMPORARY! */
+  let authors = new Map<AuthorIdentity, Author>();
+  let commits = data.commits;
+
+  /* XXX: TEMPORARY! */
+  for (let name of authorNames) {
+    let id = AuthorIdentity.get(name)
+    authors.set(id, new Author(id));
+  }
+
+  /* XXX: TEMPORARY! */
+  function ensureDefined<T> (value: T): T {
+    if (value === null || value === undefined) {
+      debugger;
+      throw new Error('Got an undefined value')
     }
-  } = {};
+    return value;
+  }
+
+  /* XXX: TEMPORARY! */
+  let identityToAuthor = (id: AuthorIdentity) => ensureDefined(authors.get(id));
+
+  type CoverageCounts = {
+    files: Set<string>;
+    types: Set<string>;
+  };
+
+  var authorMap: AuthorStatistics = new Map();
+  var authorSets = new Map<Author, CoverageCounts>();
   var typesOverall = new Set<string>();
   var filesOverall = new Set<string>();
 
@@ -214,7 +237,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
       }
 
       /* Add the diff, accounting for author filters. */
-      if (authors.length <= 0 || authors.indexOf(diff.author) != -1) {
+      if (authorNames.length <= 0 || authorNames.indexOf(diff.author) != -1) {
         type.addDiff(diff, startDate, endDate);
         timeslice.addDiff(diff);
       }
@@ -227,33 +250,33 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   /* Will need to recalculate this for this measurement: */
   typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
-    let authorName = commit.author.shorthand;
+    let author = identityToAuthor(commit.author);
     let date = new Date(commit.date.valueOf());
 
-    if (!(authorName in authorMap)) {
-      authorMap[authorName] = [];
-      authorSets[authorName] = {
-        files: new Set<string>(),
-        types: new Set<string>()
-      };
+    if (!authorMap.has(author)) {
+      authorMap.set(author, []);
+      authorSets.set(author, {
+        files: new Set(),
+        types: new Set()
+      });
     }
 
     /* Add all observed files and types to their respective sets. */
     addAll(filesOverall, files);
-    addAll(authorSets[authorName].files, files);
+    addAll(authorSets.get(author).files, files);
     addAll(typesOverall, types);
-    addAll(authorSets[authorName].types, types);
+    addAll(authorSets.get(author).types, types);
 
     /* Record stats! */
-    authorMap[authorName].push({
+    authorMap.get(author).push({
       type: {
         observed: types.size,
-        cumulative: authorSets[authorName].types.size,
+        cumulative: authorSets.get(author).types.size,
         total: typesOverall.size
       },
       file: {
         observed: files.size,
-        cumulative: authorSets[authorName].files.size,
+        cumulative: authorSets.get(author).files.size,
         total: filesOverall.size
       },
       date
@@ -263,7 +286,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   return {
     /* Filtered types. */
     types,
-    commits: data.commits,
+    commits,
     typesPresent,
     timeslices,
     authorStats: authorMap,

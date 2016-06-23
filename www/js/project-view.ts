@@ -7,7 +7,6 @@
  *  - Ian Watts
  */
 
-
 import assert from './assert';
 import preprocessData, {PreprocessedData} from './preprocess-data';
 import DataView, {CommitStatistics} from './data-filter';
@@ -420,8 +419,10 @@ function drawStats(data: DataView, width: number) {
    * Per author stats.
    */
 
+  let authors = Array.from(data.authorStats.keys());
+
   var authorCoverage = d3.select('#coverage-by-author').selectAll('.author-coverage')
-      .data(data.primaryAuthorAliases)
+      .data(authors)
     .enter().append('svg')
       .attr('height', rowHeight + 32)
       .attr('width', width)
@@ -429,11 +430,11 @@ function drawStats(data: DataView, width: number) {
 
   authorCoverage.append('path')
     .classed('file-coverage', true)
-    .attr('d', (authorName) => lineFunctionSmallFiles(data.authorStats[authorName]));
+    .attr('d', (author) => lineFunctionSmallFiles(data.authorStats.get(author)));
 
   authorCoverage.append('path')
     .classed('type-coverage', true)
-    .attr('d', (authorName) => lineFunctionSmallTypes(data.authorStats[authorName]));
+    .attr('d', (author) => lineFunctionSmallTypes(data.authorStats.get(author)));
 
   /* Axes. */
   authorCoverage.append('g')
@@ -442,7 +443,7 @@ function drawStats(data: DataView, width: number) {
 
   authorCoverage.append('text')
     .attr('transform', `translate(${marginLeft}, 16)`)
-    .text(authorName => authorName.toString());
+    .text((author) => author.name);
 
   /* TODO: Make independent axis for each author... */
   /*
@@ -471,17 +472,17 @@ export function makeCSVLink(data: DataView) {
   addRow('Metric', 'Author', 'Date', 'Coverage');
   type Metric = 'file' | 'type';
 
-  for (var authorName of Object.keys(data.authorStats)) {
-    for (var stats of data.authorStats[authorName]) {
+  for (var author of data.authorStats.keys()) {
+    for (var stats of data.authorStats.get(author)) {
       addRow(
         'file',
-        authorName,
+        author.id,
         +stats.date, // Coerce to Unix timestamp in ms
         stats.file.cumulative / filesTotal
       );
       addRow(
         'type',
-        authorName,
+        author.id,
         +stats.date, // Coerce to Unix timestamp in ms
         stats.type.cumulative / typesTotal
       );

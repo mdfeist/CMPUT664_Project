@@ -8,6 +8,7 @@ export interface PreprocessedData {
   typeNames: Set<string>;
   commits: CommitMap;
   astDiffs: ASTDiff[];
+  authorNames: string[];
 };
 
 /**
@@ -21,6 +22,7 @@ export default function preprocessData(data: Project): PreprocessedData {
   assert(data.types instanceof Array);
   assert(data.commits instanceof Array);
   assert(data.dates instanceof Array);
+  assert(data.authors instanceof Array);
 
   /* A set of type names */
   var typeNames = new Set(data.types);
@@ -28,10 +30,11 @@ export default function preprocessData(data: Project): PreprocessedData {
   var commits = createCommitMap(commitsFromJsonToInternalFormat(data.commits));
 
   return {
-    typeNames,
-    commits,
     /* A copy of AST Diff data, in asscending order of date. */
-    astDiffs: createASTDiffsInAscendingOrder(data.dates, commits)
+    astDiffs: createASTDiffsInAscendingOrder(data.dates, commits),
+    authorNames: data.authors,
+    commits,
+    typeNames
   };
 }
 
@@ -43,7 +46,7 @@ function commitsFromJsonToInternalFormat(commits: CommitFromJSON[]): Commit[] {
   for (let commitJSON of commits) {
     let commit = <any> commitJSON as Commit;
     commit.date = new Date(commitJSON.date);
-    commit.author = new AuthorIdentity(commitJSON.author);
+    commit.author = AuthorIdentity.get(commitJSON.author);
   }
   return <any[]> commits as Commit[];
 }

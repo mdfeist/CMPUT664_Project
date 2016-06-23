@@ -58,6 +58,7 @@ export default class ASTDiff {
    * NOTE: This was an enumerable property in an older version. This is
    * probably unnecessary now.
    */
+  /** TODO: Name this author ID or something. */
   get author(): string {
     return this._commit.author.shorthand;
   }
