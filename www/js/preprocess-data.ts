@@ -1,5 +1,5 @@
 import ASTDiff from './ast-diff';
-import AuthorIdentity from './author-identity';
+import {AuthorIdentity} from './author';
 import Commit, {CommitMap} from './commit';
 
 import assert from './assert';

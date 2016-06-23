@@ -1,5 +1,3 @@
-import assert from './assert';
-
 /**
  * A private symbol used to fake a private constructor.
  * @return {[type]} [description]
@@ -40,7 +38,7 @@ export default class AuthorIdentity {
       id = new AuthorIdentity(name, PRIVATE);
       AuthorIdentity._instances.set(id.shorthand, id);
     }
-  
+
     return id;
   }
 }

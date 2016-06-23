@@ -3,8 +3,7 @@ import TimeSlice from './time-slice';
 import ASTDiff from './ast-diff';
 import Commit, {CommitMap} from './commit';
 import {PreprocessedData} from './preprocess-data';
-import AuthorIdentity from './author-identity';
-import Author from './author';
+import Author, {AuthorIdentity} from './author';
 
 import assert from './assert';
 import { first, last, addAll } from './utils';

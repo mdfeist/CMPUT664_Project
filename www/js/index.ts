@@ -1,7 +1,6 @@
 ///<reference path="index.d.ts" />
 import { createTable, createTable2, makeCSVLink } from "./project-view";
 import DataView from './data-filter';
-import Author from './author';
 
 /* Add date picker widgets on platforms that don't have them. */
 if (!hasDatePicker()) {

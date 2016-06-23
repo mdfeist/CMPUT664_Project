@@ -1,4 +1,4 @@
-import AuthorIdentity from './author-identity';
+import {AuthorIdentity} from './author';
 
 export default Commit;
 

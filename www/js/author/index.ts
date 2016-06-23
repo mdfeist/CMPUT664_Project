@@ -1,4 +1,5 @@
 import AuthorIdentity from './author-identity';
+export { AuthorIdentity };
 
 /**
  * Represents one verified full author.
