@@ -1,5 +1,11 @@
 import assert from './assert';
 
+/**
+ * A private symbol used to fake a private constructor.
+ * @return {[type]} [description]
+ */
+const PRIVATE = Symbol();
+
 export default class AuthorIdentity {
   public name: string;
   public email: string;
@@ -7,7 +13,10 @@ export default class AuthorIdentity {
   /** XXX: Fix memory leak! */
   private static _instances = new Map<string, AuthorIdentity>();
 
-  constructor(alias: string) {
+  constructor(alias: string, token: any) {
+    if (token !== PRIVATE) {
+      throw new Error(`Use AuthorIdentity.get("${alias}") instead.`);
+    }
     [this.name, this.email] = parseAlias(alias);
   }
 
@@ -19,15 +28,19 @@ export default class AuthorIdentity {
     return this.shorthand;
   }
 
+  /**
+   * Get a globally unique instance.
+   * @return {AuthorIdentity}      [description]
+   */
   static get(name: string): AuthorIdentity {
-    let normalized = new AuthorIdentity(name).shorthand;
+    let normalized = new AuthorIdentity(name, PRIVATE).shorthand;
     let id = AuthorIdentity._instances.get(normalized);
 
     if (id === undefined) {
-      id = new AuthorIdentity(name);
+      id = new AuthorIdentity(name, PRIVATE);
       AuthorIdentity._instances.set(id.shorthand, id);
     }
-
+  
     return id;
   }
 }
