@@ -3,7 +3,7 @@ import TimeSlice from './time-slice';
 import ASTDiff from './ast-diff';
 import Commit, {CommitMap} from './commit';
 import {PreprocessedData} from './preprocess-data';
-import Author, {AuthorIdentity} from './author';
+import Author, {AuthorIdentity, AuthorConfiguration} from './author';
 
 import assert from './assert';
 import { first, last, addAll } from './utils';
@@ -76,8 +76,8 @@ export default class DataView {
    * # authors -- Filter only to the given authors.
    * # typeFilter -- only types matching this pattern are selected.
    */
-  static filter(data: PreprocessedData, filters: Filter) {
-    const rawFilteredData = filterTypes(data, filters);
+  static filter(data: PreprocessedData, filters: Filter, config: AuthorConfiguration) {
+    const rawFilteredData = filterTypes(data, filters, config);
     return new DataView(rawFilteredData);
   }
 
@@ -133,7 +133,7 @@ export default class DataView {
  *
  * Each type has its Cells, with ASTDiffs.
  */
-function filterTypes(data: PreprocessedData, filters: Filter) {
+function filterTypes(data: PreprocessedData, filters: Filter, authors: AuthorConfiguration) {
   /* Let filters be undefined or null. */
   filters = filters ? filters : {};
 
@@ -179,18 +179,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
     typeMap[type.name] = type;
   });
 
-  /* XXX: TEMPORARY! */
-  let authors = new Map<AuthorIdentity, Author>();
   let commits = data.commits;
-
-  /* XXX: TEMPORARY! */
-  for (let name of authorNames) {
-    let id = AuthorIdentity.get(name)
-    authors.set(id, new Author(id));
-  }
-
-  /* XXX: TEMPORARY! */
-  let identityToAuthor = (id: AuthorIdentity) => authors.get(id);
 
   type CoverageCounts = {
     files: Set<string>;
@@ -240,7 +229,7 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   /* Will need to recalculate this for this measurement: */
   typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
-    let author = identityToAuthor(commit.author);
+    let author = authors.get(commit.author);
     let date = new Date(commit.date.valueOf());
 
     if (!authorMap.has(author)) {

@@ -64,7 +64,7 @@ export function createTable2(filter: Filter) {
       "Benjamin Reed <breed@apache.org>":       "Benjamin Reed <breed@apache.org>",
       "eolivelli <eolivelli@gmail.com>":       "eolivelli <eolivelli@gmail.com>",
       "Flavio Paiva Junqueira <fpj@apache.org>":       "Flavio Paiva Junqueira <fpj@apache.org>",
-      "fpj <fpj@apache.org>":       "fpj <fpj@apache.org>",
+      "fpj <fpj@apache.org>":              "Flavio Paiva Junqueira <fpj@apache.org>",
       "Ivan Brendan Kelly <ivank@apache.org>":       "Ivan Brendan Kelly <ivank@apache.org>",
       "Ivan Kelly <ivan@bleurgh.com>":       "Ivan Brendan Kelly <ivank@apache.org>",
       "Ivan Kelly <ivank@apache.org>":       "Ivan Brendan Kelly <ivank@apache.org>",
@@ -102,7 +102,7 @@ export function createTable2(filter: Filter) {
   // TODO: get rid of window
   var processed = window.preprocessedData;
   // TODO: get rid of window
-  var data = window.filteredData = DataView.filter(processed, filter);
+  var data = window.filteredData = DataView.filter(processed, filter, config);
   drawGraph(data, dnaTable.offsetWidth);
   drawStats(data, dnaTable.offsetWidth);
 
