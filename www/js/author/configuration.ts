@@ -21,6 +21,10 @@ export default class AuthorConfiguration {
 
   getAuthorByName(name: string): Author {
     let alias = AuthorIdentity.get(name);
+    return this.get(alias);
+  }
+
+  get(alias: AuthorIdentity): Author {
     let author = this._aliases.get(alias);
 
     if (!author) {

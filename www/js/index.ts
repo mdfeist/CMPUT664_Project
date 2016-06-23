@@ -77,7 +77,10 @@ function renderAuthorPanel(allAuthors: string[], authorUnsafe: string): string {
  * @return {[type]} [description]
  */
 function renderAuthorPicker() {
-  let authors = window.authors;
+  let authors = window.authors.sort((a, b) =>
+                                    a.trim().toLowerCase() < b.trim().toLowerCase() ?
+                                      -1 : 1
+                                   );
   let html = authors.map(renderAuthorPanel.bind(window, authors)).join('');
   $('#authors-list').html(html);
 
@@ -123,8 +126,8 @@ function getFilters(): Filter {
     endDate = new Date(timestamp);
   }
 
+  /* Find enabled authors. */
   var _authors: string[] = [];
-
   $('.author-check-box').each(function() {
     if($(this).prop('checked')) {
       _authors.push($(this).val());

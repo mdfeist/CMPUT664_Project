@@ -1,5 +1,7 @@
 import AuthorIdentity from './author-identity';
-export { AuthorIdentity };
+import AuthorConfiguration from './configuration';
+
+export { AuthorConfiguration, AuthorIdentity };
 
 /**
  * Represents one verified full author.
