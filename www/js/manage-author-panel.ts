@@ -8,17 +8,13 @@ export default class ManageAuthorsPanel {
   protected $element: JQuery;
   protected aliases: AuthorIdentity[];
 
-  constructor(protected initialConfig: AuthorConfiguration, element: Selector) {
+  constructor(protected config: AuthorConfiguration, element: Selector) {
     this.$element = $(element);
-    this.aliases = Array.from(initialConfig.aliases).sort(byShorthand);
+    this.aliases = Array.from(config.aliases).sort(byShorthand);
 
     function byShorthand(a: AuthorIdentity, b: AuthorIdentity) {
       return a.shorthand.toLowerCase() < b.shorthand.toLowerCase() ? -1 : 1;
     }
-  }
-
-  get config(): AuthorConfiguration {
-    return this.initialConfig;
   }
 
   /**

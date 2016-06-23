@@ -33,23 +33,34 @@ function hasDatePicker() {
   return (input.value !== notADateValue);
 }
 
-function loadProject(type: 'Declarations' | 'Types' | 'Invocations') {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function () {
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-      var filter = getFilters();
-      var project: Project = JSON.parse(xhttp.responseText);
-      var results = createTable(project, filter);
-      patchInputs(results);
+type EntityType = 'Declarations' | 'Types' | 'Invocations';
 
+function fetchProject(type: EntityType): Promise<Project> {
+  return new Promise(function (resolve, reject) {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (xhttp.readyState === 4 && xhttp.status == 200) {
+        let project: Project = JSON.parse(xhttp.responseText);
+        resolve(project);
+      } else if (xhttp.readyState === 4) {
+        reject(new Error(`bad http status: ${xhttp.status}`));
+      }
+    };
 
-      var link = makeCSVLink(results);
-      $('#csv-link').attr('href', link);
-    }
-  };
+    xhttp.open('GET', `get_project?type=${type}`, true);
+    xhttp.send();
+  });
+}
 
-  xhttp.open('GET', `get_project?type=${type}`, true);
-  xhttp.send();
+function loadProject(type: EntityType) {
+  fetchProject(type).then(project => {
+    let filter = getFilters();
+    let results = createTable(project, filter);
+    patchInputs(results);
+
+    var link = makeCSVLink(results);
+    $('#csv-link').attr('href', link);
+  });
 }
 
 window.redrawTable = function () {
@@ -124,10 +135,10 @@ window.toggleAuthors = function () {
   let $authors = $("#authors");
   $authors.toggleClass('collapse');
 
-  /* Chosen must be enabled while the panel is visible. */
   if (!$authors.hasClass('collapse')) {
-    new ManageAuthorsPanel((<any>window).CONFIG, $('#authors-list'))
-      .renderAuthorPicker();
+    let panel =
+      new ManageAuthorsPanel((<any>window).CONFIG, $('#authors-list'));
+    panel.renderAuthorPicker();
   }
 }
 
