@@ -1,4 +1,5 @@
 import assert from './assert';
+import Commit, {CommitMap} from './commit';
 
 const EDIT_KIND = new Set(['+', '-']);
 
@@ -57,8 +58,8 @@ export default class ASTDiff {
    * NOTE: This was an enumerable property in an older version. This is
    * probably unnecessary now.
    */
-  get author() {
-    return this._commit.author;
+  get author(): string {
+    return this._commit.author.shorthand;
   }
 
   /**

@@ -14,6 +14,7 @@ import DataView, {CommitStatistics} from './data-filter';
 import JavaType from './java-type';
 import Cell from './cell';
 import TimeSlice from './time-slice';
+import Commit, {CommitMap} from './commit';
 
 var CELL_INFO_WIDTH = 500;
 

@@ -14,6 +14,26 @@ declare interface Project {
   authors: string[];
 }
 
+interface CommitCommon {
+  /**
+   * The Git SHA. Should be unique per project.
+   * @type {string}
+   */
+  commitID: CommitID;
+
+  author: any;
+  date: string | Date;
+
+  /**
+   * The log message.
+   * @type {string}
+   */
+  message: string;
+
+  files: string[];
+  all_files: string[];
+}
+
 interface CommitFromJSON {
   /**
    * The raw author string, normalized as
@@ -25,25 +45,10 @@ interface CommitFromJSON {
   author: string;
 
   /**
-   * The Git SHA. Should be unique per project.
-   * @type {string}
-   */
-  commitID: CommitID;
-
-  /**
    * Date, formatted as an ISO 8601 string.
    * @type {string}
    */
-  date: string | Date;
-
-  /**
-   * The log message.
-   * @type {string}
-   */
-  message: string;
-
-  files: string[];
-  all_files: string[];
+  date: string;
 }
 
 /**
@@ -62,25 +67,7 @@ interface Edit {
 type EditKind = '+' | '-';
 
 /**
- * A commit within the system.
- */
-interface Commit extends CommitFromJSON {
-  /**
-   * The commit date in UTC.
-   * @type {Date}
-   */
-  date: Date;
-}
-
-/**
  * Type alias for a string that uniquly identifies a commit.
  * @type {[type]}
  */
 type CommitID = string;
-
-/**
- * Maps a commit SHA to a commit.
- */
-interface CommitMap {
-  [commitID: string]: Commit;
-}

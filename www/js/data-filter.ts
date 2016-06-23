@@ -1,6 +1,7 @@
 import JavaType from './java-type';
 import TimeSlice from './time-slice';
 import ASTDiff from './ast-diff';
+import Commit, {CommitMap} from './commit';
 import {PreprocessedData} from './preprocess-data';
 
 import assert from './assert';
@@ -226,11 +227,12 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
   /* Will need to recalculate this for this measurement: */
   typesOverall = new Set();
   forEachCommit(applicableDiffs, (commit, files, types) => {
-    var author = commit.author;
-    var date = new Date(commit.date.valueOf());
-    if (!(author in authorMap)) {
-      authorMap[author] = [];
-      authorSets[author] = {
+    let authorName = commit.author.shorthand;
+    let date = new Date(commit.date.valueOf());
+
+    if (!(authorName in authorMap)) {
+      authorMap[authorName] = [];
+      authorSets[authorName] = {
         files: new Set<string>(),
         types: new Set<string>()
       };
@@ -238,20 +240,20 @@ function filterTypes(data: PreprocessedData, filters: Filter) {
 
     /* Add all observed files and types to their respective sets. */
     addAll(filesOverall, files);
-    addAll(authorSets[author].files, files);
+    addAll(authorSets[authorName].files, files);
     addAll(typesOverall, types);
-    addAll(authorSets[author].types, types);
+    addAll(authorSets[authorName].types, types);
 
     /* Record stats! */
-    authorMap[author].push({
+    authorMap[authorName].push({
       type: {
         observed: types.size,
-        cumulative: authorSets[author].types.size,
+        cumulative: authorSets[authorName].types.size,
         total: typesOverall.size
       },
       file: {
         observed: files.size,
-        cumulative: authorSets[author].files.size,
+        cumulative: authorSets[authorName].files.size,
         total: filesOverall.size
       },
       date

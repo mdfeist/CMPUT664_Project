@@ -1,4 +1,6 @@
 import ASTDiff from './ast-diff';
+import AuthorAlias from './author-alias';
+import Commit, {CommitMap} from './commit';
 
 import assert from './assert';
 
@@ -23,7 +25,7 @@ export default function preprocessData(data: Project): PreprocessedData {
   /* A set of type names */
   var typeNames = new Set(data.types);
   /* Mapping GitSha -> Commit Metadata. */
-  var commits = createCommitMap(objectifyDates(data.commits));
+  var commits = createCommitMap(commitsFromJsonToInternalFormat(data.commits));
 
   return {
     typeNames,
@@ -36,11 +38,14 @@ export default function preprocessData(data: Project): PreprocessedData {
 /**
  * Ensure each commit has a proper Date object.
  */
-function objectifyDates(commits: CommitFromJSON[]): Commit[] {
-  for (let commit of commits) {
-    commit.date = new Date(commit.date as string);
+function commitsFromJsonToInternalFormat(commits: CommitFromJSON[]): Commit[] {
+  /* Nasty double casts to convert from one object to another inplace. */
+  for (let commitJSON of commits) {
+    let commit = <any> commitJSON as Commit;
+    commit.date = new Date(commitJSON.date);
+    commit.author = new AuthorAlias(commitJSON.author);
   }
-  return commits as Commit[];
+  return <any[]> commits as Commit[];
 }
 
 /* Maps Git SHA to the raw commit data. */
