@@ -8,13 +8,33 @@ export default class ManageAuthorsPanel {
   protected $element: JQuery;
   protected aliases: AuthorIdentity[];
 
+  /**
+   *
+   */
+  protected similaritySet = new Map<AuthorIdentity, Set<string>>();
+
   constructor(protected config: AuthorConfiguration, element: Selector) {
     this.$element = $(element);
     this.aliases = Array.from(config.aliases).sort(byShorthand);
 
+    for (let id of this.aliases) {
+      this.similaritySet.set(
+        id,
+        new Set(id.name + id.email)
+      );
+    }
+
     function byShorthand(a: AuthorIdentity, b: AuthorIdentity) {
       return a.shorthand.toLowerCase() < b.shorthand.toLowerCase() ? -1 : 1;
     }
+  }
+
+  protected similarityTo(aId: AuthorIdentity) {
+    let a = this.similaritySet.get(aId);
+    return (bId: AuthorIdentity) => {
+      let b = this.similaritySet.get(bId);
+      return 1.0 - jaccard(a, b);
+    };
   }
 
   /**
@@ -59,8 +79,10 @@ export default class ManageAuthorsPanel {
   }
 
   protected makeOptions(author: Author): string {
-    return this.aliases
-      .filter(alias => alias !== author.primaryIdentity)
+    let options = this.aliases
+      .filter(alias => alias !== author.primaryIdentity);
+
+    return sortBy(options, this.similarityTo(author.primaryIdentity))
       .map(alias => {
         let isForThisAuthor = this.config.get(alias) === author;
         let isPrimaryForOther = this.config.isPrimaryIdentity(alias);
@@ -106,12 +128,9 @@ export default class ManageAuthorsPanel {
       })
   }
 
-  /**
-   * Rerenders the list inside #authors-list
-   * @return {[type]} [description]
-   */
-  renderAuthorPicker(): void {
+  renderAuthorPicker(): this {
     this.render();
+    return this;
   }
 }
 
@@ -126,4 +145,26 @@ function escapeHTML(unsafe: string): string {
 }
 
 
+function jaccard<T>(a: Set<T>, b: Set<T>): number {
+  let numElementsInCommon = intersectionMagnitude(a, b);
+  return numElementsInCommon / (a.size + b.size - numElementsInCommon);
+}
 
+function intersectionMagnitude<T>(a: Set<T>, b: Set<T>): number {
+  let count = 0;
+  for (let item of a) {
+    if (b.has(item)) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+function sortBy<T, U>(arr: T[], mapper: (item: T) => U): T[] {
+  let paired = arr.map((item: T) => [mapper(item), item] as [U, T]);
+  paired.sort(([a, ], [b, _]) => {
+    return a === b ? 0 : a < b ? -1 : 1;
+  });
+  return paired.map(([_, item]) => item);
+}
