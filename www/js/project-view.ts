@@ -40,8 +40,11 @@ export function createTable(data: Project, filter: Filter) {
   window.DATA = data;
   /* TODO: Remove global! */
   window.preprocessedData = preprocessData(data);
-  /* TODO: Remove global! */
-  window.authors = data.authors;
+
+  let config = AuthorConfiguration.generateDefaultConfiguration(data.authors);
+
+  // TODO: get rid of window
+  (<any>window).CONFIG = config;
 
   return createTable2(filter);
 }
@@ -56,54 +59,14 @@ export function createTable2(filter: Filter) {
   /* Clear previous table */
   dnaTable.innerHTML = "";
 
-
-  let config = new AuthorConfiguration({
-    aliases: {
-      "Andrey Yegorov <ayegorov@salesforce.com>":       "Andrey Yegorov <ayegorov@salesforce.com>",
-      "Arun M. Krishnakumar <akrishnakumar@salesforce.com>":       "Arun M. Krishnakumar <akrishnakumar@salesforce.com>",
-      "Benjamin Reed <breed@apache.org>":       "Benjamin Reed <breed@apache.org>",
-      "eolivelli <eolivelli@gmail.com>":       "eolivelli <eolivelli@gmail.com>",
-      "Flavio Paiva Junqueira <fpj@apache.org>":       "Flavio Paiva Junqueira <fpj@apache.org>",
-      "fpj <fpj@apache.org>":              "Flavio Paiva Junqueira <fpj@apache.org>",
-      "Ivan Brendan Kelly <ivank@apache.org>":       "Ivan Brendan Kelly <ivank@apache.org>",
-      "Ivan Kelly <ivan@bleurgh.com>":       "Ivan Brendan Kelly <ivank@apache.org>",
-      "Ivan Kelly <ivank@apache.org>":       "Ivan Brendan Kelly <ivank@apache.org>",
-      "Ivan Kelly <ivank@yahoo-inc.com>":       "Ivan Brendan Kelly <ivank@apache.org>",
-      "Matteo Merli <matteo.merli@gmail.com>":       "Matteo Merli <matteo.merli@gmail.com>",
-      "Matteo Merli <mmerli@apache.org>":       "Matteo Merli <matteo.merli@gmail.com>",
-      "Matteo Merli <mmerli@yahoo-inc.com>":       "Matteo Merli <matteo.merli@gmail.com>",
-      "Robin Dhamankar <robindh@apache.org>":       "Robin Dhamankar <robindh@apache.org>",
-      "Siddharth Boobna <sboobna@yahoo-inc.com>":       "Siddharth Boobna <sboobna@yahoo-inc.com>",
-      "Sijie Guo <sijie@apache.org>":       "Sijie Guo <sijie@apache.org>",
-      "Uma Maheswara Rao G <umamahesh@apache.org>":       "Uma Maheswara Rao G <umamahesh@apache.org>",
-    },
-    enabled: [
-      "Andrey Yegorov <ayegorov@salesforce.com>",
-      "Arun M. Krishnakumar <akrishnakumar@salesforce.com>",
-      "Benjamin Reed <breed@apache.org>",
-      "eolivelli <eolivelli@gmail.com>",
-      "Flavio Paiva Junqueira <fpj@apache.org>",
-      "fpj <fpj@apache.org>",
-      "Ivan Brendan Kelly <ivank@apache.org>",
-      "Ivan Kelly <ivan@bleurgh.com>",
-      "Ivan Kelly <ivank@apache.org>",
-      "Ivan Kelly <ivank@yahoo-inc.com>",
-      "Matteo Merli <matteo.merli@gmail.com>",
-      "Matteo Merli <mmerli@apache.org>",
-      "Matteo Merli <mmerli@yahoo-inc.com>",
-      "Robin Dhamankar <robindh@apache.org>",
-      "Siddharth Boobna <sboobna@yahoo-inc.com>",
-      "Sijie Guo <sijie@apache.org>",
-      "Uma Maheswara Rao G <umamahesh@apache.org>"
-    ]
-  });
-  // TODO: get rid of window
-  (<any>window).CONFIG = config;
-
   // TODO: get rid of window
   var processed = window.preprocessedData;
   // TODO: get rid of window
-  var data = window.filteredData = DataView.filter(processed, filter, config);
+  var data = window.filteredData = DataView.filter(
+    processed,
+    filter,
+    (<any> window).CONFIG as AuthorConfiguration
+  );
   drawGraph(data, dnaTable.offsetWidth);
 
   /* TODO: This view is not ready yet. */

@@ -18,7 +18,6 @@ interface Window {
   DATA: Project;
   preprocessedData: any;
   filteredData: any;
-  authors: string[];
 
   redrawTable(): void;
   toggleView(): void;

@@ -455,8 +455,7 @@ def dashboard():
 def show_project(name):
     for project in projects:
         if (project.getDir() == name):
-           return render_template('project_view.html', name=name,
-                                  authors=list(project.getAuthors()))
+           return render_template('project_view.html', name=name)
     return 'Project not found', 404
 
 
