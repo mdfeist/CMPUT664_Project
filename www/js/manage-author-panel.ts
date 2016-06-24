@@ -146,11 +146,11 @@ function escapeHTML(unsafe: string): string {
 
 
 function jaccard<T>(a: Set<T>, b: Set<T>): number {
-  let numElementsInCommon = intersectionMagnitude(a, b);
-  return numElementsInCommon / (a.size + b.size - numElementsInCommon);
+  let numItemsInCommon = itemsInCommon(a, b);
+  return numItemsInCommon / (a.size + b.size - numItemsInCommon);
 }
 
-function intersectionMagnitude<T>(a: Set<T>, b: Set<T>): number {
+function itemsInCommon<T>(a: Set<T>, b: Set<T>): number {
   let count = 0;
   for (let item of a) {
     if (b.has(item)) {
@@ -163,7 +163,7 @@ function intersectionMagnitude<T>(a: Set<T>, b: Set<T>): number {
 
 function sortBy<T, U>(arr: T[], mapper: (item: T) => U): T[] {
   let paired = arr.map((item: T) => [mapper(item), item] as [U, T]);
-  paired.sort(([a, ], [b, _]) => {
+  paired.sort(([a,], [b,]) => {
     return a === b ? 0 : a < b ? -1 : 1;
   });
   return paired.map(([_, item]) => item);
