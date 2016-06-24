@@ -34,7 +34,12 @@ a[href=''] {
   -moz-filter: grayscale(50%);
 }
 
+.author-configuration.disabled,
+.author-configuration.disabled * {
+  /* I know, !important is bad, but Chosen's CSS has absurd specificity. */
+  cursor: not-allowed !important;
+}
+
 .author-configuration.disabled {
   opacity: 0.4;
-  cursor: not-allowed;
 }
