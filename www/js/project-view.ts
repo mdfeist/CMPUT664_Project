@@ -20,6 +20,8 @@ import preprocessData, {PreprocessedData} from './preprocess-data';
 
 var CELL_INFO_WIDTH = 500;
 
+const TEMP_PROJECT = 'bookeeper';
+
 /* Cell Info */
 var cellInfo = d3.select("body")
   .append("div")
@@ -41,10 +43,8 @@ export function createTable(data: Project, filter: Filter) {
   /* TODO: Remove global! */
   window.preprocessedData = preprocessData(data);
 
-  let config = AuthorConfiguration.generateDefaultConfiguration(data.authors);
-
-  // TODO: get rid of window
-  (<any>window).CONFIG = config;
+  // TODO: Get rid of window.
+  let config = (<any>window).CONFIG = getAuthorConfiguration(TEMP_PROJECT, data.authors);
 
   return createTable2(filter);
 }
@@ -62,12 +62,11 @@ export function createTable2(filter: Filter) {
   // TODO: get rid of window
   var processed = window.preprocessedData;
   // TODO: get rid of window
-  var data = window.filteredData = DataView.filter(
-    processed,
-    filter,
-    (<any> window).CONFIG as AuthorConfiguration
-  );
+  let config = (<any> window).CONFIG as AuthorConfiguration;
+  var data = window.filteredData = DataView.filter(processed, filter, config);
+
   drawGraph(data, dnaTable.offsetWidth);
+  saveAuthorConfiguration(TEMP_PROJECT, config);
 
   /* TODO: This view is not ready yet. */
   //drawStats(data, dnaTable.offsetWidth);
@@ -571,4 +570,26 @@ function cellWidthFromScale(cell: Cell, scale: (_: Date) => number) {
   return Math.ceil(bigger - smaller) + 1;
 }
 
-/*globals d3*/
+/**
+ * Attempts to fetch configuration from LocalStorage, falling back on the
+ * provided list of author names.
+ */
+function getAuthorConfiguration(projectName: string, fallback: string[]): AuthorConfiguration {
+  const key = `${projectName}:authors`;
+
+  let configAsJSON = window.localStorage.getItem(key);
+
+  if (configAsJSON) {
+    let configObject = JSON.parse(configAsJSON);
+    /* TODO: Assert that all authors are accounted for.  */
+    return new AuthorConfiguration(configObject);
+  } else {
+    return AuthorConfiguration.generateDefaultConfiguration(fallback);
+  }
+}
+
+function saveAuthorConfiguration(projectName: string, config: AuthorConfiguration) {
+  const key = `${projectName}:authors`;
+  const serializedConfig = JSON.stringify(config.toPlainObject());
+  window.localStorage.setItem(key, serializedConfig);
+}
