@@ -88,8 +88,8 @@ export default class DataView {
   }
 
   /** The primary alias of every author selected in the view. */
-  get primaryAuthorAliases() {
-    return Object.keys(this.authorStats);
+  get primaryAuthorAliases(): number {
+    return this.authorStats.size;
   }
 
   get minDate() {
