@@ -41,10 +41,11 @@ export function createTable(data: Project, filter: Filter) {
   /* TODO: Remove global! */
   window.DATA = data;
   /* TODO: Remove global! */
-  window.preprocessedData = preprocessData(data);
+  let preprocessed = window.preprocessedData = preprocessData(data);
 
   // TODO: Get rid of window.
-  let config = (<any>window).CONFIG = getAuthorConfiguration(TEMP_PROJECT, data.authors);
+  let config = (<any>window).CONFIG =
+    getAuthorConfiguration(preprocessed.projectName, data.authors);
 
   return createTable2(filter);
 }
@@ -60,13 +61,13 @@ export function createTable2(filter: Filter) {
   dnaTable.innerHTML = "";
 
   // TODO: get rid of window
-  var processed = window.preprocessedData;
+  var processed = window.preprocessedData as PreprocessedData;
   // TODO: get rid of window
   let config = (<any> window).CONFIG as AuthorConfiguration;
   var data = window.filteredData = DataView.filter(processed, filter, config);
 
   drawGraph(data, dnaTable.offsetWidth);
-  saveAuthorConfiguration(TEMP_PROJECT, config);
+  saveAuthorConfiguration(processed.projectName, config);
 
   /* TODO: This view is not ready yet. */
   //drawStats(data, dnaTable.offsetWidth);

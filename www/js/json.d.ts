@@ -8,9 +8,27 @@
  * The JSON sent from the Flask server to the client.
  */
 declare interface Project {
+  /**
+   * The project's name.
+   */
+  name: string;
+  /**
+   * Array of all commits in the repository. Not guarenteed to be any order.
+   */
   commits: CommitFromJSON[];
+  /**
+   * Array of edits that occured in a project. This as a many-to-one
+   * relationship with commits.
+   */
   dates: Edit[];
+  /**
+   * Array of type names in the project.
+   */
   types: string[];
+  /**
+   * Array of authors in the project. Note that not all projects may have made
+   * edits.
+   */
   authors: string[];
 }
 

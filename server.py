@@ -47,6 +47,14 @@ class Project:
         self._dir = ""
         self._commits = []
 
+    @property
+    def name(self):
+        """
+        The project name. Note that this is currently synonymous with the
+        project directory.
+        """
+        return self.getDir()
+
     def setDir(self, name):
         self._dir = name
 
@@ -83,6 +91,7 @@ class Project:
         json_data = {}
         types = set()
 
+        json_data["name"] = self.name
         json_data["commits"] = list()
         json_data["dates"] = list()
         json_data["authors"] = list(self.getAuthors())

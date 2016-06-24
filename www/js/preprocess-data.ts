@@ -5,6 +5,7 @@ import Commit, {CommitMap} from './commit';
 import assert from './assert';
 
 export interface PreprocessedData {
+  projectName: string;
   typeNames: Set<string>;
   commits: CommitMap;
   astDiffs: ASTDiff[];
@@ -34,6 +35,7 @@ export default function preprocessData(data: Project): PreprocessedData {
     astDiffs: createASTDiffsInAscendingOrder(data.dates, commits),
     authorNames: data.authors,
     commits,
+    projectName: data.name,
     typeNames
   };
 }
