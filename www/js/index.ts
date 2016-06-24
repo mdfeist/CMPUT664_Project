@@ -136,9 +136,13 @@ window.toggleAuthors = function () {
   $authors.toggleClass('collapse');
 
   if (!$authors.hasClass('collapse')) {
+    /* Open the author mananagment panel. */
     let panel =
       new ManageAuthorsPanel((<any>window).CONFIG, $('#authors-list'));
     panel.renderAuthorPicker();
+  } else {
+    /* Close the author managment panel. This usually requires a redraw. */
+    window.redrawTable();
   }
 }
 
