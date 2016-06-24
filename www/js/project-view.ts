@@ -83,9 +83,13 @@ function drawGraph(data: DataView, width: number) {
   var height = cellHeight * data.types.length;
 
   /* XXX: Sneak in a little info about the project. */
-  d3.select('body').append('pre')
-    .text(summary(data))
-    .style('display', 'none');
+  let summaryText = d3.select('body').selectAll('.summary')
+      .data([summary(data)])
+      .text(d => d)
+    .enter().append('pre')
+      .classed('summary', true)
+      .text(d => d)
+      .style('display', 'none');
 
   /* Create a scale for the types i.e., the y-axis */
   var yScale = d3.scale.ordinal()
@@ -547,7 +551,7 @@ function ensureAxisIsAtGraphBottom(graph: SVGElement, axis: SVGElement) {
  * Returns LaTeX code for a table row summarizing the current project.
  */
 function summary({numberOfCommits, primaryAuthorAliases, numberOfFiles, numberOfTypes, astDiffs}: DataView) {
-  return `project & ${numberOfCommits} & ${primaryAuthorAliases.length} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
+  return `project & ${numberOfCommits} & ${primaryAuthorAliases} & ${numberOfFiles} & ${numberOfTypes} & ${astDiffs.length}`;
 }
 
 /**
