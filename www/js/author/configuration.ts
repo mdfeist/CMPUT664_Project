@@ -91,6 +91,23 @@ export default class AuthorConfiguration {
     return this._enabled.has(author);
   }
 
+  toPlainObject(): ConfigurationJSON {
+    let aliases: { [name: string]: string } = {};
+    let enabled: string[] = [];
+
+    for (let [alias, author] of this._aliases) {
+      aliases[alias.shorthand] = author.id;
+    }
+
+    for (let author of this.authors) {
+      if (this.isEnabled(author)) {
+        enabled.push(author.id);
+      }
+    }
+
+    return { aliases, enabled }
+  }
+
   /**
    * Maps an alias name to an author.
    */
