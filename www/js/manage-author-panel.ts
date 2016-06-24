@@ -7,22 +7,13 @@ type Selector = string | Node | JQuery;
 export default class ManageAuthorsPanel {
   protected $element: JQuery;
   protected aliases: AuthorIdentity[];
-
-  /**
-   *
-   */
   protected similaritySet = new Map<AuthorIdentity, Set<string>>();
 
   constructor(protected config: AuthorConfiguration, element: Selector) {
     this.$element = $(element);
     this.aliases = Array.from(config.aliases).sort(byShorthand);
 
-    for (let id of this.aliases) {
-      this.similaritySet.set(
-        id,
-        new Set(id.name + id.email)
-      );
-    }
+    this.createSimilaritySets();
 
     function byShorthand(a: AuthorIdentity, b: AuthorIdentity) {
       return a.shorthand.toLowerCase() < b.shorthand.toLowerCase() ? -1 : 1;
@@ -35,6 +26,15 @@ export default class ManageAuthorsPanel {
       let b = this.similaritySet.get(bId);
       return 1.0 - jaccard(a, b);
     };
+  }
+
+  protected createSimilaritySets() {
+    assert(this.aliases instanceof Array);
+
+    for (let id of this.aliases) {
+      let characters = id.name + id.email.split('@')[0];
+      this.similaritySet.set(id, new Set(characters));
+    }
   }
 
   /**
