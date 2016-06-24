@@ -97,6 +97,7 @@ export function createTable2(filter: Filter) {
       "Uma Maheswara Rao G <umamahesh@apache.org>"
     ]
   });
+  // TODO: get rid of window
   (<any>window).CONFIG = config;
 
   // TODO: get rid of window
@@ -104,7 +105,9 @@ export function createTable2(filter: Filter) {
   // TODO: get rid of window
   var data = window.filteredData = DataView.filter(processed, filter, config);
   drawGraph(data, dnaTable.offsetWidth);
-  drawStats(data, dnaTable.offsetWidth);
+
+  /* TODO: This view is not ready yet. */
+  //drawStats(data, dnaTable.offsetWidth);
 
   return data;
 }
