@@ -3,6 +3,13 @@ import Author, {AuthorIdentity} from './';
 import assert from '../assert';
 
 /**
+ * A map of name of alias to name of author.
+ */
+export interface AliasMap {
+  [name: string]: string;
+}
+
+/**
  * Configuration for authors.
  */
 export default class AuthorConfiguration {
@@ -109,7 +116,7 @@ export default class AuthorConfiguration {
   }
 
   /**
-   * Maps an alias name to an author.
+   * Maps an alias name to an author name.
    */
   protected _mapTo(aliasName: string, authorName: string) {
     let alias = AuthorIdentity.get(aliasName);
@@ -129,9 +136,28 @@ export default class AuthorConfiguration {
 
     return author;
   }
+
+  /**
+   * Generate a configuration from a list of authors.
+   * All authors are enabled, and every name maps to itself.
+   */
+  static generateDefaultConfiguration(names: string[]): AuthorConfiguration {
+    let aliases: AliasMap = {};
+
+    /* Map each name to itself. */
+    for (let name of names) {
+      aliases[name] = name;
+    }
+
+    return new AuthorConfiguration({
+      aliases,
+      /* Enable all names. */
+      enabled: names
+    });
+  }
 }
 
 interface ConfigurationJSON {
-  aliases: { [name: string]: string };
+  aliases: AliasMap;
   enabled: string[];
 }
