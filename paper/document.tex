@@ -137,7 +137,7 @@ We deliberately chose to ignore merge commits. A merge commit has two cases to c
 
 The data collected from running the AST differencing component over the commits is saved to a file to be visualized later; this data is in a general format, and is not bound to any particular visualization. Figure~\ref{fig:data-extracted} summarizes the hierarchy of the data extracted by our tool.
 
-The major downside to using ASTs over a method like line count is that ASTs are more expensive to compute. Our experiments were run on a Intel i7 with 16GB of RAM and an SSD. Calculating the AST diffs varied from an hour or two for smaller projects to a couple of days for very large projects. For example ANTLR4 took about 8 hours while Apache BookKeeper only took a couple of hours. The good news for ongoing projects is that AST diffs only need to be computed for new commits; TypeV can resume calculating diffs and augmenting statistics at any time. New diffs can be appended to the already existing database of previous AST diffs.
+The major downside of AST diffs over a method like line count is that ASTs are more expensive to compute. Our experiments were run on a Intel i7 with 16GB of RAM and an SSD. Calculating the AST diffs varied from an hour or two for smaller projects to a couple of days for very large projects. For example ANTLR4 took about 8 hours while Apache BookKeeper only took a couple of hours. The good news for ongoing projects is that AST diffs only need to be computed for new commits; TypeV can resume calculating diffs and augment statistics at any time.
 
 \section{Visualization}
 
@@ -164,7 +164,9 @@ One can interact with the overview by hovering and clicking on the bars. When a 
 
 To allow for a more detailed analysis of a specific component of the repository we added filtering tools. Users can filter by type name; view changes that fall within a specific start and end date; and select whether to see only declarations of types, types used in declarations and invocations, or only invocations.
 
-One issue with analyzing individual authors is that authors can commit from a variety of different computers which can have different emails and usernames attached to their Git configuration. This may result in one author appearing as several different authors in the \texttt{git log}. There is no perfect way to deal with this problem; however, we allow the user of our software to select and view multiple authors at a time, thus allowing the user to view changes from an individual or group of developers.
+One issue with analyzing individual authors is that authors can commit from a variety of different computers which can have different emails and usernames attached to their Git configuration. This may result in one author appearing as several different authors in the \texttt{git log}. There is no perfect way to deal with this problem; however, we added an interface for managing authors. A user can manually specify an author's various aliases using a simple dropdown list. All statistics attributed to an author's various aliases are then remapped as belonging to one canonical author as specified by the user.
+
+In addition, our author managing view also provides a facility for selecting and deselecting authors in the view. Thus, visualization users can focus on the changes made by one author or a group of authors, rather than only having the option of view changes made by all authors cumulatively.
 
 \subsection{Design Decisions}
 
@@ -177,6 +179,8 @@ Our choice of colours was motivated to be high contrast and culturally indicativ
 The rows are sorted so that the graph for the most used types or methods appear the top and are in descending order of use such that the most frequently used type is the first visible. The height allows users to see when certain types are being edited and ensures that highly used types do not overpower less used types making their changes less significant.
 
 By adding interaction, the user is able to explore the timeline to find the specific information that they are interested in and drill-down at their leisure. Although our tool extracts a great deal of information, users can gradual reveal more information as they need it, rather than be bombarded with all of the information at once.
+
+% TODO: Add design decisions for author merging?
 
 \section{Evaluation}
 \label{sec:eval}
@@ -293,6 +297,8 @@ Bug triaging for large open source projects is a very time consuming task~\cite{
 \subsection{Threats to Validity}
 
 Internal threats to validity include our treatment of merge conflicts. As mentioned before, we ignore all merges, so if there is a merge conflict, it is possible that a developer makes non-trivial changes. Changes made during merge conflict resolution are missed by TypeV. We have made the assumptions that if this case happens, the changes are minor.
+
+In addition, the author statistics given in Table~\ref{tab:project-summary} was calculated after manual author merging. We are not personally familiar with the project, let alone the authors collaborating on the project. Therefore, our efforts to manually merge authors may have been erroneous.
 
 Some actions in Git present a problem gathering the statistics. Authors can pull other projects into the repository and these additions will count towards the author's changes. These will show up as massive changes by a single author with many types that they did not actually create. Changes of this size are visible in the graph and can be found by inspecting the commit messages.
 
