@@ -78,6 +78,8 @@ Of the services we have surveyed, none of the tools that visualize project evolu
 \label{fig:context}
 \end{figure}
 
+\textbf{RQ1:} How can we extract type and method usage from repositories over time?
+
 Given a Git repository, we want to extract per-author use of types over time. We accomplish this by computing the differences between abstract syntax trees of every consecutive pair of commits (Figure~\ref{fig:context}). This extracted data can then be used in a variety of visualizations as discussed in Section~\ref{sec:viz}. The reason for using ASTs is that they capture the semantics of the code far better than simple line counts.
 
 An \emph{abstract syntax tree} (AST) is a data structure derived from source code that breaks its syntactic constructs into a tree. Each node in the tree represents a syntactically valid chunk of code. This captures the structure of the code in an abstract and tractable manner. When a programmer makes a non-trivial change to a source code file, that difference will be reflected in the AST\@. Non-trivial changes are those that affect how a compiler will interpret the source code, and may have effects on the executable code. Trivial changes are those that have no effect on how a compiler will interpret the source text, such as changing insignificant whitespace or comments in source code. Thus, ASTs of consecutive revisions in a code repository can be compared to see what \emph{structures} a programmer is modifying.
@@ -244,7 +246,7 @@ We conclude from these findings that type coverage yields related, yet different
 \section{Illustrative Case Studies}
 \label{sec:cases}
 
-In the following sections, we present case studies demonstrating the extra insight that the AST differencing provides.
+\textbf{RQ3}: What extra insight can we gain from type-based visualization? We present case studies demonstrating the insight AST differencing can provide.
 
 \subsection{ANTLR4}\label{sec:antlr4}
 
