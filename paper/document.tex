@@ -71,7 +71,7 @@ Of the services we have surveyed, none of the tools that visualize project evolu
 \section{Data Extraction}
 \label{sec:methodology}
 
-\begin{figure}[!h]
+\begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{context}
 \caption{Data extraction pipeline for TypeV. First, we list the commits in branch chronological order. Then we calculate the AST difference between each changed file across each pair of consecutive commits. Finally, we may visualize the information in a variety of ways.}
@@ -114,7 +114,7 @@ Each change of declaration or invocation is detected and tallied per file per co
 
 This states that two declarations of type \texttt{java.net.URI} were added, and two declarations of type \texttt{java.lang.String} were deleted. Note that TypeV is able to find the fully qualified type names. Thus, the source text may not literally have the characters \texttt{java.net.URI}, but Spoon was able to infer from the import statements in the Java source text that references to ``URI'' resolve to the fully-qualified type name \texttt{java.net.URI}. 
 
-\begin{figure}[h]
+\begin{figure}[b]
 \centering
 \includegraphics[height=2.5in]{commits_view}
 \caption{Commits increase in time from bottom up. Therefore, ASTs from B and C are diff'd against ASTs in A. ASTs from E are diff'd against D. Since D is a merge commit, its changes are ignored as they are recorded in C and B.}
@@ -125,7 +125,7 @@ In order to gather all the changes for a given repository over time, we generate
 
 We deliberately chose to ignore merge commits. A merge commit has two cases to consider: The first case is when the parents of the commit can be automatically merged. In this case all the relevant changes are already recorded in the parent of the commit so we can safely ignore the merge commit~\cite{git:merge}. The second case occurs when the parents cannot be merged automatically: this is a \emph{merge conflict} which requires manual resolution on the part of a developer. In this case, the developer will try to resolve the issue by modifying code. If we decide to include the merge commit we run into several edge case issues such as how to compare the merge commit with its multiple parent commits and how to account for the possible modifications made to resolve the merge conflict. We could consider comparing the merge commit with only one parent commit at a time; however, we will end up counting all the changes already recorded in the other parent branch. Additionally, all changes made during the resolution of a conflict will be attributed to the author making the merge. This may exclude the author that actually wrote the code in the first place. The other option is to simply ignore the merge commit such that we do not count the changes done during a merge commit. We made the assumptions that merge conflicts occur infrequently and when they do occur, the changes made to resolve a merge conflict are usually minor. Therefore, we chose to ignore merge commits. 
 
-\begin{figure}[h]
+\begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{data-extracted}
 \caption{Hierarchy of data extracted by TypeV. Each repository may have zero or more commits; each commit may have zero or more changed files; each changed files may have zero or more changes, as computed by our AST differencing tool.}
@@ -145,7 +145,7 @@ The major downside of AST diffs over a method like line count is that ASTs are m
 
 \label{sec:viz}
 
-\begin{figure*}[!ht]
+\begin{figure*}[tb]
 \centering
 \includegraphics[width=\textwidth]{Screenshot_antlr4}
 \caption{Screenshot showing the main view for TypeV. The data being displayed is from the ANTLR4 repository. Light blue bars \additionsbox{10pt} indicate \textbf{additions}; dark red bars \deletionsbox{10pt} indicate \textbf{deletions}.}
@@ -161,7 +161,14 @@ One can interact with the overview by hovering and clicking on the bars. When a 
 
 To allow for a more detailed analysis of a specific component of the repository we added filtering tools. Users can filter by type name; view changes that fall within a specific start and end date; and select whether to see only declarations of types, types used in declarations and invocations, or only invocations.
 
-One issue with analyzing source code repositories is that authors can commit from a variety of different computers which can have different emails and usernames attached to their Git configuration. This may result in one author appearing as several different authors in the \texttt{git log}. There is no perfect way to deal with this problem; however, we added an interface for managing authors. A user can manually specify an author's various aliases using a simple dropdown list. All statistics attributed to an author's various aliases are then remapped as belonging to one canonical author as specified by the user. The author managing view also provides a facility for selecting and deselecting authors shown in the timeline. Thus, visualization users can focus on the changes made by a particular author or a group of authors, rather than having to view the changes made by all authors.
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\columnwidth]{author-merging}
+\caption{Screenshot showing the author management view for Apache Bookkeeper. Users can use a drop-down list to select the aliases for an author, and select whether to show or hide the author in the timeline view. Authors in the drop-down list are sorted in decreasing order of Jaccard similarity.}
+\label{fig:author-merging}
+\end{figure}
+
+One issue with analyzing source code repositories is that authors can commit from a variety of different computers which can have different emails and usernames attached to their Git configuration. This may result in one author appearing as several different authors in the \texttt{git log}. There is no perfect way to deal with this problem; however, we added an interface for managing authors (Figure~\ref{fig:author-merging}. A user can manually specify an author's various aliases using a simple dropdown list. All statistics attributed to an author's various aliases are then remapped as belonging to one canonical author as specified by the user. The author managing view also provides a facility for selecting and deselecting authors shown in the timeline. Thus, visualization users can focus on the changes made by a particular author or a group of authors, rather than having to view the changes made by all authors.
 
 \subsection{Design Decisions}
 
