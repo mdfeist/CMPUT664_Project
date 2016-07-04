@@ -180,7 +180,7 @@ Our choice of colours was motivated to be high contrast and culturally indicativ
 
 The rows are sorted so that the graph for the most used types or methods appear the top and are in descending order of use such that the most frequently used type is the first visible. The height allows users to see when certain types are being edited and ensures that highly used types do not overpower less used types making their changes less significant.
 
-By adding interaction, the user is able to explore the timeline to find the specific information that they are interested in and drill-down at their leisure. Although our tool extracts a great deal of information, users can gradual reveal more information as they need it, rather than be bombarded with all of the information at once.
+By adding interaction, the user is able to explore the timeline to find the specific information that they are interested in and drill-down at their leisure. Although our tool extracts a great deal of information, users can gradually reveal more information as they need it, rather than be bombarded with all of the information at once.
 
 % TODO: Add design decisions for author merging?
 
@@ -242,7 +242,7 @@ Tika & $0.653$ & 0.955 & 0.998\\
 
 In Java, a type can be primitive, provided by the language itself, or an object reference. Primitive types are those that are built into the language such as an \texttt{int} or \texttt{char}. Object references point to instances of classes. Java's syntax encourages the creation of classes, thus we expect substantial Java projects to define many domain-specific types. Additionally, Java places the constraint that each source file must define one class. When writing or contributing to a project, the author's choice of which part of the program to edit will in turn affect what types they end up working with --- that is, it will affect the author's type coverage. Similarly, the set of files that an author works with affects that author's file coverage.
 
-To determine if type coverage yields different information than file coverage, we analyzed four open source Java projects: ANTLR4, Apache BookKeeper, Apache Curator and Apache Tika (Figure~\ref{tab:project-summary}). Three of the four projects were collected from the Apache foundation, as they host a large number of well-curated open source Java projects. We counted the file coverage and type coverage on a commit-by-commit basis for each author. That is, each datum represents a commit with three dimensions: file coverage, type coverage, and its commit date. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the statistics measured.
+To determine if type coverage yields different information than file coverage, we analyzed four open source Java projects: ANTLR4, Apache BookKeeper, Apache Curator and Apache Tika (Table~\ref{tab:project-summary}). Three of the four projects were collected from the Apache foundation, as they host a large number of well-curated open source Java projects. We counted the file coverage and type coverage on a commit-by-commit basis for each author. That is, each datum represents a commit with three dimensions: file coverage, type coverage, and its commit date. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the statistics measured.
 
 We displayed the density distributions for two different projects: ANTLR4 (Figure~\ref{fig:antlr4-density}) and Apache Tika (Figure~\ref{fig:tika-density}). These plots show the distribution of the amount of commits that have X\% of type and file coverage. For example, Figure~\ref{fig:tika-density} shows that there are many commits with 50\% type coverage and while there are relatively few commits with 50\% file coverage. This shows that even though the type and file coverage plots may have a similar shape, the commits are showing different levels of information. 
 
@@ -312,7 +312,7 @@ The methodology used in TypeV is only well-defined for statically-typed language
 
 \section{Conclusion}
 
-In this paper, we introduced TypeV, a code repository analysis and visualization tool. Using commit-by-commit abstract syntax tree differencing enables insightful visualization that is not captured by tools that use commit counts, line counts, or file changes alone. In this paper, we addressed the following research questions:
+In this paper, we introduced TypeV, a code repository analysis and visualization tool. Using commit-by-commit abstract syntax tree differencing enables insightful visualizations that are not captured by tools that use commit counts, line counts, or file changes alone. In this paper, we addressed the following research questions:
 
 \textbf{RQ1:} How can we extract type and method usage from repositories over time?
 
