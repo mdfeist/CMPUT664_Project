@@ -187,8 +187,6 @@ By adding interaction, the user is able to explore the timeline to find the spec
 \section{Evaluation}
 \label{sec:eval}
 
-% TODO: say all these other tools used file-based stuff:
-% gource, github, code_swarm, others...?
 
 \begin{table}[t]
 \renewcommand{\arraystretch}{1.3}
@@ -229,20 +227,24 @@ Tika & $0.653$ & 0.955 & 0.998\\
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\columnwidth]{antlr-density}
-\caption{Density plot of type and file coverage for commits. The graph shows what percentage of type and file coverage the majority of commits have. One can see that the majority of commits have a type and file coverage around 0\% to 20\%. We can also see a difference between these measurements on the higher end of the graph. File coverage seems to have a group of commits that had a file coverage between 20\% and 50\% whereas type coverage have a similar looking grouping but between 40\% and 60\%.\label{fig:antlr4-density}}
+\caption{R density plot of type and file coverage for commits. The graph shows what percentage of type and file coverage the majority of commits have. One can see that the majority of commits have a type and file coverage around 0\% to 20\%. We can also see a difference between these measurements on the higher end of the graph. File coverage seems to have a group of commits that had a file coverage between 20\% and 50\% whereas type coverage have a similar looking grouping but between 40\% and 60\%.\label{fig:antlr4-density}}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\columnwidth]{tika-density}
-\caption{Density of type and file coverage for commits. Here we can see that commits did not have much file coverage between 25\% and 75\%. On the other hand there were a lot of commits that have type coverage around 50\%.\label{fig:tika-density}}
+\caption{R density plot of type and file coverage for commits. Here we can see that commits did not have much file coverage between 25\% and 75\%. On the other hand there were a lot of commits that have type coverage around 50\%.\label{fig:tika-density}}
 \end{figure}
+
+% TODO: discuss density graphs more
 
 \textbf{RQ2}: Is it worth the effort of computing commit-by-commit AST differences if we can simply count changes to files? We will answer this question by comparing type coverage and file coverage. We define \emph{type coverage} as the number of types that have been touched out of the total number of types during either a certain time period or the entire project. \emph{File coverage} is the same measurement, but using the number of source files touched instead. File coverage can be trivially determined from an author's commit history. Type coverage, however, is uniquely provided by AST differencing, as we have described.
 
 In Java, a type can be primitive, provided by the language itself, or an object reference. Primitive types are those that are built into the language such as an \texttt{int} or \texttt{char}. Object references point to instances of classes. Java's syntax encourages the creation of classes, thus we expect substantial Java projects to define many domain-specific types. Additionally, Java places the constraint that each source file must define one class. When writing or contributing to a project, the author's choice of which part of the program to edit will in turn affect what types they end up working with --- that is, it will affect the author's type coverage. Similarly, the set of files that an author works with affects that author's file coverage.
 
-To determine if type coverage yields different information than file coverage, we analyzed four open source Java projects: ANTLR4, Apache BookKeeper, Apache Curator and Apache Tika (Table~\ref{tab:project-summary}). Three of the four projects were collected from the Apache foundation, as they host a large number of well-curated open source Java projects. We counted the file coverage and type coverage on a commit-by-commit basis for each author. That is, each datum represents a commit with three dimensions: file coverage, type coverage, and its commit date. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the statistics measured.
+% Discuss "well-curated"
+
+To determine if type coverage yields different information than file coverage, we analyzed four open source Java projects: ANTLR4, Apache BookKeeper, Apache Curator and Apache Tika (Table~\ref{tab:project-summary}). We chose ANTLR4 because it is a large Java project with a rich history of commits. ANTLR4 is also a member of the Qualitas Corpus~\cite{qualitas}, a curated collection of Java systems curated for empirical software engineering research. We then collected three smaller projects from the Apache foundation, as they host a large number of well-curated open source Java projects. These particular Apache projects were chosen for their clear development practices and available documentation. We counted the file coverage and type coverage on a commit-by-commit basis for each author. That is, each datum represents a commit with three dimensions: file coverage, type coverage, and its commit date. Data is sorted in ascending order of commit date. Table~\ref{tab:summary} lists a summary of the statistics measured.
 
 We displayed the density distributions for two different projects: ANTLR4 (Figure~\ref{fig:antlr4-density}) and Apache Tika (Figure~\ref{fig:tika-density}). These plots show the distribution of the amount of commits that have X\% of type and file coverage. For example, Figure~\ref{fig:tika-density} shows that there are many commits with 50\% type coverage and while there are relatively few commits with 50\% file coverage. This shows that even though the type and file coverage plots may have a similar shape, the commits are showing different levels of information. 
 
@@ -290,9 +292,15 @@ Apache Bookkeeper deprecated the method Abstract\-Configuration.\-get\-Ledger\-M
 
 \section{Discussion}
 
-Having semantically aware evolutionary visualizations also gives users who are unfamiliar with the project at-a-glance information on the evolution of the project.
+
+% Discuss user study
 
 Having tools for analyzing repositories based on type usage and method invocation benefits many parts of the software development process. Software managers require a high level understanding of the state of a repository and the changes being made which affect the functionality of the software. Tracking developer contributions in a less misleading way is also important for management since important contributions may be small and focused, but nevertheless, significant. Line differences only provide meaningful information when they are analyzed by someone with familiarity with the source code being changed. Providing tools which bring more meaning than line differences would allow people less familiar with the code to understand changes being made. When large changes are made that cover many aspects of a project, it is more useful to see how the change affects the software rather than noting that several thousands of lines have changed. Seeing how a project has changed over time is also vital for management since evaluating the state of completion of software can be very difficult.
+
+% Discuss viz design in comparison to code_swarm
+
+The timeline visualization presented in this paper (Section~\ref{sec:viz}) is intended to be a practical tool that enables a software developer's investigation of a project's evolution. Our timeline view can be seen as an evolution of simple visualizations such as GitHub's code frequency~\cite{github-graphs}. GitHub's graph is static, however it allows one to see an entire project's history at a glance. TypeV improves this by enabling one to see a particular \emph{type's} history at a glance. Given the greater density of information available, we made our timeline interactive such that a user is able to drill-down and explore the data at their own pace. Using interaction, TypeV not only shows what types have changed in project, but makes it possible to see \emph{why} a type has changed. We believe conventionality is a strong point in a developer's goal to make interesting discoveries in a project's evolution, but this has to be confirmed in user studies.
+
 
 Bug triaging for large open source projects is a very time consuming task~\cite{badashian2015}, with hundreds  of bugs being reported daily. Each bug must be processed and assigned to a developer that has the experience required to fix the bug. In order to be effective, the triager has to have knowledge of what each developer has worked on as well as the parts of the code that may be affected by the bugs. With TypeV, the triager is able to directly see what types a developer has worked with over time. This is important information for triaging since the type causing the bug, if known, will have a list of associated developers who have recently used that type and can be assigned the bug. The commit messages for the affected types are also visible, providing greater context about how the type has been used. The assigned developer can also use type information to locate other pieces of code affected by a bug and know which developers have been using the affected types.
 
@@ -309,6 +317,8 @@ An external threat to validity is the limited number of projects used in the val
 \subsection{Future work}
 
 The methodology used in TypeV is only well-defined for statically-typed languages such as Haskell or Java; it is not well defined for dynamically-typed languages such as Erlang or JavaScript. However, type annotation systems such as TypEr for Erlang~\cite{typer} or statically-typed language dialects such as TypeScript for JavaScript may prove to be sufficient to enable type analysis as we have demonstrated for Java.
+
+A weakness of the timeline view described in this paper is that details about an author's activities are buried. As future work, the data extracted by TypeV can be used to create a visualization similar to Gource~\cite{gource} or code\_swarm~\cite{codeswarm}. These visualizations animate authors scurrying back-and-forth over files they edit; we proposed to animate authors' activities over types. The focal point would be a particular type or group of types. The type itself may be represented abstractly as a shape or its UML representation that grows and shrinks as its usage increases and wanes over time.
 
 \section{Conclusion}
 
@@ -336,6 +346,14 @@ The evolution of a project and developer activity can be seen through the change
 \end{framed}
 
 Although calculating ASTs can be expensive, it is not computationally infeasible, and we benefit from semantically-aware code evolution visualizations that can be used to gain better insight into our software.
+
+% Acknowledgments
+
+\section*{Acknowledgments}
+
+The authors are grateful to the reviewers for their helpful suggestions on improving this work.
+
+% TODO: acknowledge Craig?
 
 % === Below this line ===
 % bibliography
