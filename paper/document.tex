@@ -25,7 +25,7 @@ What is a developer's contribution to a repository? By only counting commits and
 
 \section{Introduction}
 
-Visualizations can assist our understanding of a software repository. The history of a code base is often tracked in a version control system such as Git or SVN. Popular source code repository hosting websites such as GitHub~\cite{github-graphs} and BitBucket~\cite{bitbucket-graphs} often provide a way to visualize project evolution. These visualizations often show changes to lines of code, as line changes are what the underlying version control system tracks. The advantage of visualizing line changes is that it works for any text-based file. There is a major disadvantage, however: by only visualizing changes to lines of code, GitHub (Figure~\ref{fig:GH_code_freq}) and similar visualizations lose the \emph{meaning} behind those changes. Although a programmer may type individual characters into their text editor, the lines of code represent something much deeper. A Java programmer, for instance, writes lines of code with the \emph{intent} of creating packages, defining classes, declaring fields, and implementing methods. An author commits lines of code to implement features, write tests, fix bugs, and refactor code bases. Lines of code merely tell us that changes were made; not the \emph{reason} for the changes. 
+Visualizations can assist our understanding of a software repository. Popular source code repository hosting websites such as GitHub~\cite{github-graphs} and BitBucket~\cite{bitbucket-graphs} often provide a way to visualize project evolution. These visualizations often show changes to lines of code, as line changes are what the underlying version control system tracks. The advantage of visualizing line changes is that it works for any text-based file. There is a major disadvantage, however: by only visualizing changes to lines of code, GitHub (Figure~\ref{fig:GH_code_freq}) and similar visualizations lose the \emph{meaning} behind those changes. Although a programmer may type individual characters into their text editor, the lines of code represent something much deeper. A Java programmer, for instance, writes lines of code with the \emph{intent} of creating packages, defining classes, declaring fields, and implementing methods. An author commits lines of code to implement features, write tests, fix bugs, and refactor code bases. Lines of code merely tell us that changes were made; not the \emph{reason} for the changes. 
 
 To address the lack of semantically-aware visualizations we created \textbf{TypeV}. Instead of visualization changes to lines of code, we visualize changes to type usages and invocations. By using types instead of lines of code, our visualization can better answer the high-level questions programmers often ask~\cite{sillito2006}. TypeV is composed of two parts: a data extraction application that performs commit-by-commit AST differencing to extract type changes; and an interactive web visualization that allows for the exploration of a project's evolution. Using TypeV, we seek to answer the following research questions:
   \\ \\
@@ -128,7 +128,7 @@ We deliberately chose to ignore merge commits. A merge commit has two cases to c
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{data-extracted}
-\caption{Hierarchy of data extracted by TypeV. Each repository may have zero or more commits; each commit may have zero or more changed files; each changed files may have zero or more changes, as computed by our AST differencing tool.}
+\caption{Hierarchy of data extracted by TypeV. Each repository may have zero or more commits; each commit may have zero or more changed files; each changed file may have zero or more changes, as computed by our AST differencing tool.}
 \label{fig:data-extracted}
 \end{figure}
 
@@ -240,7 +240,7 @@ Tika & $0.653$ & 0.955 & 0.998\\
 
 \textbf{RQ2}: Is it worth the effort of computing commit-by-commit AST differences if we can simply count changes to files? We will answer this question by comparing type coverage and file coverage. We define \emph{type coverage} as the number of types that have been touched out of the total number of types during either a certain time period or the entire project. \emph{File coverage} is the same measurement, but using the number of source files touched instead. File coverage can be trivially determined from an author's commit history. Type coverage, however, is uniquely provided by AST differencing, as we have described.
 
-In Java, a type can be primitive, provided by the language itself, or an object reference. Primitive types are those that are built into the language such as an \texttt{int} or \texttt{char}. Object references point to instances of classes. Java's syntax encourages the creation of classes, thus we expect substantial Java projects to define many domain-specific types. Additionally, Java places the constraint that each source file must define one class. When writing or contributing to a project, the author's choice of which part of the program to edit will in turn affect what types they end up working with --- that is, it will affect the author's type coverage. Similarly, the set of files that an author works with affects that author's file coverage.
+Java's syntax encourages the creation of classes, thus we expect substantial Java projects to define many domain-specific types. Additionally, Java places the constraint that each source file must define one class. When writing or contributing to a project, the author's choice of which part of the program to edit will in turn affect what types they end up working with --- that is, it will affect the author's type coverage. Similarly, the set of files that an author works with affects that author's file coverage.
 
 % Discuss "well-curated"
 
@@ -302,11 +302,11 @@ TypeV can also be useful for bug triaging. Bug triaging for large open source pr
 
 \subsection{Threats to Validity}
 
-Internal threats to validity include our treatment of merge conflicts. As mentioned before, we ignore all merges, so if there is a merge conflict, it is possible that a developer makes non-trivial changes. Changes made during merge conflict resolution are missed by TypeV. We have made the assumptions that if this case happens, the changes are minor.
-
-In addition, the author statistics given in Table~\ref{tab:project-summary} was calculated after manual author merging. We are not personally familiar with the project, let alone the authors collaborating on the project. Therefore, our efforts to manually merge authors may have been erroneous.
+Internal threats to validity include our treatment of merge conflicts. As mentioned in section~\ref{sec:methodology}, we ignore all merges, so if there is a merge conflict, it is possible that a developer made non-trivial changes. Changes made during merge conflict resolution are missed by TypeV. We have made the assumptions that if this case happens, the changes are minor.
 
 Some actions in Git present a problem gathering the statistics. Authors can pull other projects into the repository and these additions will count towards the author's changes. These will show up as massive changes by a single author with many types that they did not actually create. Changes of this size are visible in the graph and can be found by inspecting the commit messages.
+
+In addition, the author statistics given in Table~\ref{tab:project-summary} was calculated after manual author merging. We are not personally familiar with the project, let alone the authors collaborating on the project. Therefore, our efforts to manually merge authors may have been erroneous.
 
 An external threat to validity is the limited number of projects used in the validation. We picked curated projects that had a long development cycle and looked into some case studies. However, because of the limited number of projects we observed, our conclusions may not hold for the majority of software projects.
 
@@ -316,7 +316,7 @@ A user study is needed to test the usefulness of TypeV. Some questions that need
 
 The methodology used in TypeV is only well-defined for statically-typed languages such as Haskell or Java; it is not well defined for dynamically-typed languages such as Erlang or JavaScript. However, type annotation systems such as TypEr for Erlang~\cite{typer} or statically-typed language dialects such as TypeScript for JavaScript may prove to be sufficient to enable type analysis as we have demonstrated for Java.
 
-A weakness of the timeline view described in this paper is that details about an author's activities are buried. As future work, the data extracted by TypeV can be used to create a visualization similar to Gource~\cite{gource} or code\_swarm~\cite{codeswarm}. These visualizations animate authors scurrying back-and-forth over files they edit; we proposed to animate authors' activities over types. The focal point would be a particular type or group of types. The type itself may be represented abstractly as a shape or its UML representation that grows and shrinks as its usage increases and wanes over time.
+A weakness of the timeline view described in this paper is that details about an author's activities are buried. As future work, the data extracted by TypeV can be used to create a visualization similar to Gource~\cite{gource} or code\_swarm~\cite{codeswarm}. These visualizations animate authors moving back-and-forth over files they edit; we proposed to animate authors' activities over \emph{types}. The focal point would be a particular type. The type itself may be represented abstractly as a shape or its UML representation that grows and shrinks as its usage increases and wanes over time.
 
 \section{Conclusion}
 
@@ -347,9 +347,9 @@ Although calculating ASTs can be expensive, it is not computationally infeasible
 
 % Acknowledgments
 
-\section*{Acknowledgments}
+%\section*{Acknowledgments}
 
-The authors are grateful to the reviewers for their helpful suggestions on improving this work.
+%The authors are grateful to the reviewers for their helpful suggestions on improving this work.
 
 % TODO: acknowledge Craig?
 
