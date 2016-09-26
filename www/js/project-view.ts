@@ -279,6 +279,12 @@ function drawGraph(data: DataView, width: number) {
 
         info.append('br');
       });
+
+      /* Open the panel/scroll to panel. */
+      if ($('#stats').hasClass('collapse')) {
+        $('#toggle-stats').click();
+      }
+      location.href = '#stats';
     });
 
     /* Mouse over: Show and update cell info */
