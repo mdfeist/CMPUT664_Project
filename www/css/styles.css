@@ -43,3 +43,9 @@ a[href=''] {
 .author-configuration.disabled {
   opacity: 0.4;
 }
+
+/* Blur out sensitive information. */
+.sensitive {
+  filter: blur(4px);
+  cursor: default;
+}

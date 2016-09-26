@@ -52,7 +52,7 @@ export default class ManageAuthorsPanel {
     return (`
       <li>
       <div class="panel panel-default author-configuration ${controlDisabled ? 'disabled' : ''}">
-        <div class="panel-heading"> ${authorName} </div>
+        <div class="panel-heading"> ${id.name} &lt;<span class="sensitive">${id.email}</span>&gt; </div>
         <div class="panel-body">
           <label><input type="checkbox"
                         ${isEnabled ? 'checked' : ''}
