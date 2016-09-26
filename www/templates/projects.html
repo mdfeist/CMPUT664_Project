@@ -10,10 +10,16 @@
 
   </head>
   <body>
-    <div class="list-group">
-    {% for project in projects %}
-      <a href="/projects/{{ project.getDir() }}/" class="list-group-item">{{ project.getDir() }}</a>
-    {% endfor %}
-  </div>
+    <main class="container">
+      <header>
+        <h1> TypeV </h1>
+        <h2> Available Projects </h2>
+      </header>
+      <div class="list-group">
+      {% for project in projects %}
+        <a href="/projects/{{ project.getDir() }}/" class="list-group-item">{{ project.getDir() }}</a>
+      {% endfor %}
+      </div>
+    </main>
   </body>
 </html>

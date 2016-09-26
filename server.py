@@ -452,13 +452,7 @@ def send_fonts(path):
 
 @app.route('/')
 def root():
-    return redirect('/projects/')
-
-
-@app.route('/projects/')
-def dashboard():
     return render_template('projects.html', projects=projects)
-
 
 @app.route('/projects/<name>/')
 def show_project(name):
