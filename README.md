@@ -20,7 +20,7 @@ following:
 
 ### Web Application
 
- * Node 4.0+ 
+ * Node 4.0+
      - `typescript` and `typings` (`npm install -g typescript typings`)
 
 ### Installing the AST Diff
